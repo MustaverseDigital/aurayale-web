@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Gamepad2, Check } from "lucide-react"
+import { Gamepad2, Check, Book } from "lucide-react"
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 
@@ -55,26 +55,45 @@ export default function DeckManager() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex flex-col">
+    
+    <div className="min-h-screen  text-white flex flex-col ">
+      {/* Login */}
+    <section className="Connect fixed w-full h-full bgImg z-2  ">
+      <div className="bgImgLogin w-full  h-full absolute -bottom-20"></div>
+      <div className="bgDark"></div>
+      <div className="absolute w-full left-0 top-15 z-2 flex justify-center flex-wrap">
+        <div className="w-full flex justify-center ">
+          <img src="/img/logo.png" alt="" width="256px"/>
+        </div>
+        <div className="w-full flex justify-center ">
+          <img src="/img/logo2.png" alt="" width="128px"/>
+        </div>
+      </div>
+      <div className="absolute bottom-10 w-full flex justify-center">
+        <ConnectButton/>
+      </div>
+      
+    </section>
+
       {/* Navbar */}
-      <nav className="bg-gray-800 border-b border-gray-700 p-4 flex items-center justify-between">
+      <nav className="p-4 py-2 flex items-center justify-between shadow-xs shadow-stone-800 ">
         <div className="flex items-center gap-2">
-          <Gamepad2 className="w-8 h-8 text-blue-400" />
-          <span className="text-xl font-bold">CardGame</span>
+          <img src="/img/logo.png" alt="" width="126px"/>
         </div>
         <ConnectButton />
       </nav>
 
       {/* Current Deck Section */}
-      <section className="p-4 border-b border-gray-700">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Current Deck</h2>
-          <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
+      <section className="p-4">
+        <div className="flex items-center justify-between -mb-5">
+          <h2 className="text-lg font-semibold p-1 ml-2 px-3 rounded-md bg-gold-r bg-title-deck text-shadow-md">Current Deck</h2>
+          <span className="inline-flex items-center rounded-full border px-2.5 py-1 mr-2 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-md bg-gold-r">
+            <Book className="w-4 h-4 mr-1 text-shadow-md" />
             {mockCurrentDeck.length}/10
           </span>
         </div>
 
-        <div className="grid grid-cols-5 gap-2">
+        <div className="grid grid-cols-5 gap-2 p-2  pt-8 bg-deck rounded-xl">
           {Array.from({ length: 10 }).map((_, index) => {
             const cardId = mockCurrentDeck[index]
             const card = cardId ? mockGems.find((g) => g.id === cardId) : null
@@ -82,15 +101,18 @@ export default function DeckManager() {
             return (
               <div
                 key={index}
-                className="aspect-[3/4] bg-gray-800 border border-gray-600 rounded-lg flex items-center justify-center"
+                className=""
               >
+                
                 {card ? (
-                  <div className="text-center p-1">
-                    <div className="text-xs font-medium truncate">{card.name}</div>
-                    <div className={`text-xs px-1 rounded mt-1 ${getRarityColor(card.rarity)}`}>{card.rarity}</div>
+                  <div className="bg-card bg-card-12 aspect-[3/4] flex items-center shadow-lg">
+                    <div className="text-center p-1">
+                      <div className="text-xs font-medium truncate hidden">{card.name}</div>
+                      <div className={`text-xs px-1 rounded mt-1 ${getRarityColor(card.rarity)}`} hidden>{card.rarity}</div>
+                    </div>
                   </div>
                 ) : (
-                  <div className="text-gray-500 text-xs">Empty</div>
+                  <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">+</div>
                 )}
               </div>
             )
@@ -99,8 +121,8 @@ export default function DeckManager() {
       </section>
 
       {/* Card Selection Section */}
-      <section className="flex-1 p-4">
-        <div className="flex items-center justify-between mb-4">
+      <section className="px-4 pt-0 pb-20 conetnt">
+        <div className="flex items-center justify-between mb-4 hidden">
           <h2 className="text-lg font-semibold">Your Cards</h2>
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-secondary text-secondary-foreground">
@@ -123,10 +145,10 @@ export default function DeckManager() {
             return (
               <div
                 key={gem.id}
-                className={`rounded-lg border bg-card text-card-foreground shadow-sm cursor-pointer transition-all duration-200 ${isSelected
+                className={`rounded-lg bg-card bg-card-block text-card-foreground shadow-sm cursor-pointer transition-all duration-200 ${isSelected
                   ? "ring-2 ring-blue-400 bg-blue-900/20"
                   : isInDeck
-                    ? "ring-2 ring-green-400 bg-green-900/20"
+                    ? "InDeck"
                     : "bg-gray-800 hover:bg-gray-700"
                   } ${selectedCards.length >= 10 && !isSelected ? "opacity-50 cursor-not-allowed" : ""}`}
                 onClick={() => {
@@ -135,28 +157,25 @@ export default function DeckManager() {
                   }
                 }}
               >
-                <div className="p-3 flex flex-col space-y-1.5">
-                  <div className="aspect-[3/4] bg-gray-700 rounded mb-2 flex items-center justify-center">
-                    <div className="text-gray-400 text-xs">Card Image</div>
+                <div className="p-2  flex flex-col space-y-1.5 relative overflow-hidden">
+                  <div className="aspect-[3/4] bg-card bg-card-1 rounded mb-2 flex items-center justify-center ">
                   </div>
 
-                  <div className="space-y-1">
-                    <h3 className="text-sm font-medium truncate">{gem.name}</h3>
-                    <div className={`text-xs px-2 py-1 rounded text-center ${getRarityColor(gem.rarity)}`}>
+                  <div className="space-y-1 ">
+                    <h3 className="text-sm font-medium truncate hidden">{gem.name}</h3>
+                    <h3 className="px-2 text-sm">{gem.effect} Effect + 10</h3>
+                    <div className={`text-xs px-2 py-1 rounded text-center hidden ${getRarityColor(gem.rarity)}`}>
                       {gem.rarity}
                     </div>
 
                     {isSelected && (
-                      <div className="flex items-center justify-center text-blue-400 text-xs">
-                        <Check className="w-3 h-3 mr-1" />
-                        Selected
+                      <div className="absolute top-0 left-0 w-full h-full border border-gold rounded-lg flex items-center justify-center text-blue-400 text-xs">
                       </div>
                     )}
 
                     {isInDeck && (
-                      <div className="flex items-center justify-center text-green-400 text-xs">
-                        <Check className="w-3 h-3 mr-1" />
-                        In Deck
+                      <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center text-green-400 bg-inDeck">
+                        <Check className="w-12 h-12 mb-8 text-shadow-md" />
                       </div>
                     )}
                   </div>
@@ -165,6 +184,11 @@ export default function DeckManager() {
             )
           })}
         </div>
+      </section>
+
+      {/* Battle Section */}
+      <section className="fixed flex justify-center  bottom-0 w-full p-2 backdrop-blur-md shadow-lg btnSection">
+          <button className="btn btn-battle p-2 px-8">Battle</button>
       </section>
     </div>
   )

@@ -11,3 +11,201 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 }
+
+body{
+  background-image: url('/img/bg.png');
+  background-size: cover;
+  background-color: #222;
+}
+.bgImg{
+  background-image: url('/img/bg.png');
+  background-size: cover;
+}
+.bgImgLogin{
+    background-image: url(/img/bgLogin.png);
+    background-size: cover;
+    background-position: top;
+    background-repeat: no-repeat;
+    height: calc(100vh - 120px);
+}
+.bgDark{
+  position: absolute;
+  bottom: 0;
+  height: 150px;
+  width: 100%;
+  background-image: linear-gradient( 180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%);
+}
+
+@keyframes scale {
+  0%{
+    transform: scale(1)
+  }
+  50%{
+    transform: scale(1.05)
+  }
+  100%{
+    transform: scale(1)
+  }
+}
+.bg-gold-r{
+  background-color: #bba16d;
+}
+.bg-card{
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.bg-deck{
+  background-color: rgb(148 139 114 / 30%);
+  box-shadow: inset 0px 0px 10px rgba(255, 255, 255, 0.2), 0px 2px 5px rgba(0, 0, 0, 0.5);
+  border-top: solid 1px #85866b;
+    border-bottom: solid 1px #49515c;
+      background-image: url('/img/pattern.jpg');
+      background-size: 64px;
+      background-position: center;
+}
+.bg-card-block{
+  background-color: #171e23;
+  box-shadow: inset 0px 0px 15px rgba(255, 255, 255, 0.1), 0px 2px 5px rgba(0, 0, 0, 0.5);
+    border-top: solid 1px #49515c;
+    border-bottom: solid 1px #49515c;
+}
+.bg-card-block.InDeck{
+    background-color: #372a0e;
+  box-shadow:inset 0px 0px 15px rgb(255 209 0 / 30%), 0px 2px 5px rgba(0, 0, 0, 0.5);
+}
+.bg-card-empty{
+  background-color: rgba(0,0,0,.5);
+  border-radius: 10px;
+}
+.bg-title-deck{
+  background-image: linear-gradient( 90deg, rgb(177,147,90) 0%, rgb(222, 174, 102) 100%);
+  box-shadow: 1.378px 4.806px 43px 0px rgba(189, 162, 107, 0.63),inset 0px 1px 1px 0px rgba(255, 255, 255, 0.6),inset 0px 1px 68px 0px rgba(255, 255, 255, 0.25);
+}
+
+.btn-battle{
+  background-image:  url('/img/btn.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.conetnt{
+  height: calc(100vh - 320px);
+  overflow-y: auto;
+}
+.btnSection{
+  background: rgba(255, 255, 255, 0.05);
+    box-shadow: inset 0px 0px 15px rgba(255, 255, 255, 0.1);
+    border-top: 1px solid #48505b;
+}
+.bg-inDeck{
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #ffe97a;
+
+}
+.border-gold{
+  border: solid 1px #bba16d;
+}
+
+.bg-card-1{
+  background-image: url('/img/001.png');
+
+}
+
+.bg-card-2{
+  background-image: url('/img/002.png');
+
+}
+.bg-card-3{
+  background-image: url('/img/003.png');
+
+}
+.bg-card-4{
+  background-image: url('/img/004.png');
+
+}
+.bg-card-5{
+  background-image: url('/img/005.png');
+
+}
+.bg-card-6{
+  background-image: url('/img/006.png');
+
+}
+.bg-card-7{
+  background-image: url('/img/007.png');
+
+}
+.bg-card-8{
+  background-image: url('/img/008.png');
+
+}
+.bg-card-9{
+  background-image: url('/img/009.png');
+
+}
+.bg-card-10{
+  background-image: url('/img/010.png');
+
+}
+.bg-card-11{
+  background-image: url('/img/011.png');
+
+}
+.bg-card-12{
+  background-image: url('/img/012.png');
+
+}
+.bg-card-13{
+  background-image: url('/img/013.png');
+
+}
+.bg-card-14{
+  background-image: url('/img/014.png');
+
+}
+.bg-card-15{
+  background-image: url('/img/015.png');
+
+}
+.bg-card-16{
+  background-image: url('/img/016.png');
+
+}
+.bg-card-17{
+  background-image: url('/img/017.png');
+
+}
+.bg-card-18{
+  background-image: url('/img/018.png');
+
+}
+.bg-card-19{
+  background-image: url('/img/019.png');
+
+}
+.bg-card-20{
+  background-image: url('/img/020.png');
+
+}
+.bg-card-21{
+  background-image: url('/img/021.png');
+
+}
+.bg-card-22{
+  background-image: url('/img/022.png');
+
+}
+.bg-card-23{
+  background-image: url('/img/023.png');
+
+}
+.bg-card-24{
+  background-image: url('/img/024.png');
+
+}
+.bg-card-25{
+  background-image: url('/img/025.png');
+
+}
