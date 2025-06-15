@@ -1,10 +1,18 @@
 "use client"
 
 import { useState } from "react"
-import { Gamepad2, Check, Book } from "lucide-react"
+import { Gamepad2, Check } from "lucide-react"
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
 
+import {
+  getNonce as apiGetNonce,
+  signAndLogin as apiSignAndLogin,
+  getUserGems as apiGetUserGems,
+  getUserDeck as apiGetUserDeck,
+  editGemDeck as apiEditGemDeck,
+  GemItem,
+} from "../api/auraServer"
 
 // Mock data for demonstration
 const mockGems = [
@@ -25,8 +33,13 @@ const mockGems = [
 const mockCurrentDeck = [1, 2, 3, 4, 5, 6, 7, 8] // 8 cards in current deck
 
 export default function DeckManager() {
-  const [selectedCards, setSelectedCards] = useState<number[]>([])
   const { isConnected } = useAccount();
+  const [jwt, setJwt] = useState("")
+  const [gems, setGems] = useState<GemItem[]>([])
+  const [currentDeck, setCurrentDeck] = useState<number[]>([])
+  const [selectedCards, setSelectedCards] = useState<number[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
 
   // Toggle card selection (visual only)
   const toggleCardSelection = (cardId: number) => {
@@ -39,6 +52,22 @@ export default function DeckManager() {
       return prev
     })
   }
+
+  const handleUpdateDeck = async () => {
+    if (selectedCards.length !== 10) return
+    setLoading(true)
+    setError("")
+    try {
+      const newDeck = await apiEditGemDeck(jwt, selectedCards)
+      setCurrentDeck(newDeck)
+      setSelectedCards([])
+    } catch (e: any) {
+      setError(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
 
   // Get rarity color
   const getRarityColor = (rarity: string) => {
@@ -84,33 +113,29 @@ export default function DeckManager() {
         <ConnectButton />
       </nav>
 
+      {error && (
+        <div className="p-4 bg-red-800 text-red-200">{error}</div>
+      )}
+
       {/* Current Deck Section */}
-      <section className="p-4">
-        <div className="flex items-center justify-between -mb-5">
-          <h2 className="text-lg font-semibold p-1 ml-2 px-3 rounded-md bg-gold-r bg-title-deck text-shadow-md">Current Deck</h2>
-          <span className="inline-flex items-center rounded-full border px-2.5 py-1 mr-2 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-md bg-gold-r">
-            <Book className="w-4 h-4 mr-1 text-shadow-md" />
-            {mockCurrentDeck.length}/10
+      <section className="p-4 border-b border-gray-700">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold">Current Deck</h2>
+          <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
+            {currentDeck.length}/10
           </span>
         </div>
 
         <div className="grid grid-cols-5 gap-2 p-2  pt-8 bg-deck rounded-xl">
           {Array.from({ length: 10 }).map((_, index) => {
-            const cardId = mockCurrentDeck[index]
-            const card = cardId ? mockGems.find((g) => g.id === cardId) : null
-
+            const cardId = currentDeck[index]
+            const card = gems.find((g) => g.id === cardId)
             return (
-              <div
-                key={index}
-                className=""
-              >
-                
+              <div key={index} className="">
                 {card ? (
-                  <div className="bg-card bg-card-12 aspect-[3/4] flex items-center shadow-lg">
-                    <div className="text-center p-1">
-                      <div className="text-xs font-medium truncate hidden">{card.name}</div>
-                      <div className={`text-xs px-1 rounded mt-1 ${getRarityColor(card.rarity)}`} hidden>{card.rarity}</div>
-                    </div>
+                  <div className="text-center p-1">
+                    <div className="text-xs font-medium truncate">{card.metadata.name}</div>
+                    <div className={`text-xs px-1 rounded mt-1 ${getRarityColor('unknown')}`}>{'unknown'}</div>
                   </div>
                 ) : (
                   <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">+</div>
@@ -130,19 +155,22 @@ export default function DeckManager() {
               {selectedCards.length}/10 selected
             </span>
             {selectedCards.length === 10 && (
-              <button className="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-3 py-2 bg-green-600 hover:bg-green-700 text-white transition-colors">
+              <button
+                className="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-3 py-2 bg-green-600 hover:bg-green-700 text-white transition-colors"
+                onClick={handleUpdateDeck}
+                disabled={loading}
+              >
                 <Check className="w-4 h-4 mr-1" />
-                Update Deck
+                {loading ? "Updating..." : "Update Deck"}
               </button>
             )}
           </div>
         </div>
 
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-          {mockGems.map((gem) => {
+          {gems.map((gem) => {
             const isSelected = selectedCards.includes(gem.id)
-            const isInDeck = mockCurrentDeck.includes(gem.id)
-
+            const isInDeck = currentDeck.includes(gem.id)
             return (
               <div
                 key={gem.id}
@@ -159,21 +187,13 @@ export default function DeckManager() {
                 }}
               >
                 <div className="p-2  flex flex-col space-y-1.5 relative overflow-hidden">
-                  <div className="aspect-[3/4] bg-card bg-card-1 rounded mb-2 flex items-center justify-center ">
-                  </div>
-
-                  <div className="space-y-1 ">
-                    <h3 className="text-sm font-medium truncate hidden">{gem.name}</h3>
-                    <h3 className="px-2 text-sm">{gem.effect} Effect + 10</h3>
-                    <div className={`text-xs px-2 py-1 rounded text-center hidden ${getRarityColor(gem.rarity)}`}>
-                      {gem.rarity}
-                    </div>
-
+                  <div className="aspect-[3/4] bg-card bg-card-1 rounded mb-2 flex items-center justify-center "></div>
+                  <div className="space-y-1">
+                    <h3 className="text-sm font-medium truncate">{gem.metadata.name}</h3>
+                    <div className={`text-xs px-2 py-1 rounded text-center ${getRarityColor('unknown')}`}>{'unknown'}</div>
                     {isSelected && (
-                      <div className="absolute top-0 left-0 w-full h-full border border-gold rounded-lg flex items-center justify-center text-blue-400 text-xs">
-                      </div>
+                      <div className="absolute top-0 left-0 w-full h-full border border-gold rounded-lg flex items-center justify-center text-blue-400 text-xs"></div>
                     )}
-
                     {isInDeck && (
                       <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center text-green-400 bg-inDeck">
                         <Check className="w-12 h-12 mb-8 text-shadow-md" />
