@@ -160,15 +160,18 @@ export default function DeckManager() {
   });
 
   // 動態追蹤 devicePixelRatio，確保 Unity 畫面高解析度
-  const [devicePixelRatio, setDevicePixelRatio] = useState(window.devicePixelRatio);
+  const [devicePixelRatio, setDevicePixelRatio] = useState(1);
   useEffect(() => {
-    const updateDevicePixelRatio = () => setDevicePixelRatio(window.devicePixelRatio);
-    const mediaMatcher = window.matchMedia(`screen and (resolution: ${devicePixelRatio}dppx)`);
-    mediaMatcher.addEventListener("change", updateDevicePixelRatio);
-    return () => {
-      mediaMatcher.removeEventListener("change", updateDevicePixelRatio);
-    };
-  }, [devicePixelRatio]);
+    if (typeof window !== "undefined") {
+      setDevicePixelRatio(window.devicePixelRatio);
+      const updateDevicePixelRatio = () => setDevicePixelRatio(window.devicePixelRatio);
+      const mediaMatcher = window.matchMedia(`screen and (resolution: ${window.devicePixelRatio}dppx)`);
+      mediaMatcher.addEventListener("change", updateDevicePixelRatio);
+      return () => {
+        mediaMatcher.removeEventListener("change", updateDevicePixelRatio);
+      };
+    }
+  }, []);
 
   return (
     <div className="min-h-screen text-white flex flex-col ">
