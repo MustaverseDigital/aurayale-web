@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Gamepad2, Check, Book } from "lucide-react"
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useAccount } from 'wagmi';
 
 
 // Mock data for demonstration
@@ -25,6 +26,7 @@ const mockCurrentDeck = [1, 2, 3, 4, 5, 6, 7, 8] // 8 cards in current deck
 
 export default function DeckManager() {
   const [selectedCards, setSelectedCards] = useState<number[]>([])
+  const { isConnected } = useAccount();
 
   // Toggle card selection (visual only)
   const toggleCardSelection = (cardId: number) => {
@@ -58,22 +60,21 @@ export default function DeckManager() {
     
     <div className="min-h-screen  text-white flex flex-col ">
       {/* Login */}
-    <section className="Connect fixed w-full h-full bgImg z-2  ">
-      <div className="bgImgLogin w-full  h-full absolute -bottom-20"></div>
-      <div className="bgDark"></div>
-      <div className="absolute w-full left-0 top-15 z-2 flex justify-center flex-wrap">
-        <div className="w-full flex justify-center ">
-          <img src="/img/logo.png" alt="" width="256px"/>
+      <section className={`Connect fixed w-full h-full bgImg z-2  ${isConnected ? 'hidden' : ''}`}>
+        <div className="bgImgLogin w-full  h-full absolute -bottom-20"></div>
+        <div className="bgDark"></div>
+        <div className="absolute w-full left-0 top-15 z-2 flex justify-center flex-wrap">
+          <div className="w-full flex justify-center ">
+            <img src="/img/logo.png" alt="" width="256px"/>
+          </div>
+          <div className="w-full flex justify-center ">
+            <img src="/img/logo2.png" alt="" width="128px"/>
+          </div>
         </div>
-        <div className="w-full flex justify-center ">
-          <img src="/img/logo2.png" alt="" width="128px"/>
+        <div className="absolute bottom-10 w-full flex justify-center">
+          <ConnectButton/>
         </div>
-      </div>
-      <div className="absolute bottom-10 w-full flex justify-center">
-        <ConnectButton/>
-      </div>
-      
-    </section>
+      </section>
 
       {/* Navbar */}
       <nav className="p-4 py-2 flex items-center justify-between shadow-xs shadow-stone-800 ">
