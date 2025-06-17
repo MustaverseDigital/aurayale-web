@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Gamepad2, Check } from "lucide-react"
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
@@ -14,32 +14,93 @@ import {
   GemItem,
 } from "../api/auraServer"
 
-// Mock data for demonstration
-const mockGems = [
-  { id: 1, name: "Fire Crystal", rarity: "common" },
-  { id: 2, name: "Water Sapphire", rarity: "rare" },
-  { id: 3, name: "Earth Diamond", rarity: "epic" },
-  { id: 4, name: "Air Ruby", rarity: "legendary" },
-  { id: 5, name: "Lightning Opal", rarity: "rare" },
-  { id: 6, name: "Ice Emerald", rarity: "common" },
-  { id: 7, name: "Shadow Onyx", rarity: "epic" },
-  { id: 8, name: "Light Pearl", rarity: "legendary" },
-  { id: 9, name: "Nature Jade", rarity: "common" },
-  { id: 10, name: "Metal Platinum", rarity: "rare" },
-  { id: 11, name: "Void Obsidian", rarity: "epic" },
-  { id: 12, name: "Spirit Quartz", rarity: "common" },
-]
-
-const mockCurrentDeck = [1, 2, 3, 4, 5, 6, 7, 8] // 8 cards in current deck
-
 export default function DeckManager() {
-  const { isConnected } = useAccount();
+  const { address, isConnected } = useAccount();
   const [jwt, setJwt] = useState("")
   const [gems, setGems] = useState<GemItem[]>([])
   const [currentDeck, setCurrentDeck] = useState<number[]>([])
   const [selectedCards, setSelectedCards] = useState<number[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+
+  // 自動登入/登出流程
+  useEffect(() => {
+    const login = async () => {
+      setLoading(true)
+      setError("")
+      try {
+        if (!address) return
+        const nonce = await apiGetNonce()
+        // RainbowKit 只負責連接錢包，簽名流程可在這裡自動觸發
+        // 這裡用 window.ethereum 兼容所有錢包
+        const signature = await window.ethereum.request({ method: "personal_sign", params: [nonce, address] })
+        const { token } = await apiSignAndLogin(address, signature)
+        setJwt(token)
+        const gems = await apiGetUserGems(token)
+        setGems(gems)
+        const deck = await apiGetUserDeck(token)
+        setCurrentDeck(Array.isArray(deck) ? deck : [])
+      } catch (e: any) {
+        setError(e.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+    if (isConnected && address) {
+      login()
+    } else {
+      setJwt("")
+      setGems([])
+      setCurrentDeck([])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isConnected, address])
+
+  // 取得卡片
+  const handleGetGems = async () => {
+    if (!jwt) return
+    setLoading(true)
+    setError("")
+    try {
+      const gems = await apiGetUserGems(jwt)
+      setGems(gems)
+    } catch (e: any) {
+      setError(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // 取得牌組
+  const handleGetDeck = async () => {
+    if (!jwt) return
+    setLoading(true)
+    setError("")
+    try {
+      const deck = await apiGetUserDeck(jwt)
+      setCurrentDeck(Array.isArray(deck) ? deck : [])
+    } catch (e: any) {
+      setError(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // build 牌組
+  const handleUpdateDeck = async () => {
+    if (selectedCards.length !== 10) return
+    setLoading(true)
+    setError("")
+    try {
+      const newDeck = await apiEditGemDeck(jwt, selectedCards)
+      setCurrentDeck(Array.isArray(newDeck) ? newDeck : [])
+      setSelectedCards([])
+    } catch (e: any) {
+      setError(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   // Toggle card selection (visual only)
   const toggleCardSelection = (cardId: number) => {
@@ -53,25 +114,9 @@ export default function DeckManager() {
     })
   }
 
-  const handleUpdateDeck = async () => {
-    if (selectedCards.length !== 10) return
-    setLoading(true)
-    setError("")
-    try {
-      const newDeck = await apiEditGemDeck(jwt, selectedCards)
-      setCurrentDeck(newDeck)
-      setSelectedCards([])
-    } catch (e: any) {
-      setError(e.message)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-
   // Get rarity color
   const getRarityColor = (rarity: string) => {
-    switch (rarity.toLowerCase()) {
+    switch (rarity?.toLowerCase?.()) {
       case "common":
         return "bg-gray-500"
       case "rare":
@@ -86,29 +131,25 @@ export default function DeckManager() {
   }
 
   return (
-    
-    <div className="min-h-screen  text-white flex flex-col ">
-      {/* Login */}
-      <section className={`Connect fixed w-full h-full bgImg z-2  ${isConnected ? 'hidden' : ''}`}>
-        <div className="bgImgLogin w-full  h-full absolute -bottom-20"></div>
-        <div className="bgDark"></div>
-        <div className="absolute w-full left-0 top-15 z-2 flex justify-center flex-wrap">
-          <div className="w-full flex justify-center ">
-            <img src="/img/logo.png" alt="" width="256px"/>
+    <div className="min-h-screen text-white flex flex-col ">
+      {/* RainbowKit ConnectButton 取代所有登入/登出流程 */}
+      {!jwt && (
+        <section className="Connect fixed w-full h-full bgImg z-2 flex flex-col items-center justify-center">
+          <div className="bgImgLogin w-full h-full absolute -bottom-20"></div>
+          <div className="bgDark"></div>
+          <div className="z-2 flex flex-col items-center justify-center w-full">
+            <img src="/img/logo.png" alt="" width="256px" className="mb-4" />
+            <img src="/img/logo2.png" alt="" width="128px" className="mb-8" />
+            <ConnectButton />
+            {error && <div className="text-red-400 text-sm mt-4">{error}</div>}
           </div>
-          <div className="w-full flex justify-center ">
-            <img src="/img/logo2.png" alt="" width="128px"/>
-          </div>
-        </div>
-        <div className="absolute bottom-10 w-full flex justify-center">
-          <ConnectButton/>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Navbar */}
       <nav className="p-4 py-2 flex items-center justify-between shadow-xs shadow-stone-800 ">
         <div className="flex items-center gap-2">
-          <img src="/img/logo.png" alt="" width="126px"/>
+          <img src="/img/logo.png" alt="" width="126px" />
         </div>
         <ConnectButton />
       </nav>
@@ -124,9 +165,15 @@ export default function DeckManager() {
           <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
             {currentDeck.length}/10
           </span>
+          <button
+            className="ml-4 px-3 py-1 bg-gray-700 rounded text-xs"
+            onClick={handleGetDeck}
+            disabled={loading || !jwt}
+          >
+            重新取得牌組
+          </button>
         </div>
-
-        <div className="grid grid-cols-5 gap-2 p-2  pt-8 bg-deck rounded-xl">
+        <div className="grid grid-cols-5 gap-2 p-2 pt-8 bg-deck rounded-xl">
           {Array.from({ length: 10 }).map((_, index) => {
             const cardId = currentDeck[index]
             const card = gems.find((g) => g.id === cardId)
@@ -134,6 +181,7 @@ export default function DeckManager() {
               <div key={index} className="">
                 {card ? (
                   <div className="text-center p-1">
+                    <img src={`/img/${card.id.toString().padStart(3, '0')}.png`} alt={card.metadata.name} className="w-full aspect-[3/4] object-contain rounded mb-1" />
                     <div className="text-xs font-medium truncate">{card.metadata.name}</div>
                     <div className={`text-xs px-1 rounded mt-1 ${getRarityColor('unknown')}`}>{'unknown'}</div>
                   </div>
@@ -148,12 +196,19 @@ export default function DeckManager() {
 
       {/* Card Selection Section */}
       <section className="px-4 pt-0 pb-20 conetnt">
-        <div className="flex items-center justify-between mb-4 hidden">
-          <h2 className="text-lg font-semibold">Your Cards</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold">你的卡片</h2>
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-secondary text-secondary-foreground">
-              {selectedCards.length}/10 selected
+              {selectedCards.length}/10 已選
             </span>
+            <button
+              className="ml-2 px-3 py-1 bg-gray-700 rounded text-xs"
+              onClick={handleGetGems}
+              disabled={loading || !jwt}
+            >
+              重新取得卡片
+            </button>
             {selectedCards.length === 10 && (
               <button
                 className="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-3 py-2 bg-green-600 hover:bg-green-700 text-white transition-colors"
@@ -161,12 +216,11 @@ export default function DeckManager() {
                 disabled={loading}
               >
                 <Check className="w-4 h-4 mr-1" />
-                {loading ? "Updating..." : "Update Deck"}
+                {loading ? "更新中..." : "更新牌組"}
               </button>
             )}
           </div>
         </div>
-
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
           {gems.map((gem) => {
             const isSelected = selectedCards.includes(gem.id)
@@ -186,11 +240,12 @@ export default function DeckManager() {
                   }
                 }}
               >
-                <div className="p-2  flex flex-col space-y-1.5 relative overflow-hidden">
-                  <div className="aspect-[3/4] bg-card bg-card-1 rounded mb-2 flex items-center justify-center "></div>
+                <div className="p-2 flex flex-col space-y-1.5 relative overflow-hidden">
+                  <img src={`/img/${gem.id.toString().padStart(3, '0')}.png`} alt={gem.metadata.name} className="aspect-[3/4] bg-card bg-card-1 rounded mb-2 object-contain w-full" />
                   <div className="space-y-1">
                     <h3 className="text-sm font-medium truncate">{gem.metadata.name}</h3>
                     <div className={`text-xs px-2 py-1 rounded text-center ${getRarityColor('unknown')}`}>{'unknown'}</div>
+                    <div className="text-xs text-gray-400">數量: {gem.quantity}</div>
                     {isSelected && (
                       <div className="absolute top-0 left-0 w-full h-full border border-gold rounded-lg flex items-center justify-center text-blue-400 text-xs"></div>
                     )}
@@ -208,8 +263,8 @@ export default function DeckManager() {
       </section>
 
       {/* Battle Section */}
-      <section className="fixed flex justify-center  bottom-0 w-full p-2 backdrop-blur-md shadow-lg btnSection">
-          <button className="btn btn-battle p-2 px-8">Battle</button>
+      <section className="fixed flex justify-center bottom-0 w-full p-2 backdrop-blur-md shadow-lg btnSection">
+        <button className="btn btn-battle p-2 px-8">Battle</button>
       </section>
     </div>
   )
