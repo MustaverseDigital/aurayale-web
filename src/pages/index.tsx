@@ -134,14 +134,23 @@ export default function DeckManager() {
     <div className="min-h-screen text-white flex flex-col ">
       {/* RainbowKit ConnectButton 取代所有登入/登出流程 */}
       {!jwt && (
-        <section className="Connect fixed w-full h-full bgImg z-2 flex flex-col items-center justify-center">
+        <section className="Connect fixed w-full h-full bgImg z-2 flex flex-col">
           <div className="bgImgLogin w-full h-full absolute -bottom-20"></div>
           <div className="bgDark"></div>
-          <div className="z-2 flex flex-col items-center justify-center w-full">
-            <img src="/img/logo.png" alt="" width="256px" className="mb-4" />
-            <img src="/img/logo2.png" alt="" width="128px" className="mb-8" />
+          {/* Logo置頂 */}
+          <div className="w-full flex flex-col items-center pt-12 z-10">
+            <img src="/img/logo.png" alt="" width="256px" className="mb-2" />
+            <img src="/img/logo2.png" alt="" width="128px" className="mb-2" />
+          </div>
+          {/* Error置中 */}
+          {error && (
+            <div className="flex-1 flex items-center justify-center z-10">
+              <div className="text-red-400 text-sm bg-black/60 px-6 py-3 rounded-xl">{error}</div>
+            </div>
+          )}
+          {/* ConnectButton置底 */}
+          <div className="w-full flex justify-center items-end pb-16 z-10 mt-auto">
             <ConnectButton />
-            {error && <div className="text-red-400 text-sm mt-4">{error}</div>}
           </div>
         </section>
       )}
