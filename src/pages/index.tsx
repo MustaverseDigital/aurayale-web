@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Gamepad2, Check } from "lucide-react"
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
@@ -22,6 +22,14 @@ export default function DeckManager() {
   const [selectedCards, setSelectedCards] = useState<number[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+
+  // 背景音樂音量控制
+  const audioRef = useRef<HTMLAudioElement>(null)
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = 0.2
+    }
+  }, [])
 
   // 自動登入/登出流程
   useEffect(() => {
@@ -132,6 +140,8 @@ export default function DeckManager() {
 
   return (
     <div className="min-h-screen text-white flex flex-col ">
+      {/* 背景音樂 */}
+      <audio ref={audioRef} src="/img/bgm/bgm.mp3" autoPlay loop hidden />
       {/* RainbowKit ConnectButton 取代所有登入/登出流程 */}
       {!jwt && (
         <section className="Connect fixed w-full h-full bgImg z-2 flex flex-col">
