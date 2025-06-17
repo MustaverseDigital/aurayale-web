@@ -189,7 +189,7 @@ export default function DeckManager() {
             onClick={handleGetDeck}
             disabled={loading || !jwt}
           >
-            重新取得牌組
+            Refresh Deck
           </button>
         </div>
         <div className="grid grid-cols-5 gap-2 p-2 pt-8 bg-deck rounded-xl">
@@ -210,11 +210,10 @@ export default function DeckManager() {
                         setSelectedCards((prev) => prev.filter((id, i) => i !== index))
                       }
                     }}
-                    title={useSelected ? '點擊移除' : ''}
+                    title={useSelected ? 'Click to remove' : ''}
                   >
                     <img src={`/img/${card.id.toString().padStart(3, '0')}.png`} alt={card.metadata.name} className="w-full aspect-[3/4] object-contain rounded mb-1" />
                     <div className="text-xs font-medium truncate">{card.metadata.name}</div>
-                    <div className={`text-xs px-1 rounded mt-1 ${getRarityColor('unknown')}`}>{'unknown'}</div>
                   </div>
                 ) : (
                   <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">+</div>
@@ -228,17 +227,17 @@ export default function DeckManager() {
       {/* Card Selection Section */}
       <section className="px-4 pt-0 pb-20 conetnt">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">你的卡片</h2>
+          <h2 className="text-lg font-semibold">Your Cards</h2>
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-secondary text-secondary-foreground">
-              {selectedCards.length}/10 已選
+              {selectedCards.length}/10 Selected
             </span>
             <button
               className="ml-2 px-3 py-1 bg-gray-700 rounded text-xs"
               onClick={handleGetGems}
               disabled={loading || !jwt}
             >
-              重新取得卡片
+              Refresh Cards
             </button>
             {selectedCards.length === 10 && (
               <button
@@ -247,7 +246,7 @@ export default function DeckManager() {
                 disabled={loading}
               >
                 <Check className="w-4 h-4 mr-1" />
-                {loading ? "更新中..." : "更新牌組"}
+                {loading ? "Updating..." : "Update Deck"}
               </button>
             )}
           </div>
@@ -280,8 +279,7 @@ export default function DeckManager() {
                   <img src={`/img/${gem.id.toString().padStart(3, '0')}.png`} alt={gem.metadata.name} className="aspect-[3/4] bg-card bg-card-1 rounded mb-2 object-contain w-full" />
                   <div className="space-y-1">
                     <h3 className="text-sm font-medium truncate">{gem.metadata.name}</h3>
-                    <div className={`text-xs px-2 py-1 rounded text-center ${getRarityColor('unknown')}`}>{'unknown'}</div>
-                    <div className="text-xs text-gray-400">數量: {gem.quantity}</div>
+                    <div className="text-xs text-gray-400">Quantity: {gem.quantity}</div>
                     {isSelected && (
                       <div className="absolute top-0 left-0 w-full h-full border border-gold rounded-lg flex items-center justify-center text-blue-400 text-xs"></div>
                     )}
