@@ -203,7 +203,10 @@ export default function DeckManager() {
                   <div
                     className={`text-center p-1 ${useSelected ? 'cursor-pointer hover:opacity-70' : ''}`}
                     onClick={() => {
-                      if (useSelected) {
+                      if (selectedCards.length === 0) {
+                        setSelectedCards(currentDeck.length ? [...currentDeck] : [])
+                        setTimeout(() => toggleCardSelection(cardId), 0)
+                      } else if (useSelected) {
                         setSelectedCards((prev) => prev.filter((id, i) => i !== index))
                       }
                     }}
@@ -264,7 +267,12 @@ export default function DeckManager() {
                   } ${selectedCards.length >= 10 && !isSelected ? "opacity-50 cursor-not-allowed" : ""}`}
                 onClick={() => {
                   if (!isInDeck && (selectedCards.length < 10 || isSelected)) {
-                    toggleCardSelection(gem.id)
+                    if (selectedCards.length === 0) {
+                      setSelectedCards(currentDeck.length ? [...currentDeck] : [])
+                      setTimeout(() => toggleCardSelection(gem.id), 0)
+                    } else {
+                      toggleCardSelection(gem.id)
+                    }
                   }
                 }}
               >
