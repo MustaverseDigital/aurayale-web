@@ -182,7 +182,7 @@ export default function DeckManager() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Current Deck</h2>
           <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
-            {currentDeck.length}/10
+            {(selectedCards.length > 0 ? selectedCards.length : currentDeck.length)}/10
           </span>
           <button
             className="ml-4 px-3 py-1 bg-gray-700 rounded text-xs"
@@ -194,7 +194,8 @@ export default function DeckManager() {
         </div>
         <div className="grid grid-cols-5 gap-2 p-2 pt-8 bg-deck rounded-xl">
           {Array.from({ length: 10 }).map((_, index) => {
-            const cardId = currentDeck[index]
+            const useSelected = selectedCards.length > 0
+            const cardId = useSelected ? selectedCards[index] : currentDeck[index]
             const card = gems.find((g) => g.id === cardId)
             return (
               <div key={index} className="">
