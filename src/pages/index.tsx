@@ -200,7 +200,15 @@ export default function DeckManager() {
             return (
               <div key={index} className="">
                 {card ? (
-                  <div className="text-center p-1">
+                  <div
+                    className={`text-center p-1 ${useSelected ? 'cursor-pointer hover:opacity-70' : ''}`}
+                    onClick={() => {
+                      if (useSelected) {
+                        setSelectedCards((prev) => prev.filter((id, i) => i !== index))
+                      }
+                    }}
+                    title={useSelected ? '點擊移除' : ''}
+                  >
                     <img src={`/img/${card.id.toString().padStart(3, '0')}.png`} alt={card.metadata.name} className="w-full aspect-[3/4] object-contain rounded mb-1" />
                     <div className="text-xs font-medium truncate">{card.metadata.name}</div>
                     <div className={`text-xs px-1 rounded mt-1 ${getRarityColor('unknown')}`}>{'unknown'}</div>
