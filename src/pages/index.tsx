@@ -184,13 +184,6 @@ export default function DeckManager() {
           <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
             {(selectedCards.length > 0 ? selectedCards.length : currentDeck.length)}/10
           </span>
-          <button
-            className="ml-4 px-3 py-1 bg-gray-700 rounded text-xs"
-            onClick={handleGetDeck}
-            disabled={loading || !jwt}
-          >
-            Refresh Deck
-          </button>
         </div>
         <div className="grid grid-cols-5 gap-2 p-2 pt-8 bg-deck rounded-xl">
           {Array.from({ length: 10 }).map((_, index) => {
@@ -232,13 +225,6 @@ export default function DeckManager() {
             <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-secondary text-secondary-foreground">
               {selectedCards.length}/10 Selected
             </span>
-            <button
-              className="ml-2 px-3 py-1 bg-gray-700 rounded text-xs"
-              onClick={handleGetGems}
-              disabled={loading || !jwt}
-            >
-              Refresh Cards
-            </button>
             {selectedCards.length === 10 && (
               <button
                 className="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-3 py-2 bg-green-600 hover:bg-green-700 text-white transition-colors"
