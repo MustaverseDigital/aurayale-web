@@ -285,93 +285,98 @@ export default function DeckManager() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Your Cards</h2>
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-secondary text-secondary-foreground">
-              {selectedCards.length}/10 Selected
-            </span>
-            {selectedCards.length === 10 && (
-              <button
-                className="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-3 py-2 bg-green-600 hover:bg-green-700 text-white transition-colors"
-                onClick={handleUpdateDeck}
-                disabled={loading}
-              >
-                <Check className="w-4 h-4 mr-1" />
-                {loading ? "Updating..." : "Update Deck"}
-              </button>
-            )}
+            {(() => {
+              const useSelected = selectedCards.length > 0;
+              return (
+                <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-secondary text-secondary-foreground">
+                  {useSelected ? selectedCards.length : currentDeck.length}/10 Selected
+                </span>
+              );
+            })()}
           </div>
         </div>
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-          {gems.map((gem) => {
-            const isSelected = selectedCards.includes(gem.id);
-            const isInDeck = currentDeck.includes(gem.id);
-            return (
-              <div
-                key={gem.id}
-                className={`rounded-lg bg-card bg-card-block text-card-foreground shadow-sm cursor-pointer transition-all duration-200 ${
-                  isSelected
-                    ? "ring-2 ring-blue-400 bg-blue-900/20"
-                    : isInDeck
-                    ? "InDeck"
-                    : "bg-gray-800 hover:bg-gray-700"
-                } ${
-                  selectedCards.length >= 10 && !isSelected
-                    ? "opacity-50 cursor-not-allowed"
-                    : ""
-                }`}
-                onClick={() => {
-                  if (!isInDeck && (selectedCards.length < 10 || isSelected)) {
-                    if (selectedCards.length === 0) {
-                      setSelectedCards(
-                        currentDeck.length ? [...currentDeck] : []
-                      );
-                      setTimeout(() => toggleCardSelection(gem.id), 0);
-                    } else {
-                      toggleCardSelection(gem.id);
+          {(() => {
+            const useSelected = selectedCards.length > 0;
+            return gems.map((gem) => {
+              const isSelected = useSelected ? selectedCards.includes(gem.id) : false;
+              const isInDeck = useSelected ? selectedCards.includes(gem.id) : currentDeck.includes(gem.id);
+              return (
+                <div
+                  key={gem.id}
+                  className={`rounded-lg bg-card bg-card-block text-card-foreground shadow-sm cursor-pointer transition-all duration-200 ${
+                    isSelected
+                      ? "ring-2 ring-blue-400 bg-blue-900/20"
+                      : isInDeck
+                      ? "InDeck"
+                      : "bg-gray-800 hover:bg-gray-700"
+                  } ${
+                    useSelected && selectedCards.length >= 10 && !isSelected
+                      ? "opacity-50 cursor-not-allowed"
+                      : ""
+                  }`}
+                  onClick={() => {
+                    if (!isInDeck && (useSelected ? selectedCards.length < 10 || isSelected : true)) {
+                      if (!useSelected) {
+                        setSelectedCards(currentDeck.length ? [...currentDeck] : []);
+                        setTimeout(() => toggleCardSelection(gem.id), 0);
+                      } else {
+                        toggleCardSelection(gem.id);
+                      }
                     }
-                  }
-                }}
-              >
-                <div className="p-2 flex flex-col space-y-1.5 relative overflow-hidden">
-                  <img
-                    src={`/img/${gem.id.toString().padStart(3, "0")}.png`}
-                    alt={gem.metadata.name}
-                    className="aspect-[3/4] bg-card bg-card-1 rounded mb-2 object-contain w-full"
-                  />
-                  <div className="space-y-1">
-                    <h3 className="text-sm font-medium truncate">
-                      {gem.metadata.name}
-                    </h3>
-                    <div className="text-xs text-gray-400">
-                      Quantity: {gem.quantity}
-                    </div>
-                    {isSelected && (
-                      <div className="absolute top-0 left-0 w-full h-full border border-gold rounded-lg flex items-center justify-center text-blue-400 text-xs"></div>
-                    )}
-                    {isInDeck && (
-                      <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center text-green-400 bg-inDeck">
-                        <Check className="w-12 h-12 mb-8 text-shadow-md" />
+                  }}
+                >
+                  <div className="p-2 flex flex-col space-y-1.5 relative overflow-hidden">
+                    <img
+                      src={`/img/${gem.id.toString().padStart(3, "0")}.png`}
+                      alt={gem.metadata.name}
+                      className="aspect-[3/4] bg-card bg-card-1 rounded mb-2 object-contain w-full"
+                    />
+                    <div className="space-y-1">
+                      <h3 className="text-sm font-medium truncate">
+                        {gem.metadata.name}
+                      </h3>
+                      <div className="text-xs text-gray-400">
+                        Quantity: {gem.quantity}
                       </div>
-                    )}
+                      {isSelected && (
+                        <div className="absolute top-0 left-0 w-full h-full border border-gold rounded-lg flex items-center justify-center text-blue-400 text-xs"></div>
+                      )}
+                      {isInDeck && (
+                        <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center text-green-400 bg-inDeck">
+                          <Check className="w-12 h-12 mb-8 text-shadow-md" />
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            });
+          })()}
         </div>
       </section>
 
       {/* Battle Section */}
       <section className="fixed flex justify-center bottom-0 w-full p-2 backdrop-blur-md shadow-lg btnSection">
-        <button
-          className="btn btn-battle p-2 px-8"
-          onClick={() => {
-            const deck = (selectedCards.length === 10 ? selectedCards : currentDeck).slice(0, 10);
-            setPendingDeck(JSON.stringify(deck));
-            setShowUnity(true);
-          }}
-        >
-          Battle
-        </button>
+        {(selectedCards.length === 10 || currentDeck.length === 10) && (
+          <button
+            className="btn btn-battle p-2 px-8 animate-fade-in"
+            onClick={async () => {
+              if (selectedCards.length === 10) {
+                await handleUpdateDeck();
+                const deck = selectedCards.slice(0, 10);
+                setPendingDeck(JSON.stringify(deck));
+                setShowUnity(true);
+              } else if (currentDeck.length === 10) {
+                const deck = currentDeck.slice(0, 10);
+                setPendingDeck(JSON.stringify(deck));
+                setShowUnity(true);
+              }
+            }}
+          >
+            Battle
+          </button>
+        )}
       </section>
 
       {/* Unity WebGL Overlay */}
