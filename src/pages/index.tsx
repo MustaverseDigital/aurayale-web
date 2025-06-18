@@ -358,7 +358,7 @@ export default function DeckManager() {
 
       {/* Battle Section */}
       <section className="fixed flex justify-center bottom-0 w-full p-2 backdrop-blur-md shadow-lg btnSection">
-        {(selectedCards.length === 10 || currentDeck.length === 10) && (
+        {(selectedCards.length === 10 || (selectedCards.length === 0 && currentDeck.length === 10)) && (
           <button
             className="btn btn-battle p-2 px-8 animate-fade-in"
             onClick={async () => {
@@ -367,7 +367,7 @@ export default function DeckManager() {
                 const deck = selectedCards.slice(0, 10);
                 setPendingDeck(JSON.stringify(deck));
                 setShowUnity(true);
-              } else if (currentDeck.length === 10) {
+              } else if (selectedCards.length === 0 && currentDeck.length === 10) {
                 const deck = currentDeck.slice(0, 10);
                 setPendingDeck(JSON.stringify(deck));
                 setShowUnity(true);
@@ -405,7 +405,7 @@ export default function DeckManager() {
             devicePixelRatio={devicePixelRatio}
           />
           <button
-            className="absolute top-4 right-4 bg-gray-800 text-white px-4 py-2 rounded"
+            className="absolute top-4 left-4 bg-transparent text-transparent px-4 py-2 rounded"
             onClick={() => setShowUnity(false)}
           >
             Close
