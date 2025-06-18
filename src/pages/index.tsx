@@ -25,6 +25,7 @@ export default function DeckManager() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showUnity, setShowUnity] = useState(false);
+  const [pendingDeck, setPendingDeck] = useState<string | null>(null);
 
   // 背景音樂音量控制
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -152,7 +153,7 @@ export default function DeckManager() {
     }
   };
 
-  const { unityProvider, isLoaded, loadingProgression } = useUnityContext({
+  const { unityProvider, isLoaded, loadingProgression, sendMessage } = useUnityContext({
     loaderUrl: "/Build/Build.loader.js",
     dataUrl: "/Build/Build.data",
     frameworkUrl: "/Build/Build.framework.js",
@@ -172,6 +173,15 @@ export default function DeckManager() {
       };
     }
   }, []);
+
+  // Unity 載入完成後自動傳送牌組資料
+  useEffect(() => {
+    if (isLoaded && pendingDeck) {
+      console.log("pendingDeck", pendingDeck);
+      sendMessage("Web", "SetCardDeck", pendingDeck);
+      setPendingDeck(null);
+    }
+  }, [isLoaded, pendingDeck, sendMessage]);
 
   return (
     <div className="min-h-screen text-white flex flex-col ">
@@ -354,7 +364,11 @@ export default function DeckManager() {
       <section className="fixed flex justify-center bottom-0 w-full p-2 backdrop-blur-md shadow-lg btnSection">
         <button
           className="btn btn-battle p-2 px-8"
-          onClick={() => setShowUnity(true)}
+          onClick={() => {
+            const deck = (selectedCards.length === 10 ? selectedCards : currentDeck).slice(0, 10);
+            setPendingDeck(JSON.stringify(deck));
+            setShowUnity(true);
+          }}
         >
           Battle
         </button>
