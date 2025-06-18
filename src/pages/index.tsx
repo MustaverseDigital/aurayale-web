@@ -383,8 +383,13 @@ export default function DeckManager() {
       {showUnity && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90">
           {!isLoaded && (
-            <div className="text-white text-xl mb-4">
-              Loading Game... {Math.round(loadingProgression * 100)}%
+            <div className="absolute inset-0 flex flex-col items-center justify-center z-50">
+              <div className="text-white text-2xl font-bold mb-2 flex items-center">
+                <span className="ml-2 animate-bounce">Loading Game...</span>
+              </div>
+              <div className="text-white text-lg font-mono tracking-widest animate-pulse">
+                {Math.round(loadingProgression * 100)}%
+              </div>
             </div>
           )}
           <Unity
