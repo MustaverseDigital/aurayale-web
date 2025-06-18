@@ -183,6 +183,15 @@ export default function DeckManager() {
     }
   }, [isLoaded, pendingDeck, sendMessage]);
 
+  // 根據卡牌 id 顯示效果標示
+  const getCardEffect = (id: number) => {
+    if (id >= 1 && id <= 6) return "+ 100 ATK";
+    if (id >= 7 && id <= 12) return " + 1 Mult";
+    if (id >= 13 && id <= 18) return "Pair + 200 ATK";
+    if (id >= 19 && id <= 24) return "Pair + 2 Mult";
+    return "";
+  };
+
   return (
     <div className="min-h-screen text-white flex flex-col ">
       {/* 背景音樂 */}
@@ -337,7 +346,7 @@ export default function DeckManager() {
                         {gem.metadata.name}
                       </h3>
                       <div className="text-xs text-gray-400">
-                        Quantity: {gem.quantity}
+                        {getCardEffect(gem.id)}
                       </div>
                       {isSelected && (
                         <div className="absolute top-0 left-0 w-full h-full border border-gold rounded-lg flex items-center justify-center text-blue-400 text-xs"></div>
