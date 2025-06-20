@@ -198,11 +198,12 @@ export default function DeckManager() {
       <audio ref={audioRef} src="/bgm/bgm.mp3" autoPlay loop hidden />
       {!jwt && (
         <section className="Connect fixed w-full h-full bgImg z-2 flex flex-col">
-          <div className="bgImgLogin w-full h-full absolute -bottom-20"></div>
+          <div className="bgImgLogin w-full h-full absolute -bottom-25"></div>
           <div className="bgDark"></div>
           {/* Logo置頂 */}
           <div className="w-full flex flex-col items-center pt-12 z-10">
-            <img src="/img/logo.png" alt="" width="256px" className="mb-2" />
+            <img src="/img/logo.png" alt="" width="256px" className="" />
+            <img src="/img/X.png" alt="" width="20px" className="mb-2" />
             <img src="/img/logo2.png" alt="" width="128px" className="mb-2" />
           </div>
           {/* Error置中 */}
