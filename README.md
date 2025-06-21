@@ -1,29 +1,99 @@
-This is a [RainbowKit](https://rainbowkit.com) + [wagmi](https://wagmi.sh) + [Next.js](https://nextjs.org/) project bootstrapped with [`create-rainbowkit`](/packages/create-rainbowkit).
+# Aura Frontend
 
-## Getting Started
+A Next.js-based Web3 game frontend application that integrates blockchain wallet connection, gem card management, and Unity game engine.
 
-First, run the development server:
+## Features
+
+- **Web3 Integration**: MetaMask and WalletConnect wallet support
+- **Card Management**: Gem card collection and deck building
+- **Unity Game Integration**: Unity games running in browser via WebGL
+- **Modern UI**: Responsive interface built with Tailwind CSS
+
+## Tech Stack
+
+- **Framework**: Next.js 15.3.3
+- **React**: 19.1.0
+- **Styling**: Tailwind CSS 4.1.9
+- **Web3**: Wagmi 2.15.5, Viem 2.29.2, RainbowKit 2.1.4
+- **Game Integration**: React Unity WebGL 9.9.0
+- **Language**: TypeScript 5.5.4
+
+## Quick Start
+
+### Prerequisites
+
+- Node.js 18+
+- pnpm (recommended) or npm
+- MetaMask browser extension
+
+### Installation
+
+1. **Clone the project**
+
+   ```bash
+   git clone <repository-url>
+   cd aura-frontend
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   pnpm install
+   # or
+   npm install
+   ```
+
+3. **Start development server**
+
+   ```bash
+   pnpm dev
+   # or
+   npm run dev
+   ```
+
+4. **Open browser**
+   Visit [http://localhost:3000](http://localhost:3000)
+
+### Build for Production
 
 ```bash
-npm run dev
+# Build the project
+pnpm build
+
+# Start production server
+pnpm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Project Structure
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+```
+src/
+├── pages/                 # Next.js pages
+│   ├── index.tsx         # Main page - Card manager
+│   ├── _app.tsx          # App entry point
+│   └── auraServerTester/ # API testing tool
+├── api/
+│   └── auraServer.ts     # Aura backend API integration
+├── styles/
+│   └── globals.css       # Global styles
+└── wagmi.ts              # Wagmi configuration
 
-## Learn More
+public/
+├── Build/                # Unity WebGL build files
+├── bgm/                  # Background music
+└── img/                  # Image assets
+```
 
-To learn more about this stack, take a look at the following resources:
+## Usage
 
-- [RainbowKit Documentation](https://rainbowkit.com) - Learn how to customize your wallet connection flow.
-- [wagmi Documentation](https://wagmi.sh) - Learn how to interact with Ethereum.
-- [Next.js Documentation](https://nextjs.org/docs) - Learn how to build a Next.js application.
+1. **Connect Wallet**: Click "Connect Wallet" and authorize with MetaMask
+2. **Manage Cards**: Select/deselect cards to build your 10-card deck
+3. **Play Game**: Your deck will sync to the Unity game automatically
 
-You can check out [the RainbowKit GitHub repository](https://github.com/rainbow-me/rainbowkit) - your feedback and contributions are welcome!
+## API Testing
 
-## Deploy on Vercel
+Visit `/auraServerTester` to test the API endpoints for wallet connection, login, and card management.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out the [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+**Note**: This project requires connection to the Aura backend service to function properly.
