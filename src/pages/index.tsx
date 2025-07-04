@@ -7,12 +7,14 @@ import { useAccount, useSignMessage } from "wagmi";
 import { Unity, useUnityContext } from "react-unity-webgl";
 
 import {
-  getNonce as apiGetNonce,
-  signAndLogin as apiSignAndLogin,
   getUserGems as apiGetUserGems,
   getUserDeck as apiGetUserDeck,
   editGemDeck as apiEditGemDeck,
   GemItem,
+  loginWithPassword,
+  registerWithPassword,
+  requestBindWallet,
+  confirmBindWallet,
 } from "../api/auraServer";
 
 export default function DeckManager() {
@@ -26,6 +28,13 @@ export default function DeckManager() {
   const [error, setError] = useState("");
   const [showUnity, setShowUnity] = useState(false);
   const [pendingDeck, setPendingDeck] = useState<string | null>(null);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [showRegister, setShowRegister] = useState(false);
+  const [success, setSuccess] = useState("");
+  const [bindLoading, setBindLoading] = useState(false);
+  const [bindSuccess, setBindSuccess] = useState("");
+  const [bindError, setBindError] = useState("");
 
   // 背景音樂音量控制
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -46,38 +55,6 @@ export default function DeckManager() {
     window.addEventListener("click", playBgm);
     return () => window.removeEventListener("click", playBgm);
   }, []);
-
-  // 自動登入/登出流程
-  useEffect(() => {
-    const login = async () => {
-      setLoading(true);
-      setError("");
-      try {
-        if (!address) return;
-        const nonce = await apiGetNonce();
-        // 用 wagmi 的 signMessageAsync 來簽名，支援 WalletConnect/mobile
-        const signature = await signMessageAsync({ message: nonce });
-        const { token } = await apiSignAndLogin(address, signature);
-        setJwt(token);
-        const gems = await apiGetUserGems(token);
-        setGems(gems);
-        const deck = await apiGetUserDeck(token);
-        setCurrentDeck(Array.isArray(deck) ? deck : []);
-      } catch (e: any) {
-        setError(e.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (isConnected && address) {
-      login();
-    } else {
-      setJwt("");
-      setGems([]);
-      setCurrentDeck([]);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isConnected, address]);
 
   // 取得卡片
   const handleGetGems = async () => {
@@ -207,16 +184,76 @@ export default function DeckManager() {
             <img src="/img/logo2.png" alt="" width="128px" className="mb-2" />
           </div>
           {/* Error置中 */}
-          {error && (
+          {(error || success) && (
             <div className="flex-1 flex items-center justify-center z-10">
-              <div className="text-red-400 text-sm bg-black/60 px-6 py-3 rounded-xl">
-                {error}
+              <div className={`text-sm bg-black/60 px-6 py-3 rounded-xl ${error ? "text-red-400" : "text-green-400"}`}>
+                {error || success}
               </div>
             </div>
           )}
           {/* ConnectButton置底 */}
-          <div className="w-full flex justify-center items-end pb-16 z-10 mt-auto">
+          <div className="w-full flex flex-col items-center justify-end pb-16 z-10 mt-auto gap-4">
             <ConnectButton />
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setLoading(true);
+                setError("");
+                setSuccess("");
+                try {
+                  if (showRegister) {
+                    await registerWithPassword(username, password);
+                    setSuccess("註冊成功，請登入");
+                    setShowRegister(false);
+                  } else {
+                    const { token } = await loginWithPassword(username, password);
+                    setJwt(token);
+                    const gems = await apiGetUserGems(token);
+                    setGems(gems);
+                    const deck = await apiGetUserDeck(token);
+                    setCurrentDeck(Array.isArray(deck) ? deck : []);
+                  }
+                } catch (e: any) {
+                  setError(e.message);
+                } finally {
+                  setLoading(false);
+                }
+              }}
+              className="flex flex-col gap-2 w-64 bg-black/40 p-4 rounded-xl"
+            >
+              <input
+                type="text"
+                placeholder="Username"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                className="input bg-black text-white px-3 py-2 rounded border border-gray-500 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+                autoComplete="username"
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                className="input bg-black text-white px-3 py-2 rounded border border-gray-500 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+                autoComplete="current-password"
+              />
+              <button type="submit" className="btn btn-primary" disabled={loading}>
+                {showRegister ? "註冊" : "登入"}
+              </button>
+              <button
+                type="button"
+                className="text-xs underline text-blue-300 mt-1"
+                onClick={() => {
+                  setShowRegister((v) => !v);
+                  setError("");
+                  setSuccess("");
+                }}
+              >
+                {showRegister ? "已有帳號？登入" : "沒有帳號？註冊"}
+              </button>
+            </form>
           </div>
         </section>
       )}
@@ -230,6 +267,53 @@ export default function DeckManager() {
       </nav>
 
       {error && <div className="p-4 bg-red-800 text-red-200">{error}</div>}
+      {bindSuccess && <div className="p-4 bg-green-800 text-green-200">{bindSuccess}</div>}
+      {bindError && <div className="p-4 bg-red-800 text-red-200">{bindError}</div>}
+
+      {/* 綁定錢包流程 */}
+      {jwt && (
+        <div className="flex justify-center mt-4">
+          <button
+            className="btn btn-primary"
+            disabled={bindLoading}
+            onClick={async () => {
+              setBindLoading(true);
+              setBindSuccess("");
+              setBindError("");
+              try {
+                // 1. 連接錢包
+                const accounts = await window.ethereum?.request({ method: "eth_requestAccounts" });
+                const walletAddress = accounts?.[0];
+                if (!walletAddress) throw new Error("請先連接錢包");
+                // 2. 取得 nonce
+                const { nonce } = await requestBindWallet(jwt, walletAddress);
+                if (!nonce) throw new Error("無法取得 nonce");
+                // 3. 用 wagmi signMessageAsync 對 nonce 簽名
+                let signature = "";
+                if (typeof signMessageAsync === "function") {
+                  signature = await signMessageAsync({ message: nonce });
+                } else if (window.ethereum) {
+                  signature = await window.ethereum.request({
+                    method: "personal_sign",
+                    params: [nonce, walletAddress],
+                  });
+                } else {
+                  throw new Error("無法簽名，請確認錢包環境");
+                }
+                // 4. confirm 綁定
+                await confirmBindWallet(jwt, walletAddress, signature);
+                setBindSuccess("錢包綁定成功！");
+              } catch (e: any) {
+                setBindError(e.message);
+              } finally {
+                setBindLoading(false);
+              }
+            }}
+          >
+            {bindLoading ? "綁定中..." : "綁定錢包"}
+          </button>
+        </div>
+      )}
 
       {/* Current Deck Section */}
       <section className="p-4 border-b border-gray-700">
