@@ -50,7 +50,6 @@ const DeckComponent: React.FC<DeckComponentProps> = ({
                     alt={card.metadata.name}
                     className="w-full aspect-[3/4] object-contain rounded mb-1"
                   />
-                  <div className="text-xs font-medium truncate">{card.metadata.name}</div>
                 </div>
               ) : (
                 <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">

@@ -137,15 +137,14 @@ export default function ProfilePage() {
         ) : deckError ? (
           <div className="text-red-400">{deckError}</div>
         ) : (
-          <div className="grid grid-cols-5 gap-3 mb-2">
+          <div className="grid grid-cols-5 gap-2 mb-2">
             {deck.map((id, idx) => (
-              <div key={idx} className="flex flex-col items-center bg-gray-800 rounded-lg shadow p-2">
+              <div key={idx} className="flex flex-col items-center bg-gray-800 rounded-lg shadow">
                 <img
                   src={`/img/${id.toString().padStart(3, "0")}.png`}
                   alt={`Card ${id}`}
-                  className="w-14 h-20 object-contain rounded shadow mb-1"
+                  className="w-14 h-20 object-contain rounded shadow"
                 />
-                <span className="text-xs truncate w-full text-center">ID: {id}</span>
               </div>
             ))}
           </div>

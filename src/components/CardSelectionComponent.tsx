@@ -52,7 +52,6 @@ const CardSelectionComponent: React.FC<CardSelectionComponentProps> = ({
                 if (!isInDeck && (useSelected ? selectedCards.length < 10 || isSelected : true)) {
                   if (!useSelected) {
                     setSelectedCards(currentDeck.length ? [...currentDeck] : []);
-                    // 移除 setTimeout，初始化後不自動選第一張，需用戶再點一次
                   } else {
                     toggleCardSelection(gem.id);
                   }
@@ -66,7 +65,6 @@ const CardSelectionComponent: React.FC<CardSelectionComponentProps> = ({
                   className="aspect-[3/4] bg-card bg-card-1 rounded mb-2 object-contain w-full"
                 />
                 <div className="space-y-1">
-                  <h3 className="text-sm font-medium truncate">{gem.metadata.name}</h3>
                   <div className="text-xs text-gray-400">{getCardEffect(gem.id)}</div>
                   {isSelected && (
                     <div className="absolute top-0 left-0 w-full h-full border border-gold rounded-lg flex items-center justify-center text-blue-400 text-xs"></div>
