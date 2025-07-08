@@ -60,6 +60,20 @@ export interface GemItem {
     return data;
   }
 
+  export async function unbindWallet(jwt: string, walletAddress: string) {
+    const response = await fetch(`${BASE_URL}/unbind-wallet`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${jwt}`,
+      },
+      body: JSON.stringify({ walletAddress }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Unbind wallet failed");
+    return data;
+  }
+
   export async function getUserGems(jwt: string): Promise<GemItem[]> {
     const response = await fetch(`${BASE_URL}/user/gems`, {
       headers: { Authorization: `Bearer ${jwt}` },

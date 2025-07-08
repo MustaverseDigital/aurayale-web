@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { requestBindWallet, confirmBindWallet } from "../api/auraServer";
+import { requestBindWallet, confirmBindWallet, unbindWallet } from "../api/auraServer";
 import { getUserDeck, getUserGems, GemItem } from "../api/auraServer";
 import { useRouter } from "next/router";
 
@@ -73,6 +73,22 @@ export default function ProfilePage() {
     }
   };
 
+  const handleUnbindWallet = async () => {
+    setBindLoading(true);
+    setBindSuccess("");
+    setBindError("");
+    try {
+      await unbindWallet(jwt, walletAddress);
+      setWalletAddress("");
+      localStorage.removeItem("walletAddress");
+      setBindSuccess("Wallet unbound successfully!");
+    } catch (e: any) {
+      setBindError(e.message);
+    } finally {
+      setBindLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white">
       <div className="bg-gray-800 rounded-xl shadow-lg p-8 w-full max-w-md">
@@ -102,12 +118,10 @@ export default function ProfilePage() {
           {walletAddress ? (
             <button
               className="border border-red-400 text-red-300 rounded px-4 py-2 font-semibold bg-transparent hover:bg-red-900/20 transition text-base"
-              onClick={() => {
-                // TODO: 串接 unbindWallet API
-                alert('Unbind wallet (API not implemented)');
-              }}
+              onClick={handleUnbindWallet}
+              disabled={bindLoading}
             >
-              Unbind Wallet
+              {bindLoading ? "Unbinding..." : "Unbind Wallet"}
             </button>
           ) : (
             <button
