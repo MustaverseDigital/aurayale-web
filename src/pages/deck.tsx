@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import DeckComponent from "../components/DeckComponent";
 import CardSelectionComponent from "../components/CardSelectionComponent";
 import { getUserGems, getUserDeck, editGemDeck, GemItem } from "../api/auraServer";
+import { Wallet, CornerDownLeft } from "lucide-react";
 
 export default function DeckPage() {
   const router = useRouter();
@@ -12,6 +13,9 @@ export default function DeckPage() {
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  // 新增玩家資訊
+  const [username, setUsername] = useState<string>("");
+  const [walletAddress, setWalletAddress] = useState<string>("");
 
   useEffect(() => {
     const token = localStorage.getItem("jwt");
@@ -30,7 +34,12 @@ export default function DeckPage() {
     }).catch(e => {
       setError(e.message);
     }).finally(() => setLoading(false));
+    // 取得玩家資訊
+    setUsername(localStorage.getItem("username") || "testuser");
+    setWalletAddress(localStorage.getItem("walletAddress") || "");
   }, [router]);
+
+  // 移除 useEffect 自動送出
 
   const toggleCardSelection = (cardId: number) => {
     setSelectedCards((prev) => {
@@ -54,6 +63,41 @@ export default function DeckPage() {
 
   return (
     <div className="min-h-screen text-white flex flex-col">
+      {/* 玩家資訊 header bar */}
+      <header className="w-full bg-gray-900 shadow flex items-center justify-between px-6 py-3 mb-4">
+        <div className="flex items-center gap-3">
+          <Wallet className="w-5 h-5 text-green-400" />
+          <span className="font-semibold text-white">
+            {username}
+            {walletAddress ? (
+              <span className="text-gray-400">(0x...{walletAddress.slice(-5)})</span>
+            ) : (
+              <span className="text-yellow-400">(尚未綁定)</span>
+            )}
+          </span>
+        </div>
+        <button
+          className="btn btn-secondary flex items-center justify-center p-2"
+          onClick={async () => {
+            if (selectedCards.length === 10) {
+              try {
+                setLoading(true);
+                await editGemDeck(jwt, selectedCards);
+                setCurrentDeck([...selectedCards]);
+                setSelectedCards([]);
+              } catch (e: any) {
+                setError(e.message);
+              } finally {
+                setLoading(false);
+              }
+            }
+            router.push("/profile");
+          }}
+          title="返回個人頁面"
+        >
+          <CornerDownLeft className="w-6 h-6" />
+        </button>
+      </header>
       {error && <div className="p-4 bg-red-800 text-red-200">{error}</div>}
       <DeckComponent
         currentDeck={currentDeck}
@@ -74,22 +118,22 @@ export default function DeckPage() {
         />
       </div>
       {/* BattleComponent */}
-      {(selectedCards.length === 10 || (selectedCards.length === 0 && currentDeck.length === 10)) && (
+      {(selectedCards.length === 10) && (
         <div className="BattleComponent fixed flex justify-center bottom-0 w-full p-2 backdrop-blur-md shadow-lg btnSection">
           <button
             className="btn btn-battle p-2 px-8 animate-fade-in"
             onClick={async () => {
-              let deckToSend = selectedCards.length === 10 ? selectedCards : currentDeck;
               try {
-                if (selectedCards.length === 10) {
-                  await editGemDeck(jwt, selectedCards);
-                  setCurrentDeck([...selectedCards]);
-                  setSelectedCards([]);
-                }
-                localStorage.setItem("battleDeck", JSON.stringify(deckToSend));
+                setLoading(true);
+                await editGemDeck(jwt, selectedCards);
+                setCurrentDeck([...selectedCards]);
+                setSelectedCards([]);
+                localStorage.setItem("battleDeck", JSON.stringify(selectedCards));
                 router.push("/battle");
               } catch (e: any) {
                 setError(e.message);
+              } finally {
+                setLoading(false);
               }
             }}
           >

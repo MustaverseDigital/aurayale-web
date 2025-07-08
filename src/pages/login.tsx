@@ -31,10 +31,12 @@ export default function LoginPage() {
             setSuccess("註冊成功，請登入");
             setShowRegister(false);
           } else {
-            const { token } = await loginWithPassword(username, password);
-            // 可考慮將 token 存 localStorage 或 context
-            localStorage.setItem("jwt", token);
-            router.push("/deck");
+            const data = await loginWithPassword(username, password);
+            localStorage.setItem("jwt", data.token);
+            if (data.username) localStorage.setItem("username", data.username);
+            if (data.userId) localStorage.setItem("userId", data.userId);
+            if (data.walletAddress) localStorage.setItem("walletAddress", data.walletAddress);
+            router.push("/profile");
           }
         } catch (e: any) {
           setError(e.message);

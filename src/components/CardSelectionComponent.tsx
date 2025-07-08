@@ -52,7 +52,7 @@ const CardSelectionComponent: React.FC<CardSelectionComponentProps> = ({
                 if (!isInDeck && (useSelected ? selectedCards.length < 10 || isSelected : true)) {
                   if (!useSelected) {
                     setSelectedCards(currentDeck.length ? [...currentDeck] : []);
-                    setTimeout(() => toggleCardSelection(gem.id), 0);
+                    // 移除 setTimeout，初始化後不自動選第一張，需用戶再點一次
                   } else {
                     toggleCardSelection(gem.id);
                   }
