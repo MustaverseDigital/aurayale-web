@@ -16,6 +16,8 @@ import {
   requestBindWallet,
   confirmBindWallet,
 } from "../api/auraServer";
+import LoginSection from "../components/LoginSection";
+import DeckSection from "../components/DeckSection";
 
 export default function DeckManager() {
   const { address, isConnected } = useAccount();
@@ -174,88 +176,45 @@ export default function DeckManager() {
       {/* 背景音樂 */}
       <audio ref={audioRef} src="/bgm/bgm.mp3" autoPlay loop hidden />
       {!jwt && (
-        <section className="Connect fixed w-full h-full bgImg z-2 flex flex-col">
-          <div className="bgImgLogin w-full h-full absolute -bottom-25"></div>
-          <div className="bgDark"></div>
-          {/* Logo置頂 */}
-          <div className="w-full flex flex-col items-center pt-12 z-10">
-            <img src="/img/logo.png" alt="" width="256px" className="" />
-            <img src="/img/X.png" alt="" width="20px" className="mb-2" />
-            <img src="/img/logo2.png" alt="" width="128px" className="mb-2" />
-          </div>
-          {/* Error置中 */}
-          {(error || success) && (
-            <div className="flex-1 flex items-center justify-center z-10">
-              <div className={`text-sm bg-black/60 px-6 py-3 rounded-xl ${error ? "text-red-400" : "text-green-400"}`}>
-                {error || success}
-              </div>
-            </div>
-          )}
-          {/* ConnectButton置底 */}
-          <div className="w-full flex flex-col items-center justify-end pb-16 z-10 mt-auto gap-4">
-            <ConnectButton />
-            <form
-              onSubmit={async (e) => {
-                e.preventDefault();
-                setLoading(true);
-                setError("");
-                setSuccess("");
-                try {
-                  if (showRegister) {
-                    await registerWithPassword(username, password);
-                    setSuccess("註冊成功，請登入");
-                    setShowRegister(false);
-                  } else {
-                    const { token } = await loginWithPassword(username, password);
-                    setJwt(token);
-                    const gems = await apiGetUserGems(token);
-                    setGems(gems);
-                    const deck = await apiGetUserDeck(token);
-                    setCurrentDeck(Array.isArray(deck) ? deck : []);
-                  }
-                } catch (e: any) {
-                  setError(e.message);
-                } finally {
-                  setLoading(false);
-                }
-              }}
-              className="flex flex-col gap-2 w-64 bg-black/40 p-4 rounded-xl"
-            >
-              <input
-                type="text"
-                placeholder="Username"
-                value={username}
-                onChange={e => setUsername(e.target.value)}
-                className="input bg-black text-white px-3 py-2 rounded border border-gray-500 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-                autoComplete="username"
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                className="input bg-black text-white px-3 py-2 rounded border border-gray-500 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-                autoComplete="current-password"
-              />
-              <button type="submit" className="btn btn-primary" disabled={loading}>
-                {showRegister ? "註冊" : "登入"}
-              </button>
-              <button
-                type="button"
-                className="text-xs underline text-blue-300 mt-1"
-                onClick={() => {
-                  setShowRegister((v) => !v);
-                  setError("");
-                  setSuccess("");
-                }}
-              >
-                {showRegister ? "已有帳號？登入" : "沒有帳號？註冊"}
-              </button>
-            </form>
-          </div>
-        </section>
+        <LoginSection
+          username={username}
+          password={password}
+          loading={loading}
+          error={error}
+          success={success}
+          showRegister={showRegister}
+          onLogin={async (e) => {
+            e.preventDefault();
+            setLoading(true);
+            setError("");
+            setSuccess("");
+            try {
+              if (showRegister) {
+                await registerWithPassword(username, password);
+                setSuccess("註冊成功，請登入");
+                setShowRegister(false);
+              } else {
+                const { token } = await loginWithPassword(username, password);
+                setJwt(token);
+                const gems = await apiGetUserGems(token);
+                setGems(gems);
+                const deck = await apiGetUserDeck(token);
+                setCurrentDeck(Array.isArray(deck) ? deck : []);
+              }
+            } catch (e: any) {
+              setError(e.message);
+            } finally {
+              setLoading(false);
+            }
+          }}
+          onToggleRegister={() => {
+            setShowRegister((v) => !v);
+            setError("");
+            setSuccess("");
+          }}
+          onUsernameChange={e => setUsername(e.target.value)}
+          onPasswordChange={e => setPassword(e.target.value)}
+        />
       )}
 
       {/* Navbar */}
@@ -316,63 +275,13 @@ export default function DeckManager() {
       )}
 
       {/* Current Deck Section */}
-      <section className="p-4 border-b border-gray-700">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Current Deck</h2>
-          <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
-            {selectedCards.length > 0
-              ? selectedCards.length
-              : currentDeck.length}
-            /10
-          </span>
-        </div>
-        <div className="grid grid-cols-5 gap-2 p-2 pt-8 bg-deck rounded-xl">
-          {Array.from({ length: 10 }).map((_, index) => {
-            const useSelected = selectedCards.length > 0;
-            const cardId = useSelected
-              ? selectedCards[index]
-              : currentDeck[index];
-            const card = gems.find((g) => g.id === cardId);
-            return (
-              <div key={index} className="">
-                {card ? (
-                  <div
-                    className={`text-center p-1 ${
-                      useSelected ? "cursor-pointer hover:opacity-70" : ""
-                    }`}
-                    onClick={() => {
-                      if (selectedCards.length === 0) {
-                        setSelectedCards(
-                          currentDeck.length ? [...currentDeck] : []
-                        );
-                        setTimeout(() => toggleCardSelection(cardId), 0);
-                      } else if (useSelected) {
-                        setSelectedCards((prev) =>
-                          prev.filter((id, i) => i !== index)
-                        );
-                      }
-                    }}
-                    title={useSelected ? "Click to remove" : ""}
-                  >
-                    <img
-                      src={`/img/${card.id.toString().padStart(3, "0")}.png`}
-                      alt={card.metadata.name}
-                      className="w-full aspect-[3/4] object-contain rounded mb-1"
-                    />
-                    <div className="text-xs font-medium truncate">
-                      {card.metadata.name}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
-                    +
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </section>
+      <DeckSection
+        currentDeck={currentDeck}
+        selectedCards={selectedCards}
+        gems={gems}
+        setSelectedCards={setSelectedCards}
+        toggleCardSelection={toggleCardSelection}
+      />
 
       {/* Card Selection Section */}
       <section className="px-4 pt-0 pb-20 conetnt">
