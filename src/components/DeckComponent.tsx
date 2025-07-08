@@ -2,7 +2,7 @@ import React from "react";
 import { Check } from "lucide-react";
 import { GemItem } from "../api/auraServer";
 
-interface DeckSectionProps {
+interface DeckComponentProps {
   currentDeck: number[];
   selectedCards: number[];
   gems: GemItem[];
@@ -10,7 +10,7 @@ interface DeckSectionProps {
   toggleCardSelection: (cardId: number) => void;
 }
 
-const DeckSection: React.FC<DeckSectionProps> = ({
+const DeckComponent: React.FC<DeckComponentProps> = ({
   currentDeck,
   selectedCards,
   gems,
@@ -65,4 +65,4 @@ const DeckSection: React.FC<DeckSectionProps> = ({
   );
 };
 
-export default DeckSection; 
+export default DeckComponent; 

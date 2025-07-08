@@ -1,6 +1,6 @@
 import React from "react";
 
-interface LoginSectionProps {
+interface LoginComponentProps {
   username: string;
   password: string;
   loading: boolean;
@@ -13,7 +13,7 @@ interface LoginSectionProps {
   onPasswordChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const LoginSection: React.FC<LoginSectionProps> = ({
+const LoginComponent: React.FC<LoginComponentProps> = ({
   username,
   password,
   loading,
@@ -84,4 +84,4 @@ const LoginSection: React.FC<LoginSectionProps> = ({
   );
 };
 
-export default LoginSection; 
+export default LoginComponent; 
