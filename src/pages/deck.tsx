@@ -4,10 +4,11 @@ import DeckComponent from "../components/DeckComponent";
 import CardSelectionComponent from "../components/CardSelectionComponent";
 import { getUserGems, getUserDeck, editGemDeck, GemItem } from "../api/auraServer";
 import { Wallet, CornerDownLeft } from "lucide-react";
+import { useUser } from "../context/UserContext";
 
 export default function DeckPage() {
   const router = useRouter();
-  const [jwt, setJwt] = useState<string>("");
+  const { user } = useUser();
   const [gems, setGems] = useState<GemItem[]>([]);
   const [currentDeck, setCurrentDeck] = useState<number[]>([]);
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
@@ -18,28 +19,23 @@ export default function DeckPage() {
   const [walletAddress, setWalletAddress] = useState<string>("");
 
   useEffect(() => {
-    const token = localStorage.getItem("jwt");
-    if (!token) {
+    if (!user?.token) {
       router.replace("/login");
       return;
     }
-    setJwt(token);
     setLoading(true);
     Promise.all([
-      getUserGems(token),
-      getUserDeck(token)
+      getUserGems(user.token),
+      getUserDeck(user.token)
     ]).then(([gems, deck]) => {
       setGems(gems);
       setCurrentDeck(Array.isArray(deck) ? deck : []);
     }).catch(e => {
       setError(e.message);
     }).finally(() => setLoading(false));
-    // 取得玩家資訊
-    setUsername(localStorage.getItem("username") || "testuser");
-    setWalletAddress(localStorage.getItem("walletAddress") || "");
-  }, [router]);
-
-  // 移除 useEffect 自動送出
+    setUsername(user.username);
+    setWalletAddress(user.walletAddress || "");
+  }, [router, user]);
 
   const toggleCardSelection = (cardId: number) => {
     setSelectedCards((prev) => {
@@ -60,6 +56,8 @@ export default function DeckPage() {
     if (id >= 19 && id <= 24) return "Pair + 2 Mult";
     return "";
   };
+
+  if (!user) return <div className="min-h-screen flex items-center justify-center text-white">請先登入</div>;
 
   return (
     <div className="min-h-screen text-white flex flex-col">
@@ -82,7 +80,7 @@ export default function DeckPage() {
             if (selectedCards.length === 10) {
               try {
                 setLoading(true);
-                await editGemDeck(jwt, selectedCards);
+                await editGemDeck(user.token, selectedCards);
                 setCurrentDeck([...selectedCards]);
                 setSelectedCards([]);
               } catch (e: any) {
@@ -118,17 +116,21 @@ export default function DeckPage() {
         />
       </div>
       {/* BattleComponent */}
-      {(selectedCards.length === 10) && (
+      {((selectedCards.length === 10) || (selectedCards.length === 0 && currentDeck.length === 10)) && (
         <div className="BattleComponent fixed flex justify-center bottom-0 w-full p-2 backdrop-blur-md shadow-lg btnSection">
           <button
             className="btn btn-battle p-2 px-8 animate-fade-in"
             onClick={async () => {
               try {
                 setLoading(true);
-                await editGemDeck(jwt, selectedCards);
-                setCurrentDeck([...selectedCards]);
-                setSelectedCards([]);
-                localStorage.setItem("battleDeck", JSON.stringify(selectedCards));
+                if (selectedCards.length === 10) {
+                  await editGemDeck(user.token, selectedCards);
+                  setCurrentDeck([...selectedCards]);
+                  setSelectedCards([]);
+                  localStorage.setItem("battleDeck", JSON.stringify(selectedCards));
+                } else {
+                  localStorage.setItem("battleDeck", JSON.stringify(currentDeck));
+                }
                 router.push("/battle");
               } catch (e: any) {
                 setError(e.message);
