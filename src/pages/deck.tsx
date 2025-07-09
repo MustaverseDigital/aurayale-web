@@ -116,17 +116,21 @@ export default function DeckPage() {
         />
       </div>
       {/* BattleComponent */}
-      {(selectedCards.length === 10) && (
+      {((selectedCards.length === 10) || (selectedCards.length === 0 && currentDeck.length === 10)) && (
         <div className="BattleComponent fixed flex justify-center bottom-0 w-full p-2 backdrop-blur-md shadow-lg btnSection">
           <button
             className="btn btn-battle p-2 px-8 animate-fade-in"
             onClick={async () => {
               try {
                 setLoading(true);
-                await editGemDeck(user.token, selectedCards);
-                setCurrentDeck([...selectedCards]);
-                setSelectedCards([]);
-                localStorage.setItem("battleDeck", JSON.stringify(selectedCards));
+                if (selectedCards.length === 10) {
+                  await editGemDeck(user.token, selectedCards);
+                  setCurrentDeck([...selectedCards]);
+                  setSelectedCards([]);
+                  localStorage.setItem("battleDeck", JSON.stringify(selectedCards));
+                } else {
+                  localStorage.setItem("battleDeck", JSON.stringify(currentDeck));
+                }
                 router.push("/battle");
               } catch (e: any) {
                 setError(e.message);
