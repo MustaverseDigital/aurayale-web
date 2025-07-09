@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import LoginComponent from "../components/LoginComponent";
 import { loginWithPassword, registerWithPassword, getUserGems, getUserDeck } from "../api/auraServer";
+import { useUser } from "../context/UserContext";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -11,6 +12,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [showRegister, setShowRegister] = useState(false);
+  const { setUser } = useUser();
 
   return (
     <LoginComponent
@@ -32,10 +34,12 @@ export default function LoginPage() {
             setShowRegister(false);
           } else {
             const data = await loginWithPassword(username, password);
-            localStorage.setItem("jwt", data.token);
-            if (data.username) localStorage.setItem("username", data.username);
-            if (data.userId) localStorage.setItem("userId", data.userId);
-            if (data.walletAddress) localStorage.setItem("walletAddress", data.walletAddress);
+            setUser({
+              token: data.token,
+              userId: data.userId,
+              username: data.username,
+              walletAddress: data.walletAddress || "",
+            });
             router.push("/profile");
           }
         } catch (e: any) {

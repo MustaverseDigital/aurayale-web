@@ -2,12 +2,10 @@ import { useEffect, useState } from "react";
 import { requestBindWallet, confirmBindWallet, unbindWallet } from "../api/auraServer";
 import { getUserDeck, getUserGems, GemItem } from "../api/auraServer";
 import { useRouter } from "next/router";
+import { useUser } from "../context/UserContext";
 
 export default function ProfilePage() {
-  const [jwt, setJwt] = useState<string>("");
-  const [username, setUsername] = useState<string>("");
-  const [userId, setUserId] = useState<string>("");
-  const [walletAddress, setWalletAddress] = useState<string>("");
+  const { user, setUser } = useUser();
   const [bindLoading, setBindLoading] = useState(false);
   const [bindError, setBindError] = useState("");
   const [bindSuccess, setBindSuccess] = useState("");
@@ -17,31 +15,22 @@ export default function ProfilePage() {
   const [deckError, setDeckError] = useState("");
   const router = useRouter();
 
-  // 假設 jwt/username/userId 皆存在 localStorage，實際可根據後端API調整
-  useEffect(() => {
-    const token = localStorage.getItem("jwt");
-    setJwt(token || "");
-    // 假設登入時有存 username/userId
-    setUsername(localStorage.getItem("username") || "testuser");
-    setUserId(localStorage.getItem("userId") || "123456");
-    // 若有綁定過錢包，也可從 localStorage 取出
-    setWalletAddress(localStorage.getItem("walletAddress") || "");
-  }, []);
+  // user 狀態已由 context 管理
 
   // 取得目前牌組與卡片資訊
   useEffect(() => {
-    if (!jwt) return;
+    if (!user?.token) return;
     setDeckLoading(true);
     Promise.all([
-      getUserDeck(jwt),
-      getUserGems(jwt)
+      getUserDeck(user.token),
+      getUserGems(user.token)
     ]).then(([deck, gems]) => {
       setDeck(deck);
       setGems(gems);
     }).catch(e => {
       setDeckError(e.message);
     }).finally(() => setDeckLoading(false));
-  }, [jwt]);
+  }, [user?.token]);
 
   // 綁定錢包流程
   const handleBindWallet = async () => {
@@ -54,7 +43,7 @@ export default function ProfilePage() {
       const wallet = accounts?.[0];
       if (!wallet) throw new Error("Please connect your wallet");
       // 2. 取得 nonce
-      const { nonce } = await requestBindWallet(jwt, wallet);
+      const { nonce } = await requestBindWallet(user!.token, wallet);
       if (!nonce) throw new Error("Cannot get nonce");
       // 3. 用 MetaMask personal_sign 對 nonce 簽名
       const signature = await window.ethereum.request({
@@ -62,9 +51,8 @@ export default function ProfilePage() {
         params: [nonce, wallet],
       });
       // 4. confirm 綁定
-      await confirmBindWallet(jwt, wallet, signature);
-      setWalletAddress(wallet);
-      localStorage.setItem("walletAddress", wallet);
+      await confirmBindWallet(user!.token, wallet, signature);
+      setUser({ ...user!, walletAddress: wallet });
       setBindSuccess("Wallet bound successfully!");
     } catch (e: any) {
       setBindError(e.message);
@@ -78,9 +66,8 @@ export default function ProfilePage() {
     setBindSuccess("");
     setBindError("");
     try {
-      await unbindWallet(jwt, walletAddress);
-      setWalletAddress("");
-      localStorage.removeItem("walletAddress");
+      await unbindWallet(user!.token, user!.walletAddress!);
+      setUser({ ...user!, walletAddress: "" });
       setBindSuccess("Wallet unbound successfully!");
     } catch (e: any) {
       setBindError(e.message);
@@ -93,19 +80,20 @@ export default function ProfilePage() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white">
       <div className="bg-gray-800 rounded-xl shadow-lg p-8 w-full max-w-md">
         <h1 className="text-2xl font-bold mb-6 text-center">User Profile</h1>
+        {/* User ID 區塊 */}
         <div className="mb-4">
-          <div className="mb-2"><span className="font-semibold">Username:</span> {username}</div>
-          <div className="mb-2"><span className="font-semibold">User ID:</span> {userId}</div>
+          <div className="mb-2"><span className="font-semibold">User ID:</span> {user?.userId}</div>
         </div>
+        {/* Wallet 區塊 */}
         <div className="mb-4">
           <span className="font-semibold">Wallet:</span>
           <span className="ml-2 break-all align-middle">
-            {walletAddress ? (
+            {user?.walletAddress ? (
               <>
-                {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
+                {user.walletAddress.slice(0, 6)}...{user.walletAddress.slice(-4)}
                 <button
                   className="ml-2 px-2 py-0.5 text-xs border border-gray-500 rounded hover:bg-gray-700 transition"
-                  onClick={() => navigator.clipboard.writeText(walletAddress)}
+                  onClick={() => navigator.clipboard.writeText(user.walletAddress!)}
                   title="Copy wallet address"
                 >Copy</button>
               </>
@@ -114,8 +102,9 @@ export default function ProfilePage() {
             )}
           </span>
         </div>
+        {/* 綁定/解除綁定按鈕 */}
         <div className="flex flex-col gap-2 mb-8">
-          {walletAddress ? (
+          {user?.walletAddress ? (
             <button
               className="border border-red-400 text-red-300 rounded px-4 py-2 font-semibold bg-transparent hover:bg-red-900/20 transition text-base"
               onClick={handleUnbindWallet}
@@ -135,8 +124,7 @@ export default function ProfilePage() {
         </div>
         {bindError && <div className="mt-4 text-red-400">{bindError}</div>}
         {bindSuccess && <div className="mt-4 text-green-400">{bindSuccess}</div>}
-
-        {/* 目前牌組顯示區塊 */}
+        {/* Deck 區塊 */}
         <div className="flex items-center justify-between mb-2 mt-8">
           <span className="font-semibold text-lg">Current Deck</span>
           <button
@@ -163,6 +151,15 @@ export default function ProfilePage() {
             ))}
           </div>
         )}
+        {/* Logout 區塊 */}
+        <div className="flex justify-center mt-4">
+          <button
+            className="border border-gray-400 text-gray-300 rounded px-4 py-2 font-semibold bg-transparent hover:bg-gray-700 transition text-base"
+            onClick={() => { setUser(null); router.push("/login"); }}
+          >
+            Logout
+          </button>
+        </div>
       </div>
     </div>
   );
