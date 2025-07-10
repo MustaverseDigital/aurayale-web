@@ -51,7 +51,7 @@ const CardSelectionComponent: React.FC<CardSelectionComponentProps> = ({
               onClick={() => {
                 if (!isInDeck && (useSelected ? selectedCards.length < 10 || isSelected : true)) {
                   if (!useSelected) {
-                    setSelectedCards(currentDeck.length ? [...currentDeck] : []);
+                    setSelectedCards([gem.id]);
                   } else {
                     toggleCardSelection(gem.id);
                   }
