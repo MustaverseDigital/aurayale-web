@@ -18,14 +18,14 @@ const DeckComponent: React.FC<DeckComponentProps> = ({
   toggleCardSelection,
 }) => {
   return (
-    <section className="p-4 border-b border-gray-700">
+    <section className="p-4  mt-14">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">Current Deck</h2>
         <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
           {selectedCards.length > 0 ? selectedCards.length : currentDeck.length}/10
         </span>
       </div>
-      <div className="grid grid-cols-5 gap-2 p-2 pt-8 bg-deck rounded-xl">
+      <div className="grid grid-cols-5 gap-2 p-2 pt-8 bg-[#898cd2]/30  p-4 rounded-lg  inset-shadow-sm inset-shadow-[#ffffff]/10 rounded-xl ">
         {Array.from({ length: 10 }).map((_, index) => {
           const useSelected = selectedCards.length > 0;
           const cardId = useSelected ? selectedCards[index] : currentDeck[index];

@@ -62,41 +62,24 @@ export default function DeckPage() {
   return (
     <div className="min-h-screen text-white flex flex-col">
       {/* 玩家資訊 header bar */}
-      <header className="w-full bg-gray-900 shadow flex items-center justify-between px-6 py-3 mb-4">
-        <div className="flex items-center gap-3">
-          <Wallet className="w-5 h-5 text-green-400" />
-          <span className="font-semibold text-white">
+      <header class="py-2 px-4 bg-[#2f334d]/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-10 flex justify-between items-center">
+          <h1 class="text-lg text-gray-400">Edit Deck</h1>
+
+          <div className="flex items-center gap-3">
+          <Wallet className="w-5 h-5 text-gray-400" />
+          <span className="font-semibold text-white bg-black/30 py-1 px-3 rounded-xl">
             {username}
             {walletAddress ? (
-              <span className="text-gray-400">(0x...{walletAddress.slice(-5)})</span>
+              <span className="text-gray-300">(0x...{walletAddress.slice(-5)})</span>
             ) : (
-              <span className="text-yellow-400">(尚未綁定)</span>
+              <span className="text-gray py-1 px-3 rounded-xl bg-gray-600/90 ">Not bound</span>
             )}
           </span>
         </div>
-        <button
-          className="btn btn-secondary flex items-center justify-center p-2"
-          onClick={async () => {
-            if (selectedCards.length === 10) {
-              try {
-                setLoading(true);
-                await editGemDeck(user.token, selectedCards);
-                setCurrentDeck([...selectedCards]);
-                setSelectedCards([]);
-              } catch (e: any) {
-                setError(e.message);
-              } finally {
-                setLoading(false);
-              }
-            }
-            router.push("/profile");
-          }}
-          title="返回個人頁面"
-        >
-          <CornerDownLeft className="w-6 h-6" />
-        </button>
+        
       </header>
-      {error && <div className="p-4 bg-red-800 text-red-200">{error}</div>}
+
+      {error && <div className="p-4  bg-red-800 text-red-200">{error}</div>}
       <DeckComponent
         currentDeck={currentDeck}
         selectedCards={selectedCards}
@@ -116,8 +99,30 @@ export default function DeckPage() {
         />
       </div>
       {/* BattleComponent */}
+       <div className="BattleComponent fixed flex justify-center bottom-0 w-full p-2 backdrop-blur-md shadow-lg btnSection min-h-[57px]">
+        <button
+          className="btn btn-sub rounded-xl flex items-center justify-center p-2 absolute left-2 bottom-2"
+          onClick={async () => {
+            if (selectedCards.length === 10) {
+              try {
+                setLoading(true);
+                await editGemDeck(user.token, selectedCards);
+                setCurrentDeck([...selectedCards]);
+                setSelectedCards([]);
+              } catch (e: any) {
+                setError(e.message);
+              } finally {
+                setLoading(false);
+              }
+            }
+            router.push("/profile");
+          }}
+          title="返回個人頁面"
+        >
+          <CornerDownLeft className="w-6 h-6" />
+        </button>
       {((selectedCards.length === 10) || (selectedCards.length === 0 && currentDeck.length === 10)) && (
-        <div className="BattleComponent fixed flex justify-center bottom-0 w-full p-2 backdrop-blur-md shadow-lg btnSection">
+       
           <button
             className="btn btn-battle p-2 px-8 animate-fade-in"
             onClick={async () => {
@@ -141,8 +146,9 @@ export default function DeckPage() {
           >
             Battle
           </button>
-        </div>
+        
       )}
+      </div>
       {/* 其他 deck 管理功能可陸續搬移進來 */}
     </div>
   );

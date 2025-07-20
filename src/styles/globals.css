@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 * {
   box-sizing: border-box;
@@ -12,200 +12,323 @@ body {
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 }
 
-body{
-  background-image: url('/img/bg.png');
+body {
+  background-image: url("/img/bg.png");
   background-size: cover;
   background-color: #222;
 }
-.bgImg{
-  background-image: url('/img/bg.png');
+.bgImg {
+  background-image: url("/img/bg.png");
   background-size: cover;
+  animation: scroll-left 20s linear infinite;
 }
-.bgImgLogin{
-    background-image: url(/img/bgLogin.png);
-    background-size: cover;
-    background-position: top;
-    background-repeat: no-repeat;
-    height: calc(100vh - 120px);
+
+@keyframes scroll-left {
+  0% {
+    background-position-x: 0;
+  }
+  100% {
+
+    background-position-x: -512px; 
+  }
 }
-.bgDark{
+
+.bgImgLogin {
+  background-image: url(/img/bgLogin.png);
+  background-size: cover;
+  background-position: top;
+  background-repeat: no-repeat;
+  height: calc(100vh - 120px);
+}
+.bgDark {
   position: absolute;
   bottom: 0;
   height: 150px;
   width: 100%;
-  background-image: linear-gradient( 180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%);
+  background-image: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 1) 100%
+  );
 }
 
 @keyframes scale {
-  0%{
-    transform: scale(1)
+  0% {
+    transform: scale(1);
   }
-  50%{
-    transform: scale(1.05)
+  50% {
+    transform: scale(1.05);
   }
-  100%{
-    transform: scale(1)
+  100% {
+    transform: scale(1);
   }
 }
-.bg-gold-r{
+.bg-gold-r {
   background-color: #bba16d;
 }
-.bg-card{
+.bg-card {
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
 }
 
-.bg-deck{
+.bg-deck {
   background-color: rgb(148 139 114 / 30%);
-  box-shadow: inset 0px 0px 10px rgba(255, 255, 255, 0.2), 0px 2px 5px rgba(0, 0, 0, 0.5);
+  box-shadow: inset 0px 0px 10px rgba(255, 255, 255, 0.2),
+    0px 2px 5px rgba(0, 0, 0, 0.5);
   border-top: solid 1px #85866b;
-    border-bottom: solid 1px #49515c;
-      background-image: url('/img/pattern.jpg');
-      background-size: 64px;
-      background-position: center;
+  border-bottom: solid 1px #49515c;
+  background-image: url("/img/pattern.jpg");
+  background-size: 64px;
+  background-position: center;
 }
-.bg-card-block{
+.bg-card-block {
   background-color: #171e23;
-  box-shadow: inset 0px 0px 15px rgba(255, 255, 255, 0.1), 0px 2px 5px rgba(0, 0, 0, 0.5);
-    border-top: solid 1px #49515c;
-    border-bottom: solid 1px #49515c;
+  box-shadow: inset 0px 0px 15px rgba(255, 255, 255, 0.1),
+    0px 2px 5px rgba(0, 0, 0, 0.5);
+  border-top: solid 1px #49515c;
+  border-bottom: solid 1px #49515c;
 }
-.bg-card-block.InDeck{
-    background-color: #372a0e;
-  box-shadow:inset 0px 0px 15px rgb(255 209 0 / 30%), 0px 2px 5px rgba(0, 0, 0, 0.5);
+.bg-card-block.InDeck {
+  background-color: #372a0e;
+  box-shadow: inset 0px 0px 15px rgb(255 209 0 / 30%),
+    0px 2px 5px rgba(0, 0, 0, 0.5);
 }
-.bg-card-empty{
-  background-color: rgba(0,0,0,.5);
+.bg-card-empty {
+  background-color: rgba(0, 0, 0, 0.5);
   border-radius: 10px;
 }
-.bg-title-deck{
-  background-image: linear-gradient( 90deg, rgb(177,147,90) 0%, rgb(222, 174, 102) 100%);
-  box-shadow: 1.378px 4.806px 43px 0px rgba(189, 162, 107, 0.63),inset 0px 1px 1px 0px rgba(255, 255, 255, 0.6),inset 0px 1px 68px 0px rgba(255, 255, 255, 0.25);
+.bg-title-deck {
+  background-image: linear-gradient(
+    90deg,
+    rgb(177, 147, 90) 0%,
+    rgb(222, 174, 102) 100%
+  );
+  box-shadow: 1.378px 4.806px 43px 0px rgba(189, 162, 107, 0.63),
+    inset 0px 1px 1px 0px rgba(255, 255, 255, 0.6),
+    inset 0px 1px 68px 0px rgba(255, 255, 255, 0.25);
 }
 
-.btn-battle{
-  background-image:  url('/img/btn.png');
+.btn-battle {
+  background-image: url("/img/btn.png");
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
 }
-.conetnt{
+.conetnt {
   height: calc(100vh - 320px);
   overflow-y: auto;
 }
-.btnSection{
+.btnSection {
   background: rgba(255, 255, 255, 0.05);
-    box-shadow: inset 0px 0px 15px rgba(255, 255, 255, 0.1);
-    border-top: 1px solid #48505b;
+  box-shadow: inset 0px 0px 15px rgba(255, 255, 255, 0.1);
+  border-top: 1px solid #48505b;
 }
-.bg-inDeck{
+.bg-inDeck {
   background-color: rgba(0, 0, 0, 0.6);
   color: #ffe97a;
-
 }
-.border-gold{
+.border-gold {
   border: solid 1px #bba16d;
 }
 
-.bg-card-1{
-  background-image: url('/img/001.png');
+.bg-input {
+  background-color: rgba(15, 17, 21, 0.612);
+  box-shadow: inset 0px 2px 4px  rgba(0, 0, 0, 0.5);
+}
+.btn-main {
+  background-image: -moz-linear-gradient(
+    90deg,
+    rgb(143, 60, 255) 0%,
+    rgb(58, 37, 222) 100%
+  );
+  background-image: -webkit-linear-gradient(
+    90deg,
+    rgb(143, 60, 255) 0%,
+    rgb(58, 37, 222) 100%
+  );
+  background-image: -ms-linear-gradient(
+    90deg,
+    rgb(143, 60, 255) 0%,
+    rgb(58, 37, 222) 100%
+  );
+  box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.57),
+    inset 0px 1px 3px 0px rgba(255, 255, 255, 0.6);
+  color: #fff;
+}
+.btn-sub{
+  background-color: #898bd24a;
+  box-shadow: inset 0px 1px 3px rgba(255, 255, 255, 0.2);
 
 }
+.bg-card-1 {
+  background-image: url("/img/001.png");
+}
 
-.bg-card-2{
-  background-image: url('/img/002.png');
+.bg-card-2 {
+  background-image: url("/img/002.png");
+}
+.bg-card-3 {
+  background-image: url("/img/003.png");
+}
+.bg-card-4 {
+  background-image: url("/img/004.png");
+}
+.bg-card-5 {
+  background-image: url("/img/005.png");
+}
+.bg-card-6 {
+  background-image: url("/img/006.png");
+}
+.bg-card-7 {
+  background-image: url("/img/007.png");
+}
+.bg-card-8 {
+  background-image: url("/img/008.png");
+}
+.bg-card-9 {
+  background-image: url("/img/009.png");
+}
+.bg-card-10 {
+  background-image: url("/img/010.png");
+}
+.bg-card-11 {
+  background-image: url("/img/011.png");
+}
+.bg-card-12 {
+  background-image: url("/img/012.png");
+}
+.bg-card-13 {
+  background-image: url("/img/013.png");
+}
+.bg-card-14 {
+  background-image: url("/img/014.png");
+}
+.bg-card-15 {
+  background-image: url("/img/015.png");
+}
+.bg-card-16 {
+  background-image: url("/img/016.png");
+}
+.bg-card-17 {
+  background-image: url("/img/017.png");
+}
+.bg-card-18 {
+  background-image: url("/img/018.png");
+}
+.bg-card-19 {
+  background-image: url("/img/019.png");
+}
+.bg-card-20 {
+  background-image: url("/img/020.png");
+}
+.bg-card-21 {
+  background-image: url("/img/021.png");
+}
+.bg-card-22 {
+  background-image: url("/img/022.png");
+}
+.bg-card-23 {
+  background-image: url("/img/023.png");
+}
+.bg-card-24 {
+  background-image: url("/img/024.png");
+}
+.bg-card-25 {
+  background-image: url("/img/025.png");
+}
+
+.profile-card {
+  border-radius: 20px;
+  background-color: rgb(154, 117, 54);
+  background-image: url("/img/card.jpg");
+  background-size: cover;
+  background-position: right top;
+  box-shadow: 0 0 15px rgba(18, 18, 18, 0.3) , inset 0px 2px 2px rgba(255,255,255,0.3), inset 0px -2px 2px rgba(57, 32, 24, 0.3);
+}
+.bg-avatar{
+
+
+  background-image: -moz-linear-gradient( 90deg, rgb(116,81,36) 0%, rgb(76,51,18) 100%);
+  background-image: -webkit-linear-gradient( 90deg, rgb(116,81,36) 0%, rgb(76,51,18) 100%);
+  background-image: -ms-linear-gradient( 90deg, rgb(116,81,36) 0%, rgb(76,51,18) 100%);
+ background-image: url("/img/avatar.jpg");
+ background-size: cover;
+ box-shadow:  inset 0px 1px 3px rgba(0, 0, 0, 0.6);
 
 }
-.bg-card-3{
-  background-image: url('/img/003.png');
-
+.btn-purple {
+  background: linear-gradient(145deg, #8b5cf6, #6d28d9);
+  border: 1px solid #a78bfa;
 }
-.bg-card-4{
-  background-image: url('/img/004.png');
-
+.btn-red {
+  background: linear-gradient(180deg, #e2612e, #bd4a27);
+  box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.57),
+    inset 0px 1px 3px 0px rgba(255, 205, 152, 0.6);
+  color: #fff;
 }
-.bg-card-5{
-  background-image: url('/img/005.png');
-
+.card-item {
+  background-color: #0c0d14;
+  border: 2px solid #c8a75a;
+  position: relative;
+  overflow: hidden;
 }
-.bg-card-6{
-  background-image: url('/img/006.png');
-
+.card-item::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 215, 0, 0.1) 0%,
+    rgba(255, 215, 0, 0) 70%
+  );
+  animation: spin 8s linear infinite;
 }
-.bg-card-7{
-  background-image: url('/img/007.png');
-
+.move-50{
+  animation: move50 5s ease-in-out infinite;
 }
-.bg-card-8{
-  background-image: url('/img/008.png');
-
+.move-100{
+  animation: move100 5s ease-in-out infinite;
 }
-.bg-card-9{
-  background-image: url('/img/009.png');
-
+.move-200{
+  animation: move200 5s ease-in-out infinite;
 }
-.bg-card-10{
-  background-image: url('/img/010.png');
 
+@keyframes move100 {
+  0%{
+    transform: rotate(45deg) translateY(0);
+  }
+  50%{
+    transform: rotate(45deg) translateY(-100px);
+  }
+  100% {
+    transform: rotate(45deg) translateY(0);
+  }
 }
-.bg-card-11{
-  background-image: url('/img/011.png');
+@keyframes move50 {
+  0%{
+    transform: rotate(45deg) translateY(0);
+  }
+  50%{
+    transform: rotate(45deg) translateY(-50px);
+  }
+  100% {
+    transform: rotate(45deg) translateY(0);
+  }
+}
 
+@keyframes move200 {
+  0%{
+    transform: rotate(45deg) translateY(0);
+  }
+  50%{
+    transform: rotate(45deg) translateY(-200px);
+  }
+  100% {
+    transform: rotate(45deg) translateY(0);
+  }
 }
-.bg-card-12{
-  background-image: url('/img/012.png');
 
-}
-.bg-card-13{
-  background-image: url('/img/013.png');
-
-}
-.bg-card-14{
-  background-image: url('/img/014.png');
-
-}
-.bg-card-15{
-  background-image: url('/img/015.png');
-
-}
-.bg-card-16{
-  background-image: url('/img/016.png');
-
-}
-.bg-card-17{
-  background-image: url('/img/017.png');
-
-}
-.bg-card-18{
-  background-image: url('/img/018.png');
-
-}
-.bg-card-19{
-  background-image: url('/img/019.png');
-
-}
-.bg-card-20{
-  background-image: url('/img/020.png');
-
-}
-.bg-card-21{
-  background-image: url('/img/021.png');
-
-}
-.bg-card-22{
-  background-image: url('/img/022.png');
-
-}
-.bg-card-23{
-  background-image: url('/img/023.png');
-
-}
-.bg-card-24{
-  background-image: url('/img/024.png');
-
-}
-.bg-card-25{
-  background-image: url('/img/025.png');
-
-}

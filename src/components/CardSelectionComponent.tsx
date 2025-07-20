@@ -25,12 +25,15 @@ const CardSelectionComponent: React.FC<CardSelectionComponentProps> = ({
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">Your Cards</h2>
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-secondary text-secondary-foreground">
+          <span className="inline-flex items-center rounded-full  bg-black/30 px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-secondary text-secondary-foreground">
             {useSelected ? selectedCards.length : currentDeck.length}/10 Selected
           </span>
         </div>
       </div>
+        <div class="space-y-4 bg-[#898cd2]/20  p-4 rounded-lg   w-full text-center">No Card</div>
+
       <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+
         {gems.map((gem) => {
           const isSelected = useSelected ? selectedCards.includes(gem.id) : false;
           const isInDeck = useSelected ? selectedCards.includes(gem.id) : currentDeck.includes(gem.id);
