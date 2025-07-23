@@ -204,33 +204,59 @@ export default function ProfilePage() {
             {/* Cards Grid */}
             <div id="cards-grid">
               <div className="grid grid-cols-5 sm:grid-cols-5 gap-3">
-                {Array.from({ length: 10 }).map((_, idx) =>
-                  deck[idx] !== undefined ? (
-                    <div
-                      key={"card-" + idx}
-                      className="flex flex-col items-center bg-gray-800 rounded-lg shadow"
-                    >
-                      <img
-                        src={`/img/${deck[idx].toString().padStart(3, "0")}.png`}
-                        alt={`Card ${deck[idx]}`}
-                        className="w-14 h-20 object-contain rounded shadow"
-                      />
-                    </div>
-                  ) : (
-                    <div
-                      key={"empty-" + idx}
-                      className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl"
-                    >
-                      +
-                    </div>
-                  )
-                )}
+              <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
+                  +
+                </div>
+                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
+                  +
+                </div>
+                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
+                  +
+                </div>
+                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
+                  +
+                </div>
+                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
+                  +
+                </div>
+                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
+                  +
+                </div>
+                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
+                  +
+                </div>
+                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
+                  +
+                </div>
+                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
+                  +
+                </div>
+                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
+                  +
+                </div>
               </div>
+               
+           
               {deckLoading ? (
                 <div className="text-gray-400">Loading...</div>
               ) : deckError ? (
                 <div className="text-red-400">{deckError}</div>
-              ) : null}
+              ) : (
+                <div className="grid grid-cols-5 gap-2 mb-2">
+                  {deck.map((id, idx) => (
+                    <div
+                      key={idx}
+                      className="flex flex-col items-center bg-gray-800 rounded-lg shadow"
+                    >
+                      <img
+                        src={`/img/${id.toString().padStart(3, "0")}.png`}
+                        alt={`Card ${id}`}
+                        className="w-14 h-20 object-contain rounded shadow"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
