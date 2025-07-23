@@ -93,8 +93,8 @@ const LoginComponent: React.FC<LoginComponentProps> = ({
 }; 
 // 寶石動畫背景元件
 const GemCanvas = () => {
-    const canvasRef = useRef(null);
-    const [gemImages, setGemImages] = useState([]);
+    const canvasRef = useRef<HTMLCanvasElement|null>(null);
+    const [gemImages, setGemImages] = useState<HTMLImageElement[]>([]);
 
     // 您可以在這裡替換或增加您自己的寶石圖片網址
     const gemImageUrls = [
@@ -117,7 +117,7 @@ const GemCanvas = () => {
 
         Promise.all(imagePromises)
             .then(images => {
-                setGemImages(images);
+                setGemImages(images as HTMLImageElement[]);
             })
             .catch(err => console.error("圖片載入失敗:", err));
     }, []); // 這個 effect 只在元件掛載時執行一次
@@ -127,12 +127,14 @@ const GemCanvas = () => {
         if (gemImages.length === 0) return; // 如果圖片尚未載入，則不執行
 
         const canvas = canvasRef.current;
+        if (!canvas) return;
         const ctx = canvas.getContext('2d');
+        if (!ctx) return;
 
-        let gems = [];
+        let gems: any[] = [];
         const gemCount = 20; // 增加寶石數量以獲得更豐富的效果
-        let animationFrameId;
-        let maxDistance;
+        let animationFrameId: number;
+        let maxDistance: number;
 
         const resizeCanvas = () => {
             canvas.width = window.innerWidth;
@@ -142,7 +144,7 @@ const GemCanvas = () => {
         };
 
         // 將單一寶石重設回中心
-        const resetGem = (gem) => {
+        const resetGem = (gem: any) => {
             gem.z = 0; // z 代表離中心的距離
             gem.angle = Math.random() * Math.PI * 2; // 擴散的角度
             gem.speed = Math.random() * 0.5 + 0.2; // 擴散的速度
@@ -168,7 +170,7 @@ const GemCanvas = () => {
             }
         };
 
-        const drawGem = (gem) => {
+        const drawGem = (gem: any) => {
             const normalizedDistance = gem.z / maxDistance;
 
             // 根據角度和距離(z)計算目前位置

@@ -86,11 +86,11 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bgImg text-white">
       {/* Header*/}
-      <header class="py-2 px-4 bg-[#2f334d]/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-10 flex justify-between items-center">
-          <h1 class="text-lg text-gray-400 ">Profile</h1>
+      <header className="py-2 px-4 bg-[#2f334d]/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-10 flex justify-between items-center">
+          <h1 className="text-lg text-gray-400 ">Profile</h1>
 
           
-          <button class="btn-sub p-2 rounded-xl hover:bg-white/10 transition-colors" aria-label="Lot Out" onClick={() => {
+          <button className="btn-sub p-2 rounded-xl hover:bg-white/10 transition-colors" aria-label="Lot Out" onClick={() => {
                 setUser(null);
                 router.push("/login");
               }}>
@@ -98,35 +98,35 @@ export default function ProfilePage() {
           </button>
       </header>
 
-      <div class="container p-4">
-        <main class="space-y-6">
+      <div className="container p-4">
+        <main className="space-y-6">
           {/* Profile Card */}
-          <div class="profile-card  px-4 py-8 flex flex-col space-y-4 relative">
+          <div className="profile-card  px-4 py-8 flex flex-col space-y-4 relative">
             {/* User Info Section */}
-            <div class="flex items-center space-x-4">
+            <div className="flex items-center space-x-4">
               {/* Icon */}
-              <div class="w-16 h-16 bg-avatar rounded-xl flex items-center justify-center  flex-shrink-0"></div>
+              <div className="w-16 h-16 bg-avatar rounded-xl flex items-center justify-center  flex-shrink-0"></div>
               {/* User Info */}
               <div>
-                <h2 class="text-2xl font-bold">
+                <h2 className="text-2xl font-bold">
                   <div className="mb-2">
                     <span className="font-semibold">UserName</span>{" "}
                   </div>
                 </h2>
-                <p class="text-sm text-white">ID: {user?.userId}</p>
+                <p className="text-sm text-white">ID: {user?.userId}</p>
               </div>
             </div>
 
             {/* Wallet Info */}
-            <div class="pt-4">
-              <div class="flex justify-between items-center">
+            <div className="pt-4">
+              <div className="flex justify-between items-center">
                 {/* Left side: Label and Address */}
                 <div>
-                  <p class="text-white text-sm">Wallet</p>
-                  <div class="flex items-center space-x-2">
+                  <p className="text-white text-sm">Wallet</p>
+                  <div className="flex items-center space-x-2">
                     {user?.walletAddress ? (
                       <>
-                        <p class="font-mono text-lg">
+                        <p className="font-mono text-lg">
                           {user.walletAddress.slice(0, 6)}...
                           {user.walletAddress.slice(-4)}
                         </p>
@@ -139,15 +139,15 @@ export default function ProfilePage() {
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            class="h-5 w-5 text-yellow-200"
+                            className="h-5 w-5 text-yellow-200"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
-                            stroke-width="2"
+                            strokeWidth="2"
                           >
                             <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
                               d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
                             />
                           </svg>
@@ -190,9 +190,9 @@ export default function ProfilePage() {
           </div>
 
           {/* Current Deck */}
-          <div class="space-y-4 bg-[#898cd2]/30  p-4 rounded-lg  inset-shadow-sm inset-shadow-[#ffffff]/10">
-            <div class="flex justify-between items-center">
-              <h3 class="text-xl">Current Deck</h3>
+          <div className="space-y-4 bg-[#898cd2]/30  p-4 rounded-lg  inset-shadow-sm inset-shadow-[#ffffff]/10">
+            <div className="flex justify-between items-center">
+              <h3 className="text-xl">Current Deck</h3>
               <button
                 className="btn-main text-white rounded rounded-xl px-4 py-2 font-semibold bg-transparent hover:bg-blue-900/20 transition text-sm"
                 onClick={() => router.push("/deck")}
@@ -263,32 +263,6 @@ export default function ProfilePage() {
           {/* BattleComponent */}
        
         </main>
-        <div className="BattleComponent fixed flex justify-center bottom-0 left-0 w-full p-2 backdrop-blur-md shadow-lg btnSection">
-                <button
-                  className="btn btn-main rounded-lg p-2 px-8 animate-fade-in"
-                  onClick={async () => {
-                    try {
-                      setLoading(true);
-                      if (selectedCards.length === 10) {
-                        await editGemDeck(user.token, selectedCards);
-                        setCurrentDeck([...selectedCards]);
-                        setSelectedCards([]);
-                        localStorage.setItem("battleDeck", JSON.stringify(selectedCards));
-                      } else {
-                        localStorage.setItem("battleDeck", JSON.stringify(currentDeck));
-                      }
-                      router.push("/battle");
-                    } catch (e: any) {
-                      setError(e.message);
-                    } finally {
-                      setLoading(false);
-                    }
-                  }}
-                >
-                  Battle
-                </button>
-   
-            </div>
       </div>
     </div>
   );

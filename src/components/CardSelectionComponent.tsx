@@ -30,7 +30,9 @@ const CardSelectionComponent: React.FC<CardSelectionComponentProps> = ({
           </span>
         </div>
       </div>
-        <div class="space-y-4 bg-[#898cd2]/20  p-4 rounded-lg   w-full text-center">No Card</div>
+        {gems.length === 0 && (
+          <div className="space-y-4 bg-[#898cd2]/20  p-4 rounded-lg   w-full text-center">No Card</div>
+        )}
 
       <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
 
@@ -64,7 +66,7 @@ const CardSelectionComponent: React.FC<CardSelectionComponentProps> = ({
               <div className="p-2 flex flex-col space-y-1.5 relative overflow-hidden">
                 <img
                   src={`/img/${gem.id.toString().padStart(3, "0")}.png`}
-                  alt={gem.metadata.name}
+                  alt={gem.metadata?.name || `Card ${gem.id}`}
                   className="aspect-[3/4] bg-card bg-card-1 rounded mb-2 object-contain w-full"
                 />
                 <div className="space-y-1">
