@@ -20,11 +20,11 @@ export default function ProfilePage() {
   const [deckError, setDeckError] = useState("");
   const router = useRouter();
 
-  // BNB 鏈的配置
-  const BNB_CHAIN_ID = "0x38"; // BNB Smart Chain Mainnet
-  const BNB_CHAIN_NAME = "BNB Smart Chain";
-  const BNB_RPC_URL = "https://bsc-dataseed1.binance.org/";
-  const BNB_BLOCK_EXPLORER = "https://bscscan.com/";
+  // BNB 測試鏈的配置
+  const BNB_CHAIN_ID = "0x61"; // BNB Smart Chain Testnet
+  const BNB_CHAIN_NAME = "BNB Smart Chain Testnet";
+  const BNB_RPC_URL = "https://data-seed-prebsc-1-s1.binance.org:8545/";
+  const BNB_BLOCK_EXPLORER = "https://testnet.bscscan.com/";
 
   // 檢查並切換到 BNB 鏈
   const switchToBNBChain = async () => {
@@ -109,7 +109,7 @@ export default function ProfilePage() {
       // 4. 驗證是否在正確的鏈上
       const currentChainId = await window.ethereum.request({ method: "eth_chainId" });
       if (currentChainId !== BNB_CHAIN_ID) {
-        throw new Error("Please make sure you are connected to BNB Smart Chain");
+        throw new Error("Please make sure you are connected to BNB Smart Chain Testnet");
       }
 
       // 5. 取得 nonce
@@ -184,7 +184,7 @@ export default function ProfilePage() {
 
             {/* Wallet Info */}
             <div className="pt-4">
-              <p className="text-white text-sm mb-3">BNB Wallet</p>
+              <p className="text-white text-sm mb-3">BNB Testnet Wallet</p>
               <div className="flex justify-between items-center">
                 {/* Left side: Address/Status */}
                 <div className="flex items-center space-x-2">
