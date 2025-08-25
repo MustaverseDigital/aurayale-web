@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import LoginComponent from "../components/LoginComponent";
-import { loginWithPassword, registerWithPassword, loginWithGoogle } from "../api/auraServer";
+import { loginWithPassword, registerWithPassword, loginWithGoogle, getUserDeck, getUserGems } from "../api/auraServer";
 import { useUser } from "../context/UserContext";
 
 export default function LoginPage() {
@@ -21,11 +21,26 @@ export default function LoginPage() {
     setSuccess("");
     try {
       const data = await loginWithGoogle(idToken);
+      // 先寫入基本資料
       setUser({
         token: data.token,
         userId: data.userId,
         username: data.username,
         walletAddress: data.walletAddress || "",
+      });
+      // 取得 deck 與 gems
+      const [deck, gems] = await Promise.all([
+        getUserDeck(data.token),
+        getUserGems(data.token),
+      ]);
+      // 寫入 context
+      setUser({
+        token: data.token,
+        userId: data.userId,
+        username: data.username,
+        walletAddress: data.walletAddress || "",
+        deck,
+        gems,
       });
       setSuccess("Google 登入成功！");
       setTimeout(() => {
@@ -58,11 +73,26 @@ export default function LoginPage() {
             setShowRegister(false);
           } else {
             const data = await loginWithPassword(username, password);
+            // 先寫入基本資料
             setUser({
               token: data.token,
               userId: data.userId,
               username: data.username,
               walletAddress: data.walletAddress || "",
+            });
+            // 取得 deck 與 gems
+            const [deck, gems] = await Promise.all([
+              getUserDeck(data.token),
+              getUserGems(data.token),
+            ]);
+            // 寫入 context
+            setUser({
+              token: data.token,
+              userId: data.userId,
+              username: data.username,
+              walletAddress: data.walletAddress || "",
+              deck,
+              gems,
             });
             router.push("/profile");
           }
