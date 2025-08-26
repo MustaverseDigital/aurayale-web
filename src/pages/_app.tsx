@@ -16,7 +16,7 @@ function ContextStateViewer() {
   const { user } = useUser();
   return (
     <DevOnly>
-      <CollapsibleViewer title="UserContext" position="bottom-right">
+      <CollapsibleViewer title="" position="bottom-right">
         <code>{JSON.stringify(user, null, 2)}</code>
       </CollapsibleViewer>
     </DevOnly>
@@ -30,7 +30,7 @@ function DevOnly({ children }: { children: React.ReactNode }) {
 
 function CollapsibleViewer({ title, position, children }: { title: string; position?: 'bottom-right' | 'bottom-left'; children: React.ReactNode; }) {
   const [open, setOpen] = React.useState(false);
-  const posStyle = position === 'bottom-left' ? { left: 12, bottom: 12 } : { right: 12, bottom: 12 } as React.CSSProperties;
+  const posStyle = position === 'bottom-left' ? { left: 1, bottom: 1 } : { right: 1, bottom: 1 } as React.CSSProperties;
   return (
     <div style={{ position: 'fixed', zIndex: 9999, ...posStyle }}>
       <button
