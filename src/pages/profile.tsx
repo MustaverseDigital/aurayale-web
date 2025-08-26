@@ -149,7 +149,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bgImg text-white">
+    <div className="min-h-screen bgImg text-white">
       {/* Header*/}
       <header className="py-2 px-4 bg-[#2f334d]/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-10 flex justify-between items-center">
         <h1 className="text-lg text-gray-400 ">Profile</h1>
@@ -163,7 +163,7 @@ export default function ProfilePage() {
         </button>
       </header>
 
-      <div className="container p-4">
+      <div className="container p-4 pt-20">
         <main className="space-y-6">
           {/* Profile Card */}
           <div className="profile-card  px-4 py-8 flex flex-col space-y-4 relative">
