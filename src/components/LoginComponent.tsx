@@ -28,6 +28,37 @@ const LoginComponent: React.FC<LoginComponentProps> = ({
   onPasswordChange,
 }) => {
 
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  // 嘗試在載入與首次互動時播放影片（行動裝置相容）
+  useEffect(() => {
+    const tryPlay = () => {
+      const video = videoRef.current;
+      if (!video) return;
+      const playPromise = video.play();
+      if (playPromise && typeof (playPromise as Promise<void>).then === 'function') {
+        (playPromise as Promise<void>).catch(() => {
+          // 某些瀏覽器仍需使用者互動才能播放，失敗時略過
+        });
+      }
+    };
+
+    // 進入頁面時先嘗試一次
+    tryPlay();
+
+    // 首次互動再嘗試一次
+    const onFirstInteract = () => {
+      tryPlay();
+    };
+    window.addEventListener('touchstart', onFirstInteract, { once: true });
+    window.addEventListener('click', onFirstInteract, { once: true });
+
+    return () => {
+      window.removeEventListener('touchstart', onFirstInteract);
+      window.removeEventListener('click', onFirstInteract);
+    };
+  }, []);
+
   // Google Sign-In 處理函數
   const handleGoogleSignIn = (response: { credential: string }) => {
     console.log('Google Sign-In 回應:', response);
@@ -76,7 +107,7 @@ const LoginComponent: React.FC<LoginComponentProps> = ({
   return (
     <section className="Connect fixed w-full h-full bgImg z-2 flex flex-col ">
       <div className=" w-full h-full absolute -bottom-25"></div>
-      <video class="video-container"  controls autoPlay muted loop>
+      <video ref={videoRef} className="video-container" autoPlay muted loop playsInline>
         <source src="/img/video.mp4" type="video/mp4" />
       </video>
       <div className="bgDark"></div>
