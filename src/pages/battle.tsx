@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Unity, useUnityContext } from "react-unity-webgl";
+import { useViewportRequirements } from "../context/ViewportRequirementsContext";
 
 export default function BattlePage() {
   const [pendingDeck, setPendingDeck] = useState<string | null>(null);
@@ -18,9 +19,7 @@ export default function BattlePage() {
     typeof window !== "undefined" ? window.innerHeight : 800
   );
   const audioRef = useRef<HTMLAudioElement>(null);
-  // 直式鎖定與提示狀態
-  const [shouldShowUnity, setShouldShowUnity] = useState(true);
-  const [showMobileTip, setShowMobileTip] = useState(false);
+  const { isAllowed } = useViewportRequirements();
 
   // 取得 battleDeck
   useEffect(() => {
@@ -62,38 +61,7 @@ export default function BattlePage() {
     }
   }, []);
 
-  // 直式與高度自適應檢查（鎖直式體驗）
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    function checkPlatformAndOrientation() {
-      const isPortrait = window.innerHeight >= window.innerWidth;
-      const hasEnoughHeight = window.innerHeight >= 400; // 高度門檻可依需求調整
-
-      if (isPortrait && hasEnoughHeight) {
-        setShouldShowUnity(true);
-        setShowMobileTip(false);
-      } else {
-        setShouldShowUnity(false);
-        setShowMobileTip(true);
-      }
-    }
-
-    // 延遲檢查，避免行動裝置網址列動畫影響判斷
-    const delayedCheck = () => {
-      setTimeout(checkPlatformAndOrientation, 100);
-    };
-
-    checkPlatformAndOrientation();
-    window.addEventListener("resize", delayedCheck);
-    window.addEventListener("orientationchange", delayedCheck);
-    window.addEventListener("scroll", delayedCheck);
-    return () => {
-      window.removeEventListener("resize", delayedCheck);
-      window.removeEventListener("orientationchange", delayedCheck);
-      window.removeEventListener("scroll", delayedCheck);
-    };
-  }, []);
+  // 直式與高度自適應檢查改由全域 OrientationProvider 處理
 
   // 背景音樂音量
   useEffect(() => {
@@ -118,17 +86,8 @@ export default function BattlePage() {
     <div className="min-h-screen text-white flex flex-col">
       {/* 背景音樂 */}
       <audio ref={audioRef} src="/bgm/bgm.mp3" autoPlay loop hidden />
-      {/* 直式不足提示遮罩 */}
-      {showMobileTip && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40">
-          <div className="px-6 py-4 rounded-lg bg-black/70 text-white text-center text-lg shadow-xl">
-            請使用直式畫面並確保螢幕高度足夠以獲得最佳體驗
-          </div>
-        </div>
-      )}
-
       {/* Unity WebGL Overlay：僅在符合條件時渲染 */}
-      {shouldShowUnity && (
+      {isAllowed && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90">
           {!isLoaded && (
             <div className="absolute inset-0 flex flex-col items-center justify-center z-50">

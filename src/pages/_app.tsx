@@ -9,6 +9,8 @@ import { UserProvider, useUser } from "../context/UserContext";
 import React from 'react';
 
 import { config } from '../wagmi';
+import { ViewportRequirementsProvider } from "../context/ViewportRequirementsContext";
+import PortraitRequirementOverlay from "../components/PortraitRequirementOverlay";
 
 const client = new QueryClient();
 
@@ -76,10 +78,13 @@ export default function App({ Component, pageProps }: AppProps) {
     <UserProvider>
       <WagmiProvider config={config}>
         <QueryClientProvider client={client}>
-          <RainbowKitProvider>
-            <Component {...pageProps} />
-            <ContextStateViewer />
-          </RainbowKitProvider>
+          <ViewportRequirementsProvider>
+            <RainbowKitProvider>
+              <Component {...pageProps} />
+              <ContextStateViewer />
+              <PortraitRequirementOverlay />
+            </RainbowKitProvider>
+          </ViewportRequirementsProvider>
         </QueryClientProvider>
       </WagmiProvider>
     </UserProvider>

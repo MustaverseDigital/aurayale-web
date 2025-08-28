@@ -255,7 +255,7 @@ export default function ProfilePage() {
             <div className="flex justify-between items-center">
               <h3 className="text-xl">Current Deck</h3>
               <button
-                className="btn-main text-white rounded rounded-xl px-4 py-2 font-semibold bg-transparent hover:bg-blue-900/20 transition text-sm"
+                className="btn-main text-white rounded-xl px-4 py-2 font-semibold bg-transparent hover:bg-blue-900/20 transition text-sm"
                 onClick={() => router.push("/deck")}
               >
                 Edit Deck
@@ -264,64 +264,49 @@ export default function ProfilePage() {
 
             {/* Cards Grid */}
             <div id="cards-grid">
-              <div className="grid grid-cols-5 sm:grid-cols-5 gap-3">
-                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
-                  +
-                </div>
-                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
-                  +
-                </div>
-                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
-                  +
-                </div>
-                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
-                  +
-                </div>
-                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
-                  +
-                </div>
-                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
-                  +
-                </div>
-                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
-                  +
-                </div>
-                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
-                  +
-                </div>
-                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
-                  +
-                </div>
-                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
-                  +
-                </div>
-              </div>
+              {/* 決定顯示卡槽數量（與原本 + 的數量一致） */}
+              {(() => {
+                const totalSlots = 10;
+                const shownDeck = (deck || []).slice(0, totalSlots);
+                return (
+                  <div className="grid grid-cols-5 sm:grid-cols-5 gap-3">
+                    {Array.from({ length: totalSlots }).map((_, i) => {
+                      const cardId = shownDeck[i];
+                      if (deckLoading) {
+                        // 載入中仍顯示占位
+                        return (
+                          <div key={i} className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-2xl">
+                            …
+                          </div>
+                        );
+                      }
+                      if (cardId !== undefined) {
+                        return (
+                          <div key={i} className="aspect-[3/4] flex items-center justify-center bg-gray-800 rounded-lg shadow ">
+                            <img
+                              src={`/img/${cardId.toString().padStart(3, "0")}.png`}
+                              alt={`Card ${cardId}`}
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                        );
+                      }
+                      return (
+                        <div key={i} className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
+                          +
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
 
-
-              {deckLoading ? (
-                <div className="text-gray-400">Loading...</div>
-              ) : deckError ? (
-                <div className="text-red-400">{deckError}</div>
-              ) : (
-                <div className="grid grid-cols-5 gap-2 mb-2">
-                  {deck.map((id, idx) => (
-                    <div
-                      key={idx}
-                      className="flex flex-col items-center bg-gray-800 rounded-lg shadow"
-                    >
-                      <img
-                        src={`/img/${id.toString().padStart(3, "0")}.png`}
-                        alt={`Card ${id}`}
-                        className="w-14 h-20 object-contain rounded shadow"
-                      />
-                    </div>
-                  ))}
-                </div>
+              {deckError && (
+                <div className="text-red-400 mt-2">{deckError}</div>
               )}
             </div>
           </div>
 
-          {/* BattleComponent */}
 
         </main>
       </div>
