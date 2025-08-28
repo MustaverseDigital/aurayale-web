@@ -30,11 +30,11 @@ export default function ProfilePage() {
   const switchToBNBChain = async () => {
     try {
       // 檢查是否已經在 BNB 鏈上
-      const currentChainId = await window.ethereum.request({ method: "eth_chainId" });
+      const currentChainId = await window.ethereum!.request({ method: "eth_chainId" });
 
       if (currentChainId !== BNB_CHAIN_ID) {
         // 嘗試切換到 BNB 鏈
-        await window.ethereum.request({
+        await window.ethereum!.request({
           method: "wallet_switchEthereumChain",
           params: [{ chainId: BNB_CHAIN_ID }],
         });
@@ -43,7 +43,7 @@ export default function ProfilePage() {
       // 如果 BNB 鏈不存在於用戶的 MetaMask 中，則添加它
       if (switchError.code === 4902) {
         try {
-          await window.ethereum.request({
+          await window.ethereum!.request({
             method: "wallet_addEthereumChain",
             params: [
               {
@@ -100,14 +100,14 @@ export default function ProfilePage() {
       await switchToBNBChain();
 
       // 3. 連接錢包
-      const accounts = await window.ethereum.request({
+      const accounts = await window.ethereum!.request({
         method: "eth_requestAccounts",
       });
       const wallet = accounts?.[0];
       if (!wallet) throw new Error("Please connect your wallet");
 
       // 4. 驗證是否在正確的鏈上
-      const currentChainId = await window.ethereum.request({ method: "eth_chainId" });
+      const currentChainId = await window.ethereum!.request({ method: "eth_chainId" });
       if (currentChainId !== BNB_CHAIN_ID) {
         throw new Error("Please make sure you are connected to BNB Smart Chain Testnet");
       }
@@ -117,7 +117,7 @@ export default function ProfilePage() {
       if (!nonce) throw new Error("Cannot get nonce");
 
       // 6. 用 MetaMask personal_sign 對 nonce 簽名
-      const signature = await window.ethereum.request({
+      const signature = await window.ethereum!.request({
         method: "personal_sign",
         params: [nonce, wallet],
       });
