@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import DeckComponent from "../components/DeckComponent";
 import CardSelectionComponent from "../components/CardSelectionComponent";
 import { getUserGems, getUserDeck, editGemDeck, GemItem } from "../api/auraServer";
-import { Wallet, CornerDownLeft } from "lucide-react";
+import { Wallet, CornerDownLeft, Loader2 } from "lucide-react";
 import { useUser } from "../context/UserContext";
 
 export default function DeckPage() {
@@ -17,6 +17,9 @@ export default function DeckPage() {
   // 新增玩家資訊
   const [username, setUsername] = useState<string>("");
   const [walletAddress, setWalletAddress] = useState<string>("");
+  // 編輯模式
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [saving, setSaving] = useState<boolean>(false);
 
   useEffect(() => {
     if (!user?.token) {
@@ -38,6 +41,7 @@ export default function DeckPage() {
   }, [router, user]);
 
   const toggleCardSelection = (cardId: number) => {
+    if (!isEditing) return;
     setSelectedCards((prev) => {
       if (prev.includes(cardId)) {
         return prev.filter((id) => id !== cardId);
@@ -63,9 +67,9 @@ export default function DeckPage() {
     <div className="min-h-screen text-white flex flex-col">
       {/* 玩家資訊 header bar */}
       <header className="py-2 px-4 bg-[#2f334d]/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-10 flex justify-between items-center">
-          <h1 className="text-lg text-gray-400">Edit Deck</h1>
+        <h1 className="text-lg text-gray-400">Edit Deck</h1>
 
-          <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3">
           <Wallet className="w-5 h-5 text-gray-400" />
           <span className="font-semibold text-white bg-black/30 py-1 px-3 rounded-xl">
             {username}
@@ -76,7 +80,7 @@ export default function DeckPage() {
             )}
           </span>
         </div>
-        
+
       </header>
 
       {error && <div className="p-4  bg-red-800 text-red-200">{error}</div>}
@@ -86,6 +90,7 @@ export default function DeckPage() {
         gems={gems}
         setSelectedCards={setSelectedCards}
         toggleCardSelection={toggleCardSelection}
+        isEditing={isEditing}
       />
       {/* CardSelectionComponent */}
       <div className="CardSelectionComponent">
@@ -96,58 +101,82 @@ export default function DeckPage() {
           setSelectedCards={setSelectedCards}
           toggleCardSelection={toggleCardSelection}
           getCardEffect={getCardEffect}
+          isEditing={isEditing}
         />
       </div>
-      {/* BattleComponent */}
-       <div className="BattleComponent fixed flex justify-center bottom-0 w-full p-2 backdrop-blur-md shadow-lg btnSection min-h-[57px]">
+      {/* Bottom action bar: 編輯 / Battle */}
+      <div className="BattleComponent fixed bottom-0 left-0 right-0 w-full p-2 backdrop-blur-md shadow-lg btnSection min-h-[57px]">
+        {/* 返回個人頁面 */}
         <button
-          className="btn btn-sub rounded-xl flex items-center justify-center p-2 absolute left-2 bottom-2"
-          onClick={async () => {
-            if (selectedCards.length === 10) {
-              try {
-                setLoading(true);
-                await editGemDeck(user.token, selectedCards);
-                setCurrentDeck([...selectedCards]);
-                setSelectedCards([]);
-              } catch (e: any) {
-                setError(e.message);
-              } finally {
-                setLoading(false);
-              }
-            }
-            router.push("/profile");
-          }}
+          className="btn btn-sub rounded-xl flex items-center justify-center p-2 absolute left-2 bottom-2 text-sm bg-transparent hover:bg-white/10 transition"
+          onClick={() => router.push("/profile")}
           title="返回個人頁面"
         >
           <CornerDownLeft className="w-6 h-6" />
         </button>
-      {((selectedCards.length === 10) || (selectedCards.length === 0 && currentDeck.length === 10)) && (
-       
+
+        <div className="flex items-center justify-center gap-3">
           <button
-            className="btn btn-battle p-2 px-8 animate-fade-in"
+            className={`btn rounded-xl px-6 py-2 text-white text-sm font-semibold transition inline-flex items-center justify-center h-10 w-28 whitespace-nowrap ${!isEditing
+              ? "bg-sky-600 hover:bg-sky-500"
+              : selectedCards.length === 10
+                ? "bg-emerald-600 hover:bg-emerald-500"
+                : "bg-rose-600 hover:bg-rose-500"
+              } bg-opacity-90 hover:bg-opacity-100 ${saving ? "opacity-70 cursor-not-allowed" : ""}`}
             onClick={async () => {
-              try {
-                setLoading(true);
-                if (selectedCards.length === 10) {
+              if (!isEditing) {
+                setIsEditing(true);
+                setSelectedCards(currentDeck);
+                return;
+              }
+              if (isEditing && selectedCards.length === 10) {
+                try {
+                  setSaving(true);
                   await editGemDeck(user.token, selectedCards);
                   setCurrentDeck([...selectedCards]);
                   setSelectedCards([]);
-                  localStorage.setItem("battleDeck", JSON.stringify(selectedCards));
-                } else {
-                  localStorage.setItem("battleDeck", JSON.stringify(currentDeck));
+                  setIsEditing(false);
+                } catch (e: any) {
+                  setError(e.message);
+                } finally {
+                  setSaving(false);
                 }
-                router.push("/battle");
-              } catch (e: any) {
-                setError(e.message);
-              } finally {
-                setLoading(false);
+                return;
               }
+              // isEditing 且未選滿 10 -> 取消
+              setIsEditing(false);
+              setSelectedCards([]);
             }}
+            disabled={saving}
+            title={!isEditing ? "編輯" : (selectedCards.length === 10 ? (saving ? "" : "儲存") : "取消")}
+          >
+            {!isEditing ? (
+              "編輯"
+            ) : selectedCards.length === 10 ? (
+              saving ? (
+                <span className="inline-flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                </span>
+              ) : (
+                "儲存"
+              )
+            ) : (
+              "取消"
+            )}
+          </button>
+
+          <button
+            className="btn btn-battle rounded-xl px-8 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed transition bg-opacity-90 hover:bg-opacity-100 inline-flex items-center justify-center h-10 w-28 whitespace-nowrap"
+            onClick={() => {
+              localStorage.setItem("battleDeck", JSON.stringify(currentDeck));
+              router.push("/battle");
+            }}
+            disabled={currentDeck.length !== 10 || loading || isEditing}
+            title={currentDeck.length === 10 ? "前往戰鬥" : "需要 10 張卡片的牌組"}
           >
             Battle
           </button>
-        
-      )}
+        </div>
       </div>
       {/* 其他 deck 管理功能可陸續搬移進來 */}
     </div>

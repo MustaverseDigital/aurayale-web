@@ -1,5 +1,4 @@
 import React from "react";
-import { Check } from "lucide-react";
 import { GemItem } from "../api/auraServer";
 
 interface DeckComponentProps {
@@ -8,6 +7,7 @@ interface DeckComponentProps {
   gems: GemItem[];
   setSelectedCards: React.Dispatch<React.SetStateAction<number[]>>;
   toggleCardSelection: (cardId: number) => void;
+  isEditing?: boolean;
 }
 
 const DeckComponent: React.FC<DeckComponentProps> = ({
@@ -15,19 +15,19 @@ const DeckComponent: React.FC<DeckComponentProps> = ({
   selectedCards,
   gems,
   setSelectedCards,
-  toggleCardSelection,
+  isEditing = false,
 }) => {
   return (
     <section className="p-4  mt-14">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">Current Deck</h2>
         <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
-          {selectedCards.length > 0 ? selectedCards.length : currentDeck.length}/10
+          {isEditing ? selectedCards.length : currentDeck.length}/10
         </span>
       </div>
       <div className="grid grid-cols-5 gap-2 p-2 pt-8 bg-[#898cd2]/30  p-4 rounded-lg  inset-shadow-sm inset-shadow-[#ffffff]/10 rounded-xl ">
         {Array.from({ length: 10 }).map((_, index) => {
-          const useSelected = selectedCards.length > 0;
+          const useSelected = isEditing;
           const cardId = useSelected ? selectedCards[index] : currentDeck[index];
           const card = gems.find((g) => g.id === cardId);
           return (
@@ -36,12 +36,8 @@ const DeckComponent: React.FC<DeckComponentProps> = ({
                 <div
                   className={`text-center p-1 ${useSelected ? "cursor-pointer hover:opacity-70" : ""}`}
                   onClick={() => {
-                    if (selectedCards.length === 0) {
-                      setSelectedCards(currentDeck.length ? [...currentDeck] : []);
-                      setTimeout(() => toggleCardSelection(cardId), 0);
-                    } else if (useSelected) {
-                      setSelectedCards((prev) => prev.filter((id, i) => i !== index));
-                    }
+                    if (!isEditing) return;
+                    setSelectedCards((prev) => prev.filter((id, i) => i !== index));
                   }}
                   title={useSelected ? "Click to remove" : ""}
                 >
