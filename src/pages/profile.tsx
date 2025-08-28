@@ -20,6 +20,54 @@ export default function ProfilePage() {
   const [deckError, setDeckError] = useState("");
   const router = useRouter();
 
+  // BNB 測試鏈的配置
+  const BNB_CHAIN_ID = "0x61"; // BNB Smart Chain Testnet
+  const BNB_CHAIN_NAME = "BNB Smart Chain Testnet";
+  const BNB_RPC_URL = "https://data-seed-prebsc-1-s1.binance.org:8545/";
+  const BNB_BLOCK_EXPLORER = "https://testnet.bscscan.com/";
+
+  // 檢查並切換到 BNB 鏈
+  const switchToBNBChain = async () => {
+    try {
+      // 檢查是否已經在 BNB 鏈上
+      const currentChainId = await window.ethereum.request({ method: "eth_chainId" });
+
+      if (currentChainId !== BNB_CHAIN_ID) {
+        // 嘗試切換到 BNB 鏈
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: BNB_CHAIN_ID }],
+        });
+      }
+    } catch (switchError: any) {
+      // 如果 BNB 鏈不存在於用戶的 MetaMask 中，則添加它
+      if (switchError.code === 4902) {
+        try {
+          await window.ethereum.request({
+            method: "wallet_addEthereumChain",
+            params: [
+              {
+                chainId: BNB_CHAIN_ID,
+                chainName: BNB_CHAIN_NAME,
+                nativeCurrency: {
+                  name: "BNB",
+                  symbol: "BNB",
+                  decimals: 18,
+                },
+                rpcUrls: [BNB_RPC_URL],
+                blockExplorerUrls: [BNB_BLOCK_EXPLORER],
+              },
+            ],
+          });
+        } catch (addError) {
+          throw new Error("Failed to add BNB chain to MetaMask");
+        }
+      } else {
+        throw new Error("Failed to switch to BNB chain");
+      }
+    }
+  };
+
   // user 狀態已由 context 管理
 
   // 取得目前牌組與卡片資訊
@@ -43,24 +91,41 @@ export default function ProfilePage() {
     setBindSuccess("");
     setBindError("");
     try {
-      // 1. 連接錢包
-      const accounts = await window.ethereum?.request({
+      // 1. 檢查 MetaMask 是否已安裝
+      if (!window.ethereum) {
+        throw new Error("MetaMask is not installed. Please install MetaMask first.");
+      }
+
+      // 2. 切換到 BNB 鏈
+      await switchToBNBChain();
+
+      // 3. 連接錢包
+      const accounts = await window.ethereum.request({
         method: "eth_requestAccounts",
       });
       const wallet = accounts?.[0];
       if (!wallet) throw new Error("Please connect your wallet");
-      // 2. 取得 nonce
+
+      // 4. 驗證是否在正確的鏈上
+      const currentChainId = await window.ethereum.request({ method: "eth_chainId" });
+      if (currentChainId !== BNB_CHAIN_ID) {
+        throw new Error("Please make sure you are connected to BNB Smart Chain Testnet");
+      }
+
+      // 5. 取得 nonce
       const { nonce } = await requestBindWallet(user!.token, wallet);
       if (!nonce) throw new Error("Cannot get nonce");
-      // 3. 用 MetaMask personal_sign 對 nonce 簽名
+
+      // 6. 用 MetaMask personal_sign 對 nonce 簽名
       const signature = await window.ethereum.request({
         method: "personal_sign",
         params: [nonce, wallet],
       });
-      // 4. confirm 綁定
+
+      // 7. confirm 綁定
       await confirmBindWallet(user!.token, wallet, signature);
       setUser({ ...user!, walletAddress: wallet });
-      setBindSuccess("Wallet bound successfully!");
+      setBindSuccess("Wallet bound successfully to BNB Smart Chain!");
     } catch (e: any) {
       setBindError(e.message);
     } finally {
@@ -84,21 +149,21 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bgImg text-white">
+    <div className="min-h-screen bgImg text-white">
       {/* Header*/}
       <header className="py-2 px-4 bg-[#2f334d]/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-10 flex justify-between items-center">
-          <h1 className="text-lg text-gray-400 ">Profile</h1>
+        <h1 className="text-lg text-gray-400 ">Profile</h1>
 
-          
-          <button className="btn-sub p-2 rounded-xl hover:bg-white/10 transition-colors" aria-label="Lot Out" onClick={() => {
-                setUser(null);
-                router.push("/login");
-              }}>
-              <LogOut />
-          </button>
+
+        <button className="btn-sub p-2 rounded-xl hover:bg-white/10 transition-colors" aria-label="Lot Out" onClick={() => {
+          setUser(null);
+          router.push("/login");
+        }}>
+          <LogOut />
+        </button>
       </header>
 
-      <div className="container p-4">
+      <div className="container p-4 pt-20">
         <main className="space-y-6">
           {/* Profile Card */}
           <div className="profile-card  px-4 py-8 flex flex-col space-y-4 relative">
@@ -119,47 +184,44 @@ export default function ProfilePage() {
 
             {/* Wallet Info */}
             <div className="pt-4">
+              <p className="text-white text-sm mb-3">BNB Testnet Wallet</p>
               <div className="flex justify-between items-center">
-                {/* Left side: Label and Address */}
-                <div>
-                  <p className="text-white text-sm">Wallet</p>
-                  <div className="flex items-center space-x-2">
-                    {user?.walletAddress ? (
-                      <>
-                        <p className="font-mono text-lg">
-                          {user.walletAddress.slice(0, 6)}...
-                          {user.walletAddress.slice(-4)}
-                        </p>
-                        <button
-                          className="p-1 rounded-full hover:bg-white/10 transition-colors"
-                          onClick={() =>
-                            navigator.clipboard.writeText(user.walletAddress!)
-                          }
-                          title="Copy wallet address"
+                {/* Left side: Address/Status */}
+                <div className="flex items-center space-x-2">
+                  {user?.walletAddress ? (
+                    <>
+                      <p className="font-mono text-lg">
+                        {user.walletAddress.slice(0, 6)}...
+                        {user.walletAddress.slice(-4)}
+                      </p>
+                      <button
+                        className="p-1 rounded-full hover:bg-white/10 transition-colors"
+                        onClick={() =>
+                          navigator.clipboard.writeText(user.walletAddress!)
+                        }
+                        title="Copy wallet address"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5 text-yellow-200"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth="2"
                         >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5 text-yellow-200"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                            />
-                          </svg>
-                        </button>
-                      </>
-                    ) : (
-                      <span className="text-gray py-1 px-3 rounded-xl bg-gray-600/90 ">Not bound</span>
-                    )}
-                  </div>
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                          />
+                        </svg>
+                      </button>
+                    </>
+                  ) : (
+                    <span className="text-gray py-1 px-3 rounded-xl bg-gray-600/90">Not bound to BNB</span>
+                  )}
                 </div>
-                {/* Right side: Unbind Button */}
-
+                {/* Right side: Button */}
                 {user?.walletAddress ? (
                   <button
                     className="btn-red text-white font-semibold py-2 px-3 rounded-xl text-sm"
@@ -174,17 +236,16 @@ export default function ProfilePage() {
                     onClick={handleBindWallet}
                     disabled={bindLoading}
                   >
-                    {bindLoading ? "Binding..." : "Bind Wallet"}
+                    {bindLoading ? "Binding..." : "Bind BNB Wallet"}
                   </button>
                 )}
-                
               </div>
               {bindError && (
-                  <div className="mt-4 bg-black/30 px-4 py-1  rounded-xl text-red-400 text-center">{bindError}</div>
-                )}
-                {bindSuccess && (
-                  <div className="mt-4 bg-black/30 px-4 py-1  rounded-xl text-green-300 text-center">{bindSuccess}</div>
-                )}
+                <div className="mt-4 bg-black/30 px-4 py-1  rounded-xl text-red-400 text-center">{bindError}</div>
+              )}
+              {bindSuccess && (
+                <div className="mt-4 bg-black/30 px-4 py-1  rounded-xl text-green-300 text-center">{bindSuccess}</div>
+              )}
             </div>
 
           </div>
@@ -194,7 +255,7 @@ export default function ProfilePage() {
             <div className="flex justify-between items-center">
               <h3 className="text-xl">Current Deck</h3>
               <button
-                className="btn-main text-white rounded rounded-xl px-4 py-2 font-semibold bg-transparent hover:bg-blue-900/20 transition text-sm"
+                className="btn-main text-white rounded-xl px-4 py-2 font-semibold bg-transparent hover:bg-blue-900/20 transition text-sm"
                 onClick={() => router.push("/deck")}
               >
                 Edit Deck
@@ -203,65 +264,50 @@ export default function ProfilePage() {
 
             {/* Cards Grid */}
             <div id="cards-grid">
-              <div className="grid grid-cols-5 sm:grid-cols-5 gap-3">
-              <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
-                  +
-                </div>
-                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
-                  +
-                </div>
-                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
-                  +
-                </div>
-                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
-                  +
-                </div>
-                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
-                  +
-                </div>
-                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
-                  +
-                </div>
-                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
-                  +
-                </div>
-                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
-                  +
-                </div>
-                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
-                  +
-                </div>
-                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
-                  +
-                </div>
-              </div>
-               
-           
-              {deckLoading ? (
-                <div className="text-gray-400">Loading...</div>
-              ) : deckError ? (
-                <div className="text-red-400">{deckError}</div>
-              ) : (
-                <div className="grid grid-cols-5 gap-2 mb-2">
-                  {deck.map((id, idx) => (
-                    <div
-                      key={idx}
-                      className="flex flex-col items-center bg-gray-800 rounded-lg shadow"
-                    >
-                      <img
-                        src={`/img/${id.toString().padStart(3, "0")}.png`}
-                        alt={`Card ${id}`}
-                        className="w-14 h-20 object-contain rounded shadow"
-                      />
-                    </div>
-                  ))}
-                </div>
+              {/* 決定顯示卡槽數量（與原本 + 的數量一致） */}
+              {(() => {
+                const totalSlots = 10;
+                const shownDeck = (deck || []).slice(0, totalSlots);
+                return (
+                  <div className="grid grid-cols-5 sm:grid-cols-5 gap-3">
+                    {Array.from({ length: totalSlots }).map((_, i) => {
+                      const cardId = shownDeck[i];
+                      if (deckLoading) {
+                        // 載入中仍顯示占位
+                        return (
+                          <div key={i} className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-2xl">
+                            …
+                          </div>
+                        );
+                      }
+                      if (cardId !== undefined) {
+                        return (
+                          <div key={i} className="aspect-[3/4] flex items-center justify-center bg-gray-800 rounded-lg shadow ">
+                            <img
+                              src={`/img/${cardId.toString().padStart(3, "0")}.png`}
+                              alt={`Card ${cardId}`}
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                        );
+                      }
+                      return (
+                        <div key={i} className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
+                          +
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+
+              {deckError && (
+                <div className="text-red-400 mt-2">{deckError}</div>
               )}
             </div>
           </div>
 
-          {/* BattleComponent */}
-       
+
         </main>
       </div>
     </div>

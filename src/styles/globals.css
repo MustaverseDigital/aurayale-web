@@ -43,7 +43,7 @@ body {
 .bgDark {
   position: absolute;
   bottom: 0;
-  height: 150px;
+  height: 600px;
   width: 100%;
   background-image: linear-gradient(
     180deg,
@@ -332,3 +332,12 @@ body {
   }
 }
 
+.video-container{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+}
