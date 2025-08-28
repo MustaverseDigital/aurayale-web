@@ -76,7 +76,9 @@ const LoginComponent: React.FC<LoginComponentProps> = ({
   return (
     <section className="Connect fixed w-full h-full bgImg z-2 flex flex-col ">
       <div className=" w-full h-full absolute -bottom-25"></div>
-      <GemCanvas />
+      <video class="video-container"  controls autoPlay muted loop>
+        <source src="/img/video.mp4" type="video/mp4" />
+      </video>
       <div className="bgDark"></div>
       {/* Logo置頂 */}
       <div className="w-full flex flex-col items-center pt-45 z-10">
