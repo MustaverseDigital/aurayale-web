@@ -3,12 +3,6 @@
 import { useState, useEffect } from "react"
 import { Wallet, Settings, User, AlertCircle, CheckCircle } from "lucide-react"
 
-declare global {
-  interface Window {
-    ethereum?: any
-  }
-}
-
 interface GemItem {
   id: number
   quantity: number
@@ -93,7 +87,7 @@ export default function AuraServerTester() {
       setLoading(true)
       setError("")
 
-      const accounts = await window.ethereum.request({
+      const accounts = await window.ethereum!.request({
         method: "eth_requestAccounts",
       })
 
@@ -149,7 +143,7 @@ export default function AuraServerTester() {
       setError("")
 
       // Sign the nonce with MetaMask
-      const signature = await window.ethereum.request({
+      const signature = await window.ethereum!.request({
         method: "personal_sign",
         params: [nonce, walletAddress],
       })
