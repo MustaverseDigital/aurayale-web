@@ -151,11 +151,11 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bgImg text-white">
       {/* Header*/}
-      <header className="py-2 px-4 bg-[#2f334d]/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-10 flex justify-between items-center">
+      <header className="py-2 px-4 border-b border-[#898cd2]/30 backdrop-blur-sm fixed top-0 left-0 right-0 z-10 flex justify-between items-center">
         <h1 className="text-lg text-gray-400 ">Profile</h1>
 
 
-        <button className="btn-sub p-2 rounded-xl hover:bg-white/10 transition-colors" aria-label="Lot Out" onClick={() => {
+        <button className="btn-square p-3 rounded-xl hover:bg-white/10 transition-colors text-xs" aria-label="Lot Out" onClick={() => {
           setUser(null);
           router.push("/login");
         }}>
@@ -255,7 +255,7 @@ export default function ProfilePage() {
             <div className="flex justify-between items-center">
               <h3 className="text-xl">Current Deck</h3>
               <button
-                className="btn-main text-white rounded-xl px-4 py-2 font-semibold bg-transparent hover:bg-blue-900/20 transition text-sm"
+                className="btn-primary text-shadow-lg text-white rounded-xl px-4 py-2 font-semibold bg-transparent hover:bg-blue-900/20 transition text-sm"
                 onClick={() => router.push("/deck")}
               >
                 Edit Deck

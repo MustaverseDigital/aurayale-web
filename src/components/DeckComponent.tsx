@@ -25,7 +25,7 @@ const DeckComponent: React.FC<DeckComponentProps> = ({
           {isEditing ? selectedCards.length : currentDeck.length}/10
         </span>
       </div>
-      <div className="grid grid-cols-5 gap-2 p-2 pt-8 bg-[#898cd2]/30  p-4 rounded-lg  inset-shadow-sm inset-shadow-[#ffffff]/10 rounded-xl ">
+      <div className="grid grid-cols-5 gap-2 p-2 pt-8 bg-[#898cd2]/30  p-4 rounded-lg  inset-shadow-sm inset-shadow-[#ffffff]/30 rounded-xl ">
         {Array.from({ length: 10 }).map((_, index) => {
           const useSelected = isEditing;
           const cardId = useSelected ? selectedCards[index] : currentDeck[index];

@@ -135,7 +135,7 @@ const LoginComponent: React.FC<LoginComponentProps> = ({
             placeholder="Username"
             value={username}
             onChange={onUsernameChange}
-            className="input text-white px-3 py-2 rounded-xl  placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-input"
+            className="input text-white px-3 py-2 rounded-lg  placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-input"
             required
             autoComplete="username"
           />
@@ -144,13 +144,13 @@ const LoginComponent: React.FC<LoginComponentProps> = ({
             placeholder="Password"
             value={password}
             onChange={onPasswordChange}
-            className="input text-white px-3 py-2 rounded-xl  placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-input"
+            className="input text-white px-3 py-2 rounded-lg  placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-input"
             required
             autoComplete="current-password"
           />
 
 
-          <button type="submit" className="btn rounded-xl px-3 py-2  btn-main  mb-5" disabled={loading}>
+          <button type="submit" className="btn rounded-lg mt-3 px-3 py-2  btn-primary  text-white mb-5" disabled={loading}>
             {showRegister ? "Register" : "Login"}
           </button>
 

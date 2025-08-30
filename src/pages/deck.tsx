@@ -66,7 +66,7 @@ export default function DeckPage() {
   return (
     <div className="min-h-screen text-white flex flex-col">
       {/* 玩家資訊 header bar */}
-      <header className="py-2 px-4 bg-[#2f334d]/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-10 flex justify-between items-center">
+      <header className="py-2 px-4 border-b border-[#898cd2]/30 backdrop-blur-sm fixed top-0 left-0 right-0 z-10 flex justify-between items-center">
         <h1 className="text-lg text-gray-400">Edit Deck</h1>
 
         <div className="flex items-center gap-3">
@@ -108,7 +108,7 @@ export default function DeckPage() {
       <div className="BattleComponent fixed bottom-0 left-0 right-0 w-full p-2 backdrop-blur-md shadow-lg btnSection min-h-[57px]">
         {/* 返回個人頁面 */}
         <button
-          className="btn btn-sub rounded-xl flex items-center justify-center p-2 absolute left-2 bottom-2 text-sm bg-transparent hover:bg-white/10 transition"
+          className="btn btn-square rounded-xl flex items-center justify-center p-3 absolute left-2 bottom-2 text-sm bg-transparent hover:bg-white/10 transition"
           onClick={() => router.push("/profile")}
           title="返回個人頁面"
         >
@@ -117,11 +117,11 @@ export default function DeckPage() {
 
         <div className="flex items-center justify-center gap-3">
           <button
-            className={`btn rounded-xl px-6 py-2 text-white text-sm font-semibold transition inline-flex items-center justify-center h-10 w-28 whitespace-nowrap ${!isEditing
-              ? "bg-sky-600 hover:bg-sky-500"
+            className={`btn rounded-xl text-shadow-sm px-6 py-2 text-white text-sm font-semibold transition inline-flex items-center justify-center h-10 w-28 whitespace-nowrap ${!isEditing
+              ? "btn-primary "
               : selectedCards.length === 10
-                ? "bg-emerald-600 hover:bg-emerald-500"
-                : "bg-rose-600 hover:bg-rose-500"
+                ? "btn-success "
+                : "btn-warning "
               } bg-opacity-90 hover:bg-opacity-100 ${saving ? "opacity-70 cursor-not-allowed" : ""}`}
             onClick={async () => {
               if (!isEditing) {
@@ -151,22 +151,22 @@ export default function DeckPage() {
             title={!isEditing ? "編輯" : (selectedCards.length === 10 ? (saving ? "" : "儲存") : "取消")}
           >
             {!isEditing ? (
-              "編輯"
+              "Edit"
             ) : selectedCards.length === 10 ? (
               saving ? (
                 <span className="inline-flex items-center gap-2">
                   <Loader2 className="w-4 h-4 animate-spin" />
                 </span>
               ) : (
-                "儲存"
+                "Save"
               )
             ) : (
-              "取消"
+              "Cancel"
             )}
           </button>
 
           <button
-            className="btn btn-battle rounded-xl px-8 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed transition bg-opacity-90 hover:bg-opacity-100 inline-flex items-center justify-center h-10 w-28 whitespace-nowrap"
+            className="btn btn-battle text-shadow-lg rounded-xl px-8 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed transition bg-opacity-90 hover:bg-opacity-100 inline-flex items-center justify-center h-10 w-28 whitespace-nowrap"
             onClick={() => {
               localStorage.setItem("battleDeck", JSON.stringify(currentDeck));
               router.push("/battle");

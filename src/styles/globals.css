@@ -16,11 +16,12 @@ body {
   background-image: url("/img/bg.png");
   background-size: cover;
   background-color: #222;
+  background-attachment: fixed;
 }
 .bgImg {
   background-image: url("/img/bg.png");
   background-size: cover;
-  animation: scroll-left 20s linear infinite;
+  background-attachment: fixed;
 }
 
 @keyframes scroll-left {
@@ -83,10 +84,10 @@ body {
   background-position: center;
 }
 .bg-card-block {
-  background-color: #171e23;
+  background-color: rgba(57, 48, 70, 20);
   box-shadow: inset 0px 0px 15px rgba(255, 255, 255, 0.1),
     0px 2px 5px rgba(0, 0, 0, 0.5);
-  border-top: solid 1px #49515c;
+  border-top: solid 1px #5c4959;
   border-bottom: solid 1px #49515c;
 }
 .bg-card-block.InDeck {
@@ -133,8 +134,8 @@ body {
 }
 
 .bg-input {
-  background-color: rgba(15, 17, 21, 0.612);
-  box-shadow: inset 0px 2px 4px  rgba(0, 0, 0, 0.5);
+  background-color: rgba(95, 74, 101, 0.612);
+  box-shadow: inset 0px 2px 4px  rgba(20, 13, 18, 0.5);
 }
 .btn-main {
   background-image: -moz-linear-gradient(
@@ -160,6 +161,30 @@ body {
   background-color: #898bd24a;
   box-shadow: inset 0px 1px 3px rgba(255, 255, 255, 0.2);
 
+}
+.btn-square{
+  background-image: url("/img/btn_Funtion_M.png");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.btn-primary{
+  background-image: url("/img/btn-primary.png");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.btn-warning{
+  background-image: url("/img/btn-warning.png");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.btn-success{
+  background-image: url("/img/btn-success.png");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 .bg-card-1 {
   background-image: url("/img/001.png");
