@@ -160,7 +160,7 @@ const LoginComponent: React.FC<LoginComponentProps> = ({
           </button> */}
 
           {/* Google 登入按鈕放在登入按鈕上方 */}
-          <div id="google-signin-button"></div>
+          <div id="google-signin-button" className="flex justify-center items-center w-full"></div>
           <button
             type="button"
             className="text-sm underline text-orange-300"
