@@ -1,0 +1,67 @@
+{
+    "headers": [
+        {
+          "source": "/Build/(.*\\.unityweb)",
+          "headers" : [
+            {
+              "key" : "Content-Encoding",
+              "value" : "gzip"
+            }
+          ]
+        },
+        {
+          "source": "/Build/(.*\\.wasm\\.unityweb)",
+          "headers" : [
+            {
+              "key" : "Content-Type",
+              "value" : "application/wasm"
+            }
+          ]
+        },
+        {
+          "source": "/Build/(.*\\.gz)",
+          "headers" : [
+            {
+              "key" : "Content-Encoding",
+              "value" : "gzip"
+            }
+          ]
+        },
+        {
+          "source": "/Build/(.*\\.wasm\\.gz)",
+          "headers" : [
+            {
+              "key" : "Content-Type",
+              "value" : "application/wasm"
+            }
+          ]
+        },
+        {
+          "source": "/Build/(.*\\.br)",
+          "headers" : [
+            {
+              "key" : "Content-Encoding",
+              "value" : "br"
+            }
+          ]
+        },
+        {
+          "source": "/Build/(.*\\.wasm\\.br)",
+          "headers" : [
+            {
+              "key" : "Content-Type",
+              "value" : "application/wasm"
+            }
+          ]
+        },
+        {
+          "source": "/Build/(.*)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=31536000, immutable"
+            }
+          ]
+        }
+      ]
+}
