@@ -17,6 +17,9 @@ body {
   background-size: cover;
   background-color: #222;
   background-attachment: fixed;
+  /* 支援 Safari 安全區域 */
+  padding-bottom: env(safe-area-inset-bottom);
+  min-height: calc(100vh - env(safe-area-inset-bottom));
 }
 .bgImg {
   background-image: url("/img/bg.png");
@@ -366,3 +369,20 @@ body {
   object-fit: cover;
   z-index: -1;
 }
+
+/* Unity WebGL 安全區域適配 */
+.unity-viewport {
+  height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+}
+
+/* 對於 Safari 的特殊處理 */
+@supports (-webkit-touch-callout: none) {
+  .unity-viewport {
+    /* 使用 dvh (動態視窗高度) 更好地適應 Safari */
+    height: 100dvh;
+    height: calc(100dvh - env(safe-area-inset-bottom));
+  }
+}
+
+

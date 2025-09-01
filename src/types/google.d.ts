@@ -30,6 +30,15 @@ declare global {
       ) => void;
       isMetaMask?: boolean;
     };
+    visualViewport?: {
+      height: number;
+      width: number;
+      scale: number;
+      offsetTop: number;
+      offsetLeft: number;
+      addEventListener: (event: string, handler: () => void) => void;
+      removeEventListener: (event: string, handler: () => void) => void;
+    };
   }
 }
 

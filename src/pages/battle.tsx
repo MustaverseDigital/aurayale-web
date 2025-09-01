@@ -14,12 +14,8 @@ export default function BattlePage() {
   const [devicePixelRatio, setDevicePixelRatio] = useState(
     typeof window !== "undefined" ? window.devicePixelRatio : 1
   );
-  // 追蹤 viewportHeight 狀態
-  const [viewportHeight, setViewportHeight] = useState(
-    typeof window !== "undefined" ? window.innerHeight : 800
-  );
   const audioRef = useRef<HTMLAudioElement>(null);
-  const { isAllowed } = useViewportRequirements();
+  const { isAllowed, viewportHeight, safeAreaInsetBottom } = useViewportRequirements();
 
   // 取得 battleDeck
   useEffect(() => {
@@ -48,18 +44,7 @@ export default function BattlePage() {
     }
   }, [devicePixelRatio]);
 
-  // 追蹤 viewportHeight
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const handleResize = () => setViewportHeight(window.innerHeight);
-      window.addEventListener("resize", handleResize);
-      window.addEventListener("orientationchange", handleResize);
-      return () => {
-        window.removeEventListener("resize", handleResize);
-        window.removeEventListener("orientationchange", handleResize);
-      };
-    }
-  }, []);
+
 
   // 直式與高度自適應檢查改由全域 OrientationProvider 處理
 
@@ -101,6 +86,7 @@ export default function BattlePage() {
           )}
           <Unity
             unityProvider={unityProvider}
+            className="unity-viewport"
             style={{
               position: "fixed",
               top: 0,
@@ -110,7 +96,9 @@ export default function BattlePage() {
               visibility: isLoaded ? "visible" : "hidden",
               display: "block",
               zIndex: 1,
-              background: "#000"
+              background: "#000",
+              // 確保在不支援 CSS env() 的瀏覽器中有備用值
+              marginBottom: safeAreaInsetBottom > 0 ? `${safeAreaInsetBottom}px` : '0',
             }}
             devicePixelRatio={devicePixelRatio}
           />
