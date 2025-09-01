@@ -163,7 +163,7 @@ export default function ProfilePage() {
         </button>
       </header>
 
-      <div className="container p-4 pt-20 pb-20">
+      <div className="container p-4 pt-20 pb-20" style={{ marginLeft: "auto", marginRight: "auto" }}>
         <main className="space-y-6">
           {/* Profile Card */}
           <div className="profile-card  px-4 py-8 flex flex-col space-y-4 relative">
