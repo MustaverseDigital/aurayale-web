@@ -308,10 +308,10 @@ export default function ProfilePage() {
           </div>
 
           {/* Action Buttons Section */}
-          <div className="fixed bottom-0 left-0 right-0 w-full p-2 backdrop-blur-md shadow-lg btnSection min-h-[57px]">
+          <div className="fixed bottom-0 left-0 right-0 w-full p-4 backdrop-blur-md shadow-lg btnSection min-h-[72px]">
             <div className="flex items-center justify-center gap-3">
               <button
-                className="btn btn-battle text-shadow-lg rounded-xl px-8 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed transition bg-opacity-90 hover:bg-opacity-100 inline-flex items-center justify-center h-10 w-28 whitespace-nowrap"
+                className="btn btn-battle text-shadow-lg rounded-xl px-8 py-2 text-xl disabled:opacity-50 disabled:cursor-not-allowed transition bg-opacity-90 hover:bg-opacity-100 inline-flex items-center justify-center h-15 w-58 whitespace-nowrap"
                 onClick={() => {
                   localStorage.setItem("battleDeck", JSON.stringify(deck));
                   router.push("/battle");
