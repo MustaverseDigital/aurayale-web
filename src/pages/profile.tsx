@@ -163,7 +163,7 @@ export default function ProfilePage() {
         </button>
       </header>
 
-      <div className="container p-4 pt-20">
+      <div className="container p-4 pt-20 pb-20">
         <main className="space-y-6">
           {/* Profile Card */}
           <div className="profile-card  px-4 py-8 flex flex-col space-y-4 relative">
@@ -307,6 +307,22 @@ export default function ProfilePage() {
             </div>
           </div>
 
+          {/* Action Buttons Section */}
+          <div className="fixed bottom-0 left-0 right-0 w-full p-2 backdrop-blur-md shadow-lg btnSection min-h-[57px]">
+            <div className="flex items-center justify-center gap-3">
+              <button
+                className="btn btn-battle text-shadow-lg rounded-xl px-8 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed transition bg-opacity-90 hover:bg-opacity-100 inline-flex items-center justify-center h-10 w-28 whitespace-nowrap"
+                onClick={() => {
+                  localStorage.setItem("battleDeck", JSON.stringify(deck));
+                  router.push("/battle");
+                }}
+                disabled={deck.length !== 10 || deckLoading}
+                title={deck.length === 10 ? "前往戰鬥" : "需要 10 張卡片的牌組"}
+              >
+                Battle
+              </button>
+            </div>
+          </div>
 
         </main>
       </div>
