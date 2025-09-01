@@ -307,7 +307,7 @@ export default function ProfilePage() {
             </div>
           </div>
           <div className="text-center">
-            <p class="my-4">Are you ready to play?</p>
+            <p className="my-4">Are you ready to play?</p>
             <button
                 className="btn btn-battle text-shadow-lg rounded-xl px-8 py-2 text-xl disabled:opacity-50 disabled:cursor-not-allowed transition bg-opacity-90 hover:bg-opacity-100 inline-flex items-center justify-center h-15 w-58 whitespace-nowrap"
                 onClick={() => {
