@@ -306,9 +306,23 @@ export default function ProfilePage() {
               )}
             </div>
           </div>
+          <div className="text-center">
+            <p class="my-4">Are you ready to play?</p>
+            <button
+                className="btn btn-battle text-shadow-lg rounded-xl px-8 py-2 text-xl disabled:opacity-50 disabled:cursor-not-allowed transition bg-opacity-90 hover:bg-opacity-100 inline-flex items-center justify-center h-15 w-58 whitespace-nowrap"
+                onClick={() => {
+                  localStorage.setItem("battleDeck", JSON.stringify(deck));
+                  router.push("/battle");
+                }}
+                disabled={deck.length !== 10 || deckLoading}
+                title={deck.length === 10 ? "前往戰鬥" : "需要 10 張卡片的牌組"}
+              >
+                Play
+              </button>
+          </div>
 
-          {/* Action Buttons Section */}
-          <div className="fixed bottom-0 left-0 right-0 w-full p-4 backdrop-blur-md shadow-lg btnSection min-h-[72px]">
+          {/* Action Buttons Section
+          <div className="fixed bottom-0 left-0 right-0 w-full p-4 backdrop-blur-md shadow-lg btnSection min-h-[72px] ">
             <div className="flex items-center justify-center gap-3">
               <button
                 className="btn btn-battle text-shadow-lg rounded-xl px-8 py-2 text-xl disabled:opacity-50 disabled:cursor-not-allowed transition bg-opacity-90 hover:bg-opacity-100 inline-flex items-center justify-center h-15 w-58 whitespace-nowrap"
@@ -322,7 +336,7 @@ export default function ProfilePage() {
                 Battle
               </button>
             </div>
-          </div>
+          </div> */}
 
         </main>
       </div>
