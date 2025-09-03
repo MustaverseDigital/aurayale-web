@@ -54,10 +54,10 @@ export default function DeckPage() {
 
   // 卡牌效果
   const getCardEffect = (id: number) => {
-    if (id >= 1 && id <= 6) return "+ 100 ATK";
-    if (id >= 7 && id <= 12) return "Pair + 200 ATK";
-    if (id >= 13 && id <= 18) return " + 1 Mult";
-    if (id >= 19 && id <= 24) return "Pair + 2 Mult";
+    // if (id >= 1 && id <= 6) return "+ 100 ATK";
+    // if (id >= 7 && id <= 12) return "Pair + 200 ATK";
+    // if (id >= 13 && id <= 18) return " + 1 Mult";
+    // if (id >= 19 && id <= 24) return "Pair + 2 Mult";
     return "";
   };
 
