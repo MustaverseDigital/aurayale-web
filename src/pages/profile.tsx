@@ -149,7 +149,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bgImg text-white">
+    <div className="min-h-screen bgImg text-white flex flex-col">
       {/* Header*/}
       <header className="py-2 px-4 border-b border-[#898cd2]/30 backdrop-blur-sm fixed top-0 left-0 right-0 z-10 flex justify-between items-center">
         <h1 className="text-lg text-gray-400 ">Profile</h1>
@@ -163,8 +163,8 @@ export default function ProfilePage() {
         </button>
       </header>
 
-      <div className="container p-4 pt-20 pb-20" style={{ marginLeft: "auto", marginRight: "auto" }}>
-        <main className="space-y-6">
+      <div className="container flex-1 flex flex-col p-4 pt-20 pb-24 mx-auto">
+        <main className="flex-1 flex flex-col space-y-6">
           {/* Profile Card */}
           <div className="profile-card  px-4 py-8 flex flex-col space-y-4 relative">
             {/* User Info Section */}
@@ -251,7 +251,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Current Deck */}
-          <div className="space-y-4 bg-[#898cd2]/30  p-4 rounded-lg  inset-shadow-sm inset-shadow-[#ffffff]/10">
+          <div className="flex-1 flex flex-col space-y-4 bg-[#898cd2]/30  p-4 rounded-lg  inset-shadow-sm inset-shadow-[#ffffff]/10">
             <div className="flex justify-between items-center">
               <h3 className="text-xl">Current Deck</h3>
               <button
@@ -263,7 +263,7 @@ export default function ProfilePage() {
             </div>
 
             {/* Cards Grid */}
-            <div id="cards-grid">
+            <div id="cards-grid" className="flex-1 flex flex-col justify-center">
               {/* 決定顯示卡槽數量（與原本 + 的數量一致） */}
               {(() => {
                 const totalSlots = 10;
@@ -306,8 +306,10 @@ export default function ProfilePage() {
               )}
             </div>
           </div>
-          <div className="text-center">
-            <p className="my-4">Are you ready to play?</p>
+          
+          {/* Play Button Section - Always visible at bottom */}
+          <div className="flex-shrink-0 text-center py-4 play-button-section">
+            <p className="mb-4">Are you ready to play?</p>
             <button
                 className="btn btn-battle text-shadow-lg rounded-xl px-8 py-2 text-xl disabled:opacity-50 disabled:cursor-not-allowed transition bg-opacity-90 hover:bg-opacity-100 inline-flex items-center justify-center h-15 w-58 whitespace-nowrap"
                 onClick={() => {

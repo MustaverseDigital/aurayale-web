@@ -20,6 +20,7 @@ body {
   /* 支援 Safari 安全區域 */
   padding-bottom: env(safe-area-inset-bottom);
   min-height: calc(100vh - env(safe-area-inset-bottom));
+  min-height: calc(100dvh - env(safe-area-inset-bottom));
 }
 .bgImg {
   background-image: url("/img/bg.png");
@@ -383,6 +384,58 @@ body {
     height: 100dvh;
     height: calc(100dvh - env(safe-area-inset-bottom));
   }
+}
+
+/* Profile 頁面響應式優化 */
+@media (max-height: 700px) {
+  .profile-card {
+    padding: 1rem;
+  }
+  
+  .profile-card h2 {
+    font-size: 1.25rem;
+  }
+  
+  #cards-grid .grid {
+    gap: 0.5rem;
+  }
+  
+  .btn-battle {
+    padding: 0.5rem 1.5rem;
+    font-size: 1rem;
+  }
+}
+
+@media (max-height: 600px) {
+  .profile-card {
+    padding: 0.75rem;
+  }
+  
+  .profile-card .space-y-4 > * + * {
+    margin-top: 0.75rem;
+  }
+  
+  #cards-grid .grid {
+    gap: 0.25rem;
+  }
+  
+  .btn-battle {
+    padding: 0.375rem 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* 確保容器有最小高度但不會過度擴展 */
+.min-h-screen {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* 確保 Play 按鈕區域始終可見 */
+.play-button-section {
+  position: sticky;
+  bottom: 0;
+  background: transparent;
 }
 
 
