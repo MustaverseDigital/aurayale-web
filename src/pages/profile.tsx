@@ -184,7 +184,7 @@ export default function ProfilePage() {
 
             {/* Wallet Info */}
             <div className="pt-4">
-              <p className="text-white text-sm mb-3">BNB Testnet Wallet</p>
+              <p className="text-white text-sm mb-3">Aurayale Gem Wallet</p>
               <div className="flex justify-between items-center">
                 {/* Left side: Address/Status */}
                 <div className="flex items-center space-x-2">
@@ -218,7 +218,7 @@ export default function ProfilePage() {
                       </button>
                     </>
                   ) : (
-                    <span className="text-gray py-1 px-3 rounded-xl bg-gray-600/90">Not bound to BNB</span>
+                    <span className="text-gray py-1 px-3 rounded-xl bg-gray-600/90">Not bound</span>
                   )}
                 </div>
                 {/* Right side: Button */}
@@ -236,7 +236,7 @@ export default function ProfilePage() {
                     onClick={handleBindWallet}
                     disabled={bindLoading}
                   >
-                    {bindLoading ? "Binding..." : "Bind BNB Wallet"}
+                    {bindLoading ? "Binding..." : "Bind Wallet"}
                   </button>
                 )}
               </div>
