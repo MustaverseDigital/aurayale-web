@@ -5,10 +5,10 @@ import { useViewportRequirements } from "../context/ViewportRequirementsContext"
 export default function Andong2025Page() {
   const [pendingDeck, setPendingDeck] = useState<string | null>(null);
   const { unityProvider, isLoaded, loadingProgression, sendMessage } = useUnityContext({
-    loaderUrl: "/Build/Build.loader.js",
-    dataUrl: "/Build/Build.data.unityweb",
-    frameworkUrl: "/Build/Build.framework.js.unityweb",
-    codeUrl: "/Build/Build.wasm.unityweb",
+    loaderUrl: "/Build_Andong/Build.loader.js",
+    dataUrl: "/Build_Andong/Build.data.unityweb",
+    frameworkUrl: "/Build_Andong/Build.framework.js.unityweb",
+    codeUrl: "/Build_Andong/Build.wasm.unityweb",
   });
   // devicePixelRatio 狀態初始化
   const [devicePixelRatio, setDevicePixelRatio] = useState(
