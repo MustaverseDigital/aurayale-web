@@ -82,7 +82,7 @@ export default function App({ Component, pageProps }: AppProps) {
             <RainbowKitProvider>
               <Component {...pageProps} />
               <ContextStateViewer />
-              <PortraitRequirementOverlay />
+              {/* <PortraitRequirementOverlay /> */}
             </RainbowKitProvider>
           </ViewportRequirementsProvider>
         </QueryClientProvider>
