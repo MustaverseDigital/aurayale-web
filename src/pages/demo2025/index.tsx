@@ -2,13 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { Unity, useUnityContext } from "react-unity-webgl";
 import { useViewportRequirements } from "../../context/ViewportRequirementsContext";
 
-export default function Andong2025Page() {
+export default function Demo2025Page() {
   const [pendingDeck, setPendingDeck] = useState<string | null>(null);
   const { unityProvider, isLoaded, loadingProgression, sendMessage } = useUnityContext({
-    loaderUrl: "/Build/Build.loader.js",
-    dataUrl: "/Build/Build.data.unityweb",
-    frameworkUrl: "/Build/Build.framework.js.unityweb",
-    codeUrl: "/Build/Build.wasm.unityweb",
+    loaderUrl: "/Offline_Build/Build.loader.js",
+    dataUrl: "/Offline_Build/Build.data.unityweb",
+    frameworkUrl: "/Offline_Build/Build.framework.js.unityweb",
+    codeUrl: "/Offline_Build/Build.wasm.unityweb",
   });
   // devicePixelRatio 狀態初始化
   const [devicePixelRatio, setDevicePixelRatio] = useState(
