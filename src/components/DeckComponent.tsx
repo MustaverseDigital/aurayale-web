@@ -18,7 +18,7 @@ const DeckComponent: React.FC<DeckComponentProps> = ({
   isEditing = false,
 }) => {
   return (
-    <section className="p-4  mt-14">
+    <section className="px-4 pb-4 pt-2">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">Current Deck</h2>
         <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">

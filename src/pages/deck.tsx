@@ -5,6 +5,8 @@ import CardSelectionComponent from "../components/CardSelectionComponent";
 import { getUserGems, getUserDeck, editGemDeck, GemItem } from "../api/auraServer";
 import { Wallet, CornerDownLeft, Loader2 } from "lucide-react";
 import { useUser } from "../context/UserContext";
+import { useViewportRequirements } from "../context/ViewportRequirementsContext";
+import { useCanvasWidth } from "../hooks/useCanvasWidth";
 
 export default function DeckPage() {
   const router = useRouter();
@@ -20,6 +22,8 @@ export default function DeckPage() {
   // 編輯模式
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [saving, setSaving] = useState<boolean>(false);
+  const { viewportHeight, safeAreaInsetBottom } = useViewportRequirements();
+  const canvasWidth = useCanvasWidth(viewportHeight);
 
   useEffect(() => {
     if (!user?.token) {
@@ -65,47 +69,59 @@ export default function DeckPage() {
 
   return (
     <div className="min-h-screen text-white flex flex-col">
-      {/* 玩家資訊 header bar */}
-      <header className="py-2 px-4 border-b border-[#898cd2]/30 backdrop-blur-sm fixed top-0 left-0 right-0 z-10 flex justify-between items-center">
-        <h1 className="text-lg text-gray-400">Edit Deck</h1>
+      {/* Unity-matched viewport container */}
+      <div
+        className="fixed inset-0 z-0 flex flex-col items-center justify-center bg-black"
+        style={{
+          width: `${canvasWidth}px`,
+          height: viewportHeight,
+          left: "50%",
+          transform: "translateX(-50%)",
+          marginBottom: safeAreaInsetBottom > 0 ? `${safeAreaInsetBottom}px` : '0',
+        }}
+      >
+        {/* 玩家資訊 header bar */}
+        <header className="py-2 px-4 border-b border-[#898cd2]/30 backdrop-blur-sm fixed top-0 z-10 flex justify-between items-center w-full" style={{ width: `${canvasWidth}px`, left: "50%", transform: "translateX(-50%)" }}>
+          <h1 className="text-lg text-gray-400">Edit Deck</h1>
 
-        <div className="flex items-center gap-3">
-          <Wallet className="w-5 h-5 text-gray-400" />
-          <span className="font-semibold text-white bg-black/30 py-1 px-3 rounded-xl">
-            {username}
-            {walletAddress ? (
-              <span className="text-gray-300">(0x...{walletAddress.slice(-5)})</span>
-            ) : (
-              <span className="text-gray py-1 px-3 rounded-xl bg-gray-600/90 ">Not bound</span>
-            )}
-          </span>
+          <div className="flex items-center gap-3">
+            <Wallet className="w-5 h-5 text-gray-400" />
+            <span className="font-semibold text-white bg-black/30 py-1 px-3 rounded-xl">
+              {username}
+              {walletAddress ? (
+                <span className="text-gray-300">(0x...{walletAddress.slice(-5)})</span>
+              ) : (
+                <span className="text-gray py-1 px-3 rounded-xl bg-gray-600/90 ">Not bound</span>
+              )}
+            </span>
+          </div>
+        </header>
+
+        <div className="flex-1 flex flex-col w-full overflow-y-auto" style={{ width: `${canvasWidth}px`, paddingTop: '56px', paddingBottom: '73px' }}>
+          {error && <div className="p-4 bg-red-800 text-red-200">{error}</div>}
+          <DeckComponent
+            currentDeck={currentDeck}
+            selectedCards={selectedCards}
+            gems={gems}
+            setSelectedCards={setSelectedCards}
+            toggleCardSelection={toggleCardSelection}
+            isEditing={isEditing}
+          />
+          {/* CardSelectionComponent */}
+          <div className="CardSelectionComponent">
+            <CardSelectionComponent
+              gems={gems}
+              currentDeck={currentDeck}
+              selectedCards={selectedCards}
+              setSelectedCards={setSelectedCards}
+              toggleCardSelection={toggleCardSelection}
+              getCardEffect={getCardEffect}
+              isEditing={isEditing}
+            />
+          </div>
         </div>
-
-      </header>
-
-      {error && <div className="p-4  bg-red-800 text-red-200">{error}</div>}
-      <DeckComponent
-        currentDeck={currentDeck}
-        selectedCards={selectedCards}
-        gems={gems}
-        setSelectedCards={setSelectedCards}
-        toggleCardSelection={toggleCardSelection}
-        isEditing={isEditing}
-      />
-      {/* CardSelectionComponent */}
-      <div className="CardSelectionComponent">
-        <CardSelectionComponent
-          gems={gems}
-          currentDeck={currentDeck}
-          selectedCards={selectedCards}
-          setSelectedCards={setSelectedCards}
-          toggleCardSelection={toggleCardSelection}
-          getCardEffect={getCardEffect}
-          isEditing={isEditing}
-        />
-      </div>
-      {/* Bottom action bar: 編輯 / Battle */}
-      <div className="BattleComponent fixed bottom-0 left-0 right-0 w-full p-2 backdrop-blur-md shadow-lg btnSection min-h-[57px]">
+        {/* Bottom action bar: 編輯 / Battle */}
+        <div className="BattleComponent fixed bottom-0 left-0 right-0 p-2 backdrop-blur-md shadow-lg btnSection min-h-[57px]" style={{ width: `${canvasWidth}px`, left: "50%", transform: "translateX(-50%)" }}>
         {/* 返回個人頁面 */}
         <button
           className="btn btn-square rounded-xl flex items-center justify-center p-3 absolute left-2 bottom-2 text-sm bg-transparent hover:bg-white/10 transition"
@@ -177,6 +193,7 @@ export default function DeckPage() {
             Battle
           </button>
         </div>
+      </div>
       </div>
       {/* 其他 deck 管理功能可陸續搬移進來 */}
     </div>
