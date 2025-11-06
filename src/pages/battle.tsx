@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Unity, useUnityContext } from "react-unity-webgl";
 import { useViewportRequirements } from "../context/ViewportRequirementsContext";
+import { useCanvasWidth } from "../hooks/useCanvasWidth";
 
 export default function BattlePage() {
   const [pendingDeck, setPendingDeck] = useState<string | null>(null);
@@ -14,16 +15,9 @@ export default function BattlePage() {
   const [devicePixelRatio, setDevicePixelRatio] = useState(
     typeof window !== "undefined" ? window.devicePixelRatio : 1
   );
-  // 計算 Unity canvas 寬度
-  const [canvasWidth, setCanvasWidth] = useState(() => {
-    if (typeof window !== "undefined") {
-      const initialHeight = window.innerHeight || 800;
-      return Math.min(initialHeight * (9 / 16), window.innerWidth);
-    }
-    return 0;
-  });
   const audioRef = useRef<HTMLAudioElement>(null);
   const { isAllowed, viewportHeight, safeAreaInsetBottom } = useViewportRequirements();
+  const canvasWidth = useCanvasWidth(viewportHeight);
 
   // 取得 battleDeck
   useEffect(() => {
@@ -51,20 +45,6 @@ export default function BattlePage() {
       };
     }
   }, [devicePixelRatio]);
-
-  // 計算 Unity canvas 寬度（直式比例 9:16）
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const calculateWidth = () => {
-        const portraitWidth = viewportHeight * (9 / 16);
-        const maxWidth = window.innerWidth;
-        setCanvasWidth(Math.min(portraitWidth, maxWidth));
-      };
-      calculateWidth();
-      window.addEventListener("resize", calculateWidth);
-      return () => window.removeEventListener("resize", calculateWidth);
-    }
-  }, [viewportHeight]);
 
 
 

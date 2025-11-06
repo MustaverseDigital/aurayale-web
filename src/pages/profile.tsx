@@ -8,6 +8,8 @@ import { getUserDeck, getUserGems, GemItem } from "../api/auraServer";
 import { useRouter } from "next/router";
 import { useUser } from "../context/UserContext";
 import { LogOut } from "lucide-react";
+import { useViewportRequirements } from "../context/ViewportRequirementsContext";
+import { useCanvasWidth } from "../hooks/useCanvasWidth";
 
 export default function ProfilePage() {
   const { user, setUser } = useUser();
@@ -19,6 +21,8 @@ export default function ProfilePage() {
   const [deckLoading, setDeckLoading] = useState(false);
   const [deckError, setDeckError] = useState("");
   const router = useRouter();
+  const { viewportHeight, safeAreaInsetBottom } = useViewportRequirements();
+  const canvasWidth = useCanvasWidth(viewportHeight);
 
   // BNB 測試鏈的配置
   const BNB_CHAIN_ID = "0x61"; // BNB Smart Chain Testnet
@@ -150,20 +154,30 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bgImg text-white flex flex-col">
-      {/* Header*/}
-      <header className="py-2 px-4 border-b border-[#898cd2]/30 backdrop-blur-sm fixed top-0 left-0 right-0 z-10 flex justify-between items-center">
-        <h1 className="text-lg text-gray-400 ">Profile</h1>
+      {/* Unity-matched viewport container */}
+      <div
+        className="fixed inset-0 z-0 flex flex-col items-center justify-center bg-black"
+        style={{
+          width: `${canvasWidth}px`,
+          height: viewportHeight,
+          left: "50%",
+          transform: "translateX(-50%)",
+          marginBottom: safeAreaInsetBottom > 0 ? `${safeAreaInsetBottom}px` : '0',
+        }}
+      >
+        {/* Header*/}
+        <header className="py-2 px-4 border-b border-[#898cd2]/30 backdrop-blur-sm fixed top-0 z-10 flex justify-between items-center w-full" style={{ width: `${canvasWidth}px`, left: "50%", transform: "translateX(-50%)" }}>
+          <h1 className="text-lg text-gray-400 ">Profile</h1>
 
+          <button className="btn-square p-3 rounded-xl hover:bg-white/10 transition-colors text-xs" aria-label="Lot Out" onClick={() => {
+            setUser(null);
+            router.push("/login");
+          }}>
+            <LogOut />
+          </button>
+        </header>
 
-        <button className="btn-square p-3 rounded-xl hover:bg-white/10 transition-colors text-xs" aria-label="Lot Out" onClick={() => {
-          setUser(null);
-          router.push("/login");
-        }}>
-          <LogOut />
-        </button>
-      </header>
-
-      <div className="container flex-1 flex flex-col p-4 pt-20 pb-24 mx-auto">
+        <div className="container flex-1 flex flex-col p-4 pt-20 pb-24 mx-auto w-full overflow-y-auto" style={{ width: `${canvasWidth}px` }}>
         <main className="flex-1 flex flex-col space-y-6">
           {/* Profile Card */}
           <div className="profile-card  px-4 py-8 flex flex-col space-y-4 relative">
@@ -341,6 +355,7 @@ export default function ProfilePage() {
           </div> */}
 
         </main>
+      </div>
       </div>
     </div>
   );
