@@ -20,8 +20,8 @@
     "react-dom": "^19.1.1",
     "react-unity-webgl": "^10.1.5",
     "tailwindcss": "^4.1.12",
-    "viem": "2.36.0",
-    "wagmi": "^2.16.8"
+    "viem": "^2.38.6",
+    "wagmi": "^2.19.2"
   },
   "devDependencies": {
     "@types/node": "^24.3.0",
