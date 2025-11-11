@@ -44,7 +44,7 @@ export default function LoginPage() {
       });
       setSuccess("Google 登入成功！");
       setTimeout(() => {
-        router.push("/profile");
+        router.push("/platform");
       }, 1500);
     } catch (e: any) {
       setError(e.message || "Google 登入失敗");
@@ -94,7 +94,7 @@ export default function LoginPage() {
               deck,
               gems,
             });
-            router.push("/profile");
+            router.push("/platform");
           }
         } catch (e: any) {
           setError(e.message);
