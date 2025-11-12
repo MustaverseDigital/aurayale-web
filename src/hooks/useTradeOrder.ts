@@ -1,4 +1,9 @@
-import { useReadContract, useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi';
+import {
+  useReadContract,
+  useWriteContract,
+  useWaitForTransactionReceipt,
+  useAccount,
+} from 'wagmi';
 import { GemContract } from '../contracts/abis/index';
 import { getContractAddress } from '../contracts/addresses';
 import { Address } from 'viem';
@@ -6,7 +11,9 @@ import { Address } from 'viem';
 // 讀取交易訂單資訊
 export function useTradeOrder(orderId: bigint | undefined) {
   const { chainId } = useAccount();
-  const contractAddress = chainId ? (getContractAddress(chainId) as Address) : undefined;
+  const contractAddress = chainId
+    ? (getContractAddress(chainId) as Address)
+    : undefined;
 
   const { data, isLoading, error, refetch } = useReadContract({
     address: contractAddress,
@@ -29,14 +36,21 @@ export function useTradeOrder(orderId: bigint | undefined) {
 // 建立交易訂單
 export function useCreateTradeOrder() {
   const { chainId } = useAccount();
-  const contractAddress = chainId ? (getContractAddress(chainId) as Address) : undefined;
+  const contractAddress = chainId
+    ? (getContractAddress(chainId) as Address)
+    : undefined;
 
   const { writeContract, data: hash, error, isPending } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
+  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
+    hash,
+  });
 
-  const createTradeOrder = (offeredTokenId: bigint, wantedTokenIds: bigint[]) => {
+  const createTradeOrder = (
+    offeredTokenId: bigint,
+    wantedTokenIds: bigint[]
+  ) => {
     if (!contractAddress) return;
-    
+
     writeContract({
       address: contractAddress,
       abi: GemContract,
@@ -58,14 +72,18 @@ export function useCreateTradeOrder() {
 // 接受交易訂單
 export function useAcceptTradeOrder() {
   const { chainId } = useAccount();
-  const contractAddress = chainId ? (getContractAddress(chainId) as Address) : undefined;
+  const contractAddress = chainId
+    ? (getContractAddress(chainId) as Address)
+    : undefined;
 
   const { writeContract, data: hash, error, isPending } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
+  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
+    hash,
+  });
 
   const acceptTradeOrder = (orderId: bigint, selectedTokenId: bigint) => {
     if (!contractAddress) return;
-    
+
     writeContract({
       address: contractAddress,
       abi: GemContract,
@@ -87,14 +105,17 @@ export function useAcceptTradeOrder() {
 // 取消交易訂單
 export function useCancelTradeOrder() {
   const { chainId } = useAccount();
-  const contractAddress = chainId ? (getContractAddress(chainId) as Address) : undefined;
+  const contractAddress = chainId
+    ? (getContractAddress(chainId) as Address)
+    : undefined;
 
   const { writeContract, data: hash, error, isPending } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
+  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
+    hash,
+  });
 
   const cancelTradeOrder = (orderId: bigint) => {
     if (!contractAddress) return;
-    
     writeContract({
       address: contractAddress,
       abi: GemContract,
@@ -112,4 +133,3 @@ export function useCancelTradeOrder() {
     error,
   };
 }
-
