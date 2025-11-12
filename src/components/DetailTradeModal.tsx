@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react"
-import { X } from "lucide-react"
+import { X, Loader2 } from "lucide-react"
 import { ChooseCardModal } from "./ChooseCardModal"
 import { useUser } from "../context/UserContext"
 import { getUserGems, GemItem } from "../api/auraServer"
+import { useAcceptTradeOrder } from "../hooks/useTradeOrder"
 
 interface Card {
   name: string
@@ -19,14 +20,27 @@ interface DetailTradeModalProps {
     address: string
     serviceFee: string
     status: string
+    orderId?: string
+    originalOrder?: any
   } | null
+  onSuccess?: () => void
 }
 
-export function DetailTradeModal({ isOpen, onClose, tradeData }: DetailTradeModalProps) {
+export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: DetailTradeModalProps) {
   const { user } = useUser()
   const [selectedCard, setSelectedCard] = useState<Card | null>(null)
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(null)
   const [isChooseCardOpen, setIsChooseCardOpen] = useState(false)
   const [walletCards, setWalletCards] = useState<any[]>([])
+  const [error, setError] = useState<string | null>(null)
+
+  const {
+    acceptTradeOrder,
+    isPending,
+    isConfirming,
+    isSuccess,
+    error: contractError,
+  } = useAcceptTradeOrder()
 
   // Fetch user gems from API
   useEffect(() => {
@@ -50,7 +64,63 @@ export function DetailTradeModal({ isOpen, onClose, tradeData }: DetailTradeModa
 
   const handleCardSelect = (card: { id: string; name: string; image: string; quantity: number }) => {
     setSelectedCard({ name: card.name, image: card.image })
+    setSelectedCardId(card.id)
   }
+
+  // 處理交易成功
+  useEffect(() => {
+    if (isSuccess && onSuccess) {
+      // 重置狀態
+      setSelectedCard(null)
+      setSelectedCardId(null)
+      setError(null)
+      onSuccess()
+    }
+  }, [isSuccess, onSuccess])
+
+  // 處理錯誤
+  useEffect(() => {
+    if (contractError) {
+      setError(contractError.message || "Transaction failed")
+    }
+  }, [contractError])
+
+  // 當 modal 關閉時重置狀態
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedCard(null)
+      setSelectedCardId(null)
+      setError(null)
+    }
+  }, [isOpen])
+
+  const handleAccept = () => {
+    if (!tradeData) {
+      setError("Trade data is missing")
+      return
+    }
+
+    if (!selectedCardId) {
+      setError("Please select a card to swap")
+      return
+    }
+
+    if (!tradeData.orderId) {
+      setError("Order ID is missing")
+      return
+    }
+
+    setError(null)
+
+    // 將 orderId 和 selectedCardId 轉換為 bigint
+    const orderId = BigInt(tradeData.orderId)
+    const selectedTokenId = BigInt(selectedCardId)
+
+    // 調用智能合約接受訂單
+    acceptTradeOrder(orderId, selectedTokenId)
+  }
+
+  const isProcessing = isPending || isConfirming
 
   if (!isOpen || !tradeData) return null
 
@@ -177,20 +247,40 @@ export function DetailTradeModal({ isOpen, onClose, tradeData }: DetailTradeModa
               </p>
             </div>
 
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3 text-sm text-red-300">
+                {error}
+              </div>
+            )}
+
             {/* Action Buttons */}
             <div className="flex gap-3 justify-center pt-4">
               <button
                 onClick={() => setIsChooseCardOpen(true)}
-                className="bg-[#898cd2] text-white px-6 py-2 rounded-full font-semibold text-sm border-2 border-[#898cd2]/50 hover:shadow-lg transition-shadow"
+                disabled={isProcessing}
+                className="bg-[#898cd2] text-white px-6 py-2 rounded-full font-semibold text-sm border-2 border-[#898cd2]/50 hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Select Card
               </button>
-              <button className="bg-[#898cd2] text-white px-8 py-2 rounded-full font-semibold text-sm border-2 border-[#898cd2]/50 hover:shadow-lg transition-shadow">
-                Accept
+              <button
+                onClick={handleAccept}
+                disabled={isProcessing || !selectedCardId}
+                className="bg-[#898cd2] text-white px-8 py-2 rounded-full font-semibold text-sm border-2 border-[#898cd2]/50 hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isProcessing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    {isConfirming ? "Confirming..." : "Processing..."}
+                  </>
+                ) : (
+                  "Accept"
+                )}
               </button>
               <button
                 onClick={onClose}
-                className="bg-black/30 text-white px-6 py-2 rounded-full font-semibold text-sm border-2 border-[#898cd2]/30 hover:shadow-lg transition-shadow"
+                disabled={isProcessing}
+                className="bg-black/30 text-white px-6 py-2 rounded-full font-semibold text-sm border-2 border-[#898cd2]/30 hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>

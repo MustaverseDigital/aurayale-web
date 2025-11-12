@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react"
-import { X } from "lucide-react"
+import { X, Loader2 } from "lucide-react"
 import { ChooseCardModal } from "./ChooseCardModal"
 import { useUser } from "../context/UserContext"
 import { getUserGems, GemItem } from "../api/auraServer"
+import { useCreateTradeOrder } from "../hooks/useTradeOrder"
 
 interface Card {
   id: string
@@ -14,9 +15,10 @@ interface Card {
 interface CreateTradeModalProps {
   isOpen: boolean
   onClose: () => void
+  onSuccess?: () => void
 }
 
-export function CreateTradeModal({ isOpen, onClose }: CreateTradeModalProps) {
+export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModalProps) {
   const { user } = useUser()
   const [youGiveCard, setYouGiveCard] = useState<Card | null>(null)
   const [youGetCards, setYouGetCards] = useState<Card[]>([])
@@ -24,6 +26,15 @@ export function CreateTradeModal({ isOpen, onClose }: CreateTradeModalProps) {
   const [choosingFor, setChoosingFor] = useState<"give" | "get">("give")
   const [availableCards, setAvailableCards] = useState<Card[]>([])
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const {
+    createTradeOrder,
+    isPending,
+    isConfirming,
+    isSuccess,
+    error: contractError,
+  } = useCreateTradeOrder()
 
   // Fetch user gems from API
   useEffect(() => {
@@ -61,6 +72,56 @@ export function CreateTradeModal({ isOpen, onClose }: CreateTradeModalProps) {
       }
     }
   }
+
+  // 處理交易成功
+  useEffect(() => {
+    if (isSuccess && onSuccess) {
+      // 重置表單
+      setYouGiveCard(null)
+      setYouGetCards([])
+      setError(null)
+      onSuccess()
+    }
+  }, [isSuccess, onSuccess])
+
+  // 處理錯誤
+  useEffect(() => {
+    if (contractError) {
+      setError(contractError.message || "Transaction failed")
+    }
+  }, [contractError])
+
+  // 當 modal 關閉時重置狀態
+  useEffect(() => {
+    if (!isOpen) {
+      setYouGiveCard(null)
+      setYouGetCards([])
+      setError(null)
+    }
+  }, [isOpen])
+
+  const handlePost = () => {
+    if (!youGiveCard) {
+      setError("Please select a card to give")
+      return
+    }
+
+    if (youGetCards.length === 0) {
+      setError("Please select at least one card you want to receive")
+      return
+    }
+
+    setError(null)
+
+    // 將卡片 ID 轉換為 bigint tokenId
+    const offeredTokenId = BigInt(youGiveCard.id)
+    const wantedTokenIds = youGetCards.map((card) => BigInt(card.id))
+
+    // 調用智能合約創建訂單
+    createTradeOrder(offeredTokenId, wantedTokenIds)
+  }
+
+  const isProcessing = isPending || isConfirming
 
   if (!isOpen) return null
 
@@ -172,10 +233,28 @@ export function CreateTradeModal({ isOpen, onClose }: CreateTradeModalProps) {
               </p>
             </div>
 
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3 text-sm text-red-300">
+                {error}
+              </div>
+            )}
+
             {/* Post Button */}
             <div className="flex justify-center pt-4">
-              <button className="bg-[#898cd2] text-white px-12 py-3 rounded-full font-bold text-lg border-2 border-[#898cd2]/50 hover:shadow-lg transition-shadow">
-                Post
+              <button
+                onClick={handlePost}
+                disabled={isProcessing}
+                className="bg-[#898cd2] text-white px-12 py-3 rounded-full font-bold text-lg border-2 border-[#898cd2]/50 hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isProcessing ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    {isConfirming ? "Confirming..." : "Processing..."}
+                  </>
+                ) : (
+                  "Post"
+                )}
               </button>
             </div>
           </div>

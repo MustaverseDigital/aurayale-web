@@ -1,9 +1,16 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/router"
 import { useUser } from "../context/UserContext"
 import { useViewportRequirements } from "../context/ViewportRequirementsContext"
 import { useCanvasWidth } from "../hooks/useCanvasWidth"
-import { getUserDeck, getUserGems, GemItem } from "../api/auraServer"
+import {
+  getUserDeck,
+  getUserGems,
+  GemItem,
+  getActiveTradeOrders,
+  getUserTradeOrders
+} from "../api/auraServer"
+import type { TradeOrder } from "../types/auraServer"
 import { Header } from "../components/Header"
 import { WalletInfo } from "../components/WalletInfo"
 import { TabNavigation } from "../components/TabNavigation"
@@ -17,7 +24,7 @@ export default function PlatformPage() {
   const router = useRouter()
   const { viewportHeight, safeAreaInsetBottom } = useViewportRequirements()
   const canvasWidth = useCanvasWidth(viewportHeight)
-  
+
   const [activeTab, setActiveTab] = useState<"market" | "history">("market")
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
@@ -25,6 +32,9 @@ export default function PlatformPage() {
   const [deck, setDeck] = useState<number[]>([])
   const [gems, setGems] = useState<GemItem[]>([])
   const [deckLoading, setDeckLoading] = useState(false)
+  const [trades, setTrades] = useState<any[]>([])
+  const [tradesLoading, setTradesLoading] = useState(false)
+  const [tradesError, setTradesError] = useState<string | null>(null)
 
   // 取得目前牌組與卡片資訊
   useEffect(() => {
@@ -41,69 +51,114 @@ export default function PlatformPage() {
       .finally(() => setDeckLoading(false))
   }, [user?.token])
 
+  // 獲取交易訂單
+  const fetchTrades = useCallback(async () => {
+    if (!user?.walletAddress && activeTab === "history") {
+      setTrades([])
+      return
+    }
+
+    if (gems.length === 0) {
+      return
+    }
+
+    // 將 tokenId 轉換為 gem metadata 的輔助函數
+    const getGemMetadata = (tokenId: number): { name: string; image: string } => {
+      const gem = gems.find((g) => g.id === tokenId)
+      if (gem && gem.metadata) {
+        return {
+          name: gem.metadata.name || `Card ${tokenId}`,
+          image: gem.metadata.image || `/img/${tokenId.toString().padStart(3, "0")}.png`,
+        }
+      }
+      // 默認值
+      return {
+        name: `Card ${tokenId}`,
+        image: `/img/${tokenId.toString().padStart(3, "0")}.png`,
+      }
+    }
+
+    // 將 TradeOrder 轉換為 TradeCard 格式
+    const convertTradeOrderToCardFormat = (order: TradeOrder): any => {
+      const youGetMetadata = getGemMetadata(order.offeredTokenId)
+      const youGiveMetadata = order.wantedTokenIds.map((tokenId: number) => getGemMetadata(tokenId))
+
+      // 格式化地址
+      const formatAddress = (addr: string) => {
+        if (addr.length <= 10) return addr
+        return `${addr.slice(0, 6)}...${addr.slice(-4)}`
+      }
+
+      return {
+        status: order.status.toLowerCase() === "active" ? "tradable" : order.status.toLowerCase(),
+        youGet: {
+          ...youGetMetadata,
+          quantity: 1,
+        },
+        youGive: youGiveMetadata,
+        tradeId: `Trade #${order.orderId}`,
+        address: formatAddress(order.owner),
+        serviceFee: "0.01", // 暫時使用固定值，可從 API 獲取
+        orderId: order.orderId,
+        originalOrder: order, // 保存原始訂單數據供 DetailModal 使用
+      }
+    }
+
+    setTradesLoading(true)
+    setTradesError(null)
+
+    try {
+      let orders: TradeOrder[] = []
+
+      if (activeTab === "market") {
+        const response = await getActiveTradeOrders({ page: 1, limit: 50 })
+        orders = response.orders
+      } else if (activeTab === "history" && user?.walletAddress) {
+        const response = await getUserTradeOrders(user.walletAddress, {
+          status: "all",
+          page: 1,
+          limit: 50
+        })
+        orders = response.orders
+      }
+
+      const convertedTrades = orders.map(convertTradeOrderToCardFormat)
+      setTrades(convertedTrades)
+    } catch (error: any) {
+      setTradesError(error.message || "Failed to fetch trades")
+      setTrades([])
+    } finally {
+      setTradesLoading(false)
+    }
+  }, [activeTab, user?.walletAddress, gems])
+
+  // 當 tab 切換或 gems 數據更新時，重新獲取訂單
+  useEffect(() => {
+    if (gems.length > 0) {
+      fetchTrades()
+    }
+  }, [fetchTrades, gems.length])
+
   const handleTradeCardClick = (tradeData: any) => {
     setSelectedTrade(tradeData)
     setIsDetailModalOpen(true)
   }
 
-  // Mock trades data - this should be replaced with actual API call
-  const trades = [
-    {
-      status: "tradable",
-      youGet: {
-        name: "Brilliant Ruby",
-        image: "/img/001.png",
-        quantity: 1,
-      },
-      youGive: [
-        { name: "Amber Topaz", image: "/img/002.png" },
-        { name: "Amber Topaz", image: "/img/003.png" },
-        { name: "Amber Topaz", image: "/img/004.png" },
-        { name: "Amber Topaz", image: "/img/005.png" },
-      ],
-      tradeId: "Trade #1234344",
-      address: "0x21...1234",
-      serviceFee: "0.01",
-    },
-    {
-      status: "tradable",
-      youGet: {
-        name: "Amber Topaz",
-        image: "/img/002.png",
-        quantity: 2,
-      },
-      youGive: [
-        { name: "Brilliant Ruby", image: "/img/001.png" },
-        { name: "Brilliant Ruby", image: "/img/001.png" },
-      ],
-      tradeId: "Trade #1234345",
-      address: "0x22...5678",
-      serviceFee: "0.02",
-    },
-    {
-      status: "tradable",
-      youGet: {
-        name: "Brilliant Ruby",
-        image: "/img/001.png",
-        quantity: 1,
-      },
-      youGive: [
-        { name: "Amber Topaz", image: "/img/002.png" },
-        { name: "Amber Topaz", image: "/img/003.png" },
-        { name: "Amber Topaz", image: "/img/004.png" },
-        { name: "Amber Topaz", image: "/img/005.png" },
-      ],
-      tradeId: "Trade #1234346",
-      address: "0x23...9012",
-      serviceFee: "0.015",
-    },
-  ]
+  const handleCreateSuccess = () => {
+    setIsCreateModalOpen(false)
+    fetchTrades() // 刷新訂單列表
+  }
+
+  const handleAcceptSuccess = () => {
+    setIsDetailModalOpen(false)
+    fetchTrades() // 刷新訂單列表
+  }
 
   // Redirect to login if not authenticated
   useEffect(() => {
     // Wait for router to be ready before checking authentication
     if (!router.isReady) return
-    
+
     if (!user?.token) {
       router.push("/login")
     }
@@ -127,7 +182,7 @@ export default function PlatformPage() {
         }}
       >
         {/* Header */}
-        <div 
+        <div
           className="fixed top-0 z-10 w-full"
           style={{ width: `${canvasWidth}px`, left: "50%", transform: "translateX(-50%)" }}
         >
@@ -135,7 +190,7 @@ export default function PlatformPage() {
         </div>
 
         {/* Main Content */}
-        <div 
+        <div
           className="flex-1 flex flex-col overflow-y-auto w-full pt-16 pb-4"
           style={{ width: `${canvasWidth}px` }}
         >
@@ -151,29 +206,48 @@ export default function PlatformPage() {
 
             {/* Trade Cards List */}
             <div className="flex-1 overflow-y-auto mt-4 space-y-3 pb-4">
-              {trades.map((trade, index) => (
-                <TradeCard
-                  key={index}
-                  status={trade.status}
-                  youGet={trade.youGet}
-                  youGive={trade.youGive}
-                  tradeId={trade.tradeId}
-                  address={trade.address}
-                  serviceFee={trade.serviceFee}
-                  onClick={() => handleTradeCardClick(trade)}
-                />
-              ))}
+              {tradesLoading ? (
+                <div className="flex justify-center items-center py-8">
+                  <div className="text-gray-400">Loading trades...</div>
+                </div>
+              ) : tradesError ? (
+                <div className="flex justify-center items-center py-8">
+                  <div className="text-red-400 text-sm">{tradesError}</div>
+                </div>
+              ) : trades.length === 0 ? (
+                <div className="flex justify-center items-center py-8">
+                  <div className="text-gray-400">No trades available</div>
+                </div>
+              ) : (
+                trades.map((trade, index) => (
+                  <TradeCard
+                    key={trade.orderId || index}
+                    status={trade.status}
+                    youGet={trade.youGet}
+                    youGive={trade.youGive}
+                    tradeId={trade.tradeId}
+                    address={trade.address}
+                    serviceFee={trade.serviceFee}
+                    onClick={() => handleTradeCardClick(trade)}
+                  />
+                ))
+              )}
             </div>
           </div>
         </div>
       </div>
 
       {/* Modals */}
-      <CreateTradeModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} />
+      <CreateTradeModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={handleCreateSuccess}
+      />
       <DetailTradeModal
         isOpen={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}
         tradeData={selectedTrade}
+        onSuccess={handleAcceptSuccess}
       />
     </div>
   )
