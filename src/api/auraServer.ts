@@ -147,3 +147,19 @@ export async function getActiveTradeOrders(options?: {
     throw new Error(data.error || 'Failed to fetch active orders');
   return data;
 }
+
+/**
+ * 獲取特定訂單 (公開 API)
+ * @param orderId 訂單 ID (BigInt 字串或數字)
+ * @returns 返回訂單詳情
+ * @throws Error 若獲取失敗則丟出錯誤
+ */
+export async function getTradeOrder(orderId: string | number) {
+  const url = `${BASE_URL}/api/orders/${orderId}`;
+  const response = await fetch(url, { method: 'GET' });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || 'Failed to fetch order');
+  }
+  return data;
+}
