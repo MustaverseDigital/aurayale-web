@@ -2,16 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Wallet, Settings, User, AlertCircle, CheckCircle } from "lucide-react"
-
-interface GemItem {
-  id: number
-  quantity: number
-  metadata: {
-    name: string
-    image: string
-    description: string
-  }
-}
+import type { GemItem } from "../../types/auraServer"
 
 // 客户端专用的 MetaMask 连接组件
 interface MetaMaskButtonProps {
