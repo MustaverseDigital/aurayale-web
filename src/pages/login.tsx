@@ -25,7 +25,7 @@ export default function LoginPage() {
       setUser({
         token: data.token,
         userId: data.userId,
-        username: data.username,
+        name: data.name,
         walletAddress: data.walletAddress || "",
       });
       // 取得 deck 與 gems
@@ -37,7 +37,7 @@ export default function LoginPage() {
       setUser({
         token: data.token,
         userId: data.userId,
-        username: data.username,
+        name: data.name,
         walletAddress: data.walletAddress || "",
         deck,
         gems,
@@ -77,7 +77,6 @@ export default function LoginPage() {
             setUser({
               token: data.token,
               userId: data.userId,
-              username: data.username,
               walletAddress: data.walletAddress || "",
             });
             // 取得 deck 與 gems
@@ -89,7 +88,6 @@ export default function LoginPage() {
             setUser({
               token: data.token,
               userId: data.userId,
-              username: data.username,
               walletAddress: data.walletAddress || "",
               deck,
               gems,
