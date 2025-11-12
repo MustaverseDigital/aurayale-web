@@ -53,12 +53,20 @@ export default function PlatformPage() {
 
   // 獲取交易訂單
   const fetchTrades = useCallback(async () => {
+    // 先清除舊資料，避免顯示錯誤的 tab 資料
+    setTrades([])
+    setTradesLoading(true)
+    setTradesError(null)
+
     if (!user?.walletAddress && activeTab === "history") {
       setTrades([])
+      setTradesLoading(false)
       return
     }
 
-    if (gems.length === 0) {
+    // 只在 market tab 時才需要等待 gems 載入
+    if (activeTab === "market" && gems.length === 0) {
+      setTradesLoading(false)
       return
     }
 
@@ -104,9 +112,6 @@ export default function PlatformPage() {
       }
     }
 
-    setTradesLoading(true)
-    setTradesError(null)
-
     try {
       let orders: TradeOrder[] = []
 
@@ -134,10 +139,23 @@ export default function PlatformPage() {
 
   // 當 tab 切換或 gems 數據更新時，重新獲取訂單
   useEffect(() => {
-    if (gems.length > 0) {
-      fetchTrades()
+    // 對於 history tab：只要有 walletAddress 就立即調用（不需要等待 gems，但 gems 載入後會重新轉換）
+    if (activeTab === "history") {
+      console.log("user?.walletAddress", user?.walletAddress)
+      if (user?.walletAddress) {
+        fetchTrades()
+      } else {
+        // 如果沒有 walletAddress，清除資料
+        setTrades([])
+        setTradesLoading(false)
+      }
+    } else if (activeTab === "market") {
+      // 對於 market tab：需要等待 gems 載入完成
+      if (gems.length > 0) {
+        fetchTrades()
+      }
     }
-  }, [fetchTrades, gems.length])
+  }, [activeTab, user?.walletAddress, fetchTrades])
 
   const handleTradeCardClick = (tradeData: any) => {
     setSelectedTrade(tradeData)
