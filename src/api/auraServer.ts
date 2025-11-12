@@ -163,3 +163,34 @@ export async function getTradeOrder(orderId: string | number) {
   }
   return data;
 }
+
+/**
+ * 獲取用戶的訂單 (公開 API)
+ * @param address 以太坊地址 (0x...)
+ * @param options 可選查詢參數: status, page, limit
+ * @returns 返回該地址訂單列表與分頁資訊
+ * @throws Error 若獲取失敗則丟出錯誤
+ */
+export async function getUserTradeOrders(
+  address: string,
+  options?: {
+    status?: 'active' | 'completed' | 'all';
+    page?: number;
+    limit?: number;
+  }
+) {
+  if (!/^0x[a-fA-F0-9]{40}$/.test(address)) {
+    throw new Error("Invalid Ethereum address");
+  }
+  const params = new URLSearchParams();
+  if (options?.status) params.append('status', options.status);
+  if (options?.page) params.append('page', String(options.page));
+  if (options?.limit) params.append('limit', String(options.limit));
+  const url = `${BASE_URL}/api/orders/user/${address}${params.toString() ? '?' + params.toString() : ''}`;
+  const response = await fetch(url, { method: 'GET' });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || 'Failed to fetch user orders');
+  }
+  return data;
+}
