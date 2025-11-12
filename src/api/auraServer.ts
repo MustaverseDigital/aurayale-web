@@ -123,3 +123,27 @@ export async function loginWithGoogle(idToken: string) {
   if (!response.ok) throw new Error(data.error || 'Google login failed');
   return data;
 }
+
+/**
+ * 獲取活躍交易訂單 (公開 API)
+ * @param options 查詢參數，可選: page, limit, tier
+ * @returns 返回活躍交易訂單列表和分頁資訊
+ * @throws Error 若獲取失敗則丟出錯誤
+ */
+export async function getActiveTradeOrders(options?: {
+  page?: number;
+  limit?: number;
+  tier?: number;
+}) {
+  const params = new URLSearchParams();
+  if (options?.page) params.append('page', String(options.page));
+  if (options?.limit) params.append('limit', String(options.limit));
+  if (options?.tier !== undefined) params.append('tier', String(options.tier));
+
+  const url = `${BASE_URL}/api/orders/active?${params.toString()}`;
+  const response = await fetch(url, { method: 'GET' });
+  const data = await response.json();
+  if (!response.ok)
+    throw new Error(data.error || 'Failed to fetch active orders');
+  return data;
+}
