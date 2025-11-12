@@ -168,11 +168,20 @@ export async function getActiveTradeOrders(
   if (options?.limit) params.append('limit', String(options.limit));
   if (options?.tier !== undefined) params.append('tier', String(options.tier));
 
-  const url = `${BASE_URL}/api/orders/active?${params.toString()}`;
+  const url = `${BASE_URL}/orders/active?${params.toString()}`;
   const response = await fetch(url, { method: 'GET' });
+  if (!response.ok) {
+    const errorText = await response.text();
+    try {
+      const errorData = JSON.parse(errorText);
+      throw new Error(errorData.error || 'Failed to fetch active orders');
+    } catch {
+      throw new Error(
+        `Failed to fetch active orders: ${response.status} ${response.statusText}`
+      );
+    }
+  }
   const data = await response.json();
-  if (!response.ok)
-    throw new Error(data.error || 'Failed to fetch active orders');
   return data;
 }
 
@@ -185,12 +194,20 @@ export async function getActiveTradeOrders(
 export async function getTradeOrder(
   orderId: string | number
 ): Promise<OrderDetailResponse> {
-  const url = `${BASE_URL}/api/orders/${orderId}`;
+  const url = `${BASE_URL}/orders/${orderId}`;
   const response = await fetch(url, { method: 'GET' });
-  const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.error || 'Failed to fetch order');
+    const errorText = await response.text();
+    try {
+      const errorData = JSON.parse(errorText);
+      throw new Error(errorData.error || 'Failed to fetch order');
+    } catch {
+      throw new Error(
+        `Failed to fetch order: ${response.status} ${response.statusText}`
+      );
+    }
   }
+  const data = await response.json();
   return data;
 }
 
@@ -212,13 +229,21 @@ export async function getUserTradeOrders(
   if (options?.status) params.append('status', options.status);
   if (options?.page) params.append('page', String(options.page));
   if (options?.limit) params.append('limit', String(options.limit));
-  const url = `${BASE_URL}/api/orders/user/${address}${
+  const url = `${BASE_URL}/orders/user/${address}${
     params.toString() ? '?' + params.toString() : ''
   }`;
   const response = await fetch(url, { method: 'GET' });
-  const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.error || 'Failed to fetch user orders');
+    const errorText = await response.text();
+    try {
+      const errorData = JSON.parse(errorText);
+      throw new Error(errorData.error || 'Failed to fetch user orders');
+    } catch {
+      throw new Error(
+        `Failed to fetch user orders: ${response.status} ${response.statusText}`
+      );
+    }
   }
+  const data = await response.json();
   return data;
 }
