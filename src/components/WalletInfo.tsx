@@ -2,9 +2,12 @@ import { Copy } from "lucide-react"
 import { useUser } from "../context/UserContext"
 import { useEffect, useState } from "react"
 import { getUserGems, GemItem } from "../api/auraServer"
+import { useAccount } from "wagmi"
+import { ConnectButton } from "@rainbow-me/rainbowkit"
 
 export function WalletInfo() {
   const { user } = useUser()
+  const { address: connectedAddress, isConnected } = useAccount()
   const [gems, setGems] = useState<GemItem[]>([])
   const [totalCards, setTotalCards] = useState(0)
 
@@ -22,14 +25,15 @@ export function WalletInfo() {
     }
   }, [user?.token])
 
-  const walletAddress = user?.walletAddress || "0x00...0000"
-  const displayAddress = walletAddress.length > 10 
+  // 優先使用當前連接的錢包地址，如果沒有則使用綁定的錢包地址
+  const walletAddress = connectedAddress || user?.walletAddress || null
+  const displayAddress = walletAddress && walletAddress.length > 10
     ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
-    : walletAddress
+    : walletAddress || "Not connected"
 
   const handleCopy = () => {
-    if (user?.walletAddress) {
-      navigator.clipboard.writeText(user.walletAddress)
+    if (walletAddress) {
+      navigator.clipboard.writeText(walletAddress)
     }
   }
 
@@ -41,9 +45,57 @@ export function WalletInfo() {
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2 text-sm text-white">
-            <span>{displayAddress}</span>
-            {user?.walletAddress && (
-              <Copy className="w-4 h-4 cursor-pointer hover:text-yellow-200" onClick={handleCopy} />
+            {walletAddress ? (
+              <>
+                <span>{displayAddress}</span>
+                <Copy className="w-4 h-4 cursor-pointer hover:text-yellow-200" onClick={handleCopy} />
+                {isConnected && connectedAddress && (
+                  <span className="text-xs text-green-400">(Connected)</span>
+                )}
+              </>
+            ) : (
+              <ConnectButton.Custom>
+                {({
+                  account,
+                  chain,
+                  openAccountModal,
+                  openChainModal,
+                  openConnectModal,
+                  authenticationStatus,
+                  mounted,
+                }) => {
+                  const ready = mounted && authenticationStatus !== 'loading';
+                  const connected =
+                    ready &&
+                    account &&
+                    chain &&
+                    (!authenticationStatus ||
+                      authenticationStatus === 'authenticated');
+
+                  return (
+                    <div
+                      {...(!ready && {
+                        'aria-hidden': true,
+                        'style': {
+                          opacity: 0,
+                          pointerEvents: 'none',
+                          userSelect: 'none',
+                        },
+                      })}
+                    >
+                      {!connected && (
+                        <button
+                          onClick={openConnectModal}
+                          type="button"
+                          className="bg-[#898cd2] text-white px-4 py-2 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity"
+                        >
+                          Connect Wallet
+                        </button>
+                      )}
+                    </div>
+                  );
+                }}
+              </ConnectButton.Custom>
             )}
           </div>
           <div className="text-xs text-gray-300 mt-1">{totalCards} cards</div>
@@ -52,10 +104,10 @@ export function WalletInfo() {
       <div className="text-right">
         <div className="w-12 h-16 bg-card rounded border-2 border-[#898cd2]/30 mb-2">
           {gems.length > 0 && gems[0].metadata?.image && (
-            <img 
-              src={gems[0].metadata.image || `/img/${gems[0].id.toString().padStart(3, "0")}.png`} 
-              alt="card" 
-              className="w-full h-full object-contain" 
+            <img
+              src={gems[0].metadata.image || `/img/${gems[0].id.toString().padStart(3, "0")}.png`}
+              alt="card"
+              className="w-full h-full object-contain"
             />
           )}
         </div>
