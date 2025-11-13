@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { X, Loader2 } from "lucide-react"
 import { ChooseCardModal } from "./ChooseCardModal"
 import { useUser } from "../context/UserContext"
@@ -61,6 +61,19 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
         })
     }
   }, [isOpen, user?.token])
+
+  // 根據 wantedTokenIds 過濾可用的卡片
+  const availableCards = useMemo(() => {
+    if (!tradeData?.originalOrder?.wantedTokenIds || walletCards.length === 0) {
+      return []
+    }
+
+    const wantedTokenIds = tradeData.originalOrder.wantedTokenIds.map((id: number) => id.toString())
+    return walletCards.filter((card) => {
+      // 只保留在 wantedTokenIds 中且用戶擁有的卡片
+      return wantedTokenIds.includes(card.id) && card.owned !== false
+    })
+  }, [walletCards, tradeData?.originalOrder?.wantedTokenIds])
 
   const handleCardSelect = (card: { id: string; name: string; image: string; quantity: number }) => {
     setSelectedCard({ name: card.name, image: card.image })
@@ -293,7 +306,7 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
         isOpen={isChooseCardOpen}
         onClose={() => setIsChooseCardOpen(false)}
         onConfirm={handleCardSelect}
-        availableCards={walletCards}
+        availableCards={availableCards}
       />
     </>
   )
