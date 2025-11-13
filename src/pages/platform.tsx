@@ -237,18 +237,23 @@ export default function PlatformPage() {
                   <div className="text-gray-400">No trades available</div>
                 </div>
               ) : (
-                trades.map((trade, index) => (
-                  <TradeCard
-                    key={trade.orderId || index}
-                    status={trade.status}
-                    youGet={trade.youGet}
-                    youGive={trade.youGive}
-                    tradeId={trade.tradeId}
-                    address={trade.address}
-                    serviceFee={trade.serviceFee}
-                    onClick={() => handleTradeCardClick(trade)}
-                  />
-                ))
+                trades.map((trade, index) => {
+                  // 在 history tab 中，只有 tradable 狀態的訂單才能點擊
+                  const isClickable = activeTab === "market" || (activeTab === "history" && trade.status === "tradable")
+
+                  return (
+                    <TradeCard
+                      key={trade.orderId || index}
+                      status={trade.status}
+                      youGet={trade.youGet}
+                      youGive={trade.youGive}
+                      tradeId={trade.tradeId}
+                      address={trade.address}
+                      serviceFee={trade.serviceFee}
+                      onClick={isClickable ? () => handleTradeCardClick(trade) : undefined}
+                    />
+                  )
+                })
               )}
             </div>
           </div>
