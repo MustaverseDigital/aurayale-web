@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/router"
+import { useAccount } from "wagmi"
 import { useUser } from "../context/UserContext"
 import { useViewportRequirements } from "../context/ViewportRequirementsContext"
 import { useCanvasWidth } from "../hooks/useCanvasWidth"
@@ -21,9 +22,13 @@ import { DetailTradeModal } from "../components/DetailTradeModal"
 
 export default function PlatformPage() {
   const { user } = useUser()
+  const { address: connectedAddress } = useAccount()
   const router = useRouter()
   const { viewportHeight, safeAreaInsetBottom } = useViewportRequirements()
   const canvasWidth = useCanvasWidth(viewportHeight)
+
+  // 優先使用當前連接的錢包地址，如果沒有則使用綁定的錢包地址
+  const walletAddress = connectedAddress || user?.walletAddress || null
 
   const [activeTab, setActiveTab] = useState<"market" | "history">("market")
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
@@ -58,7 +63,7 @@ export default function PlatformPage() {
     setTradesLoading(true)
     setTradesError(null)
 
-    if (!user?.walletAddress && activeTab === "history") {
+    if (!walletAddress && activeTab === "history") {
       setTrades([])
       setTradesLoading(false)
       return
@@ -118,8 +123,8 @@ export default function PlatformPage() {
       if (activeTab === "market") {
         const response = await getActiveTradeOrders({ page: 1, limit: 50 })
         orders = response.orders
-      } else if (activeTab === "history" && user?.walletAddress) {
-        const response = await getUserTradeOrders(user.walletAddress, {
+      } else if (activeTab === "history" && walletAddress) {
+        const response = await getUserTradeOrders(walletAddress, {
           status: "all",
           page: 1,
           limit: 50
@@ -135,14 +140,14 @@ export default function PlatformPage() {
     } finally {
       setTradesLoading(false)
     }
-  }, [activeTab, user?.walletAddress, gems])
+  }, [activeTab, walletAddress, gems])
 
   // 當 tab 切換或 gems 數據更新時，重新獲取訂單
   useEffect(() => {
     // 對於 history tab：只要有 walletAddress 就立即調用（不需要等待 gems，但 gems 載入後會重新轉換）
     if (activeTab === "history") {
-      console.log("user?.walletAddress", user?.walletAddress)
-      if (user?.walletAddress) {
+      console.log("walletAddress", walletAddress)
+      if (walletAddress) {
         fetchTrades()
       } else {
         // 如果沒有 walletAddress，清除資料
@@ -155,7 +160,7 @@ export default function PlatformPage() {
         fetchTrades()
       }
     }
-  }, [activeTab, user?.walletAddress, fetchTrades])
+  }, [activeTab, walletAddress, gems, fetchTrades])
 
   const handleTradeCardClick = (tradeData: any) => {
     setSelectedTrade(tradeData)
