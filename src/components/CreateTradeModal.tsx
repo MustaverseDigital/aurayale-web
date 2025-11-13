@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { X, Loader2 } from "lucide-react"
 import { ChooseCardModal } from "./ChooseCardModal"
 import { useUser } from "../context/UserContext"
@@ -25,12 +25,13 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
   const [youGetCards, setYouGetCards] = useState<Card[]>([])
   const [isChooseModalOpen, setIsChooseModalOpen] = useState(false)
   const [choosingFor, setChoosingFor] = useState<"give" | "get">("give")
-  const [availableCards, setAvailableCards] = useState<Card[]>([])
+  const [userOwnedCards, setUserOwnedCards] = useState<Card[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [pendingTransaction, setPendingTransaction] = useState<{ offeredTokenId: bigint; wantedTokenIds: bigint[] } | null>(null)
   const { chainId, isConnected } = useAccount()
   const { switchChain, isPending: isSwitchingChain } = useSwitchChain()
+  const hasHandledSuccess = useRef(false)
 
   // BSC Testnet chain ID
   const BSC_TESTNET_CHAIN_ID = 97
@@ -43,7 +44,20 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
     error: contractError,
   } = useCreateTradeOrder()
 
-  // Fetch user gems from API
+  // Generate all 24 cards (ID 1-24) for "you get" selection
+  const all24Cards = useState<Card[]>(() => {
+    return Array.from({ length: 24 }, (_, i) => {
+      const id = (i + 1).toString()
+      return {
+        id,
+        name: `Card ${id}`,
+        image: `/img/${id.padStart(3, "0")}.png`,
+        quantity: 0,
+      }
+    })
+  })[0]
+
+  // Fetch user gems from API for "you give" selection
   useEffect(() => {
     if (isOpen && user?.token) {
       setLoading(true)
@@ -55,7 +69,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
             image: gem.metadata?.image || `/img/${gem.id.toString().padStart(3, "0")}.png`,
             quantity: gem.quantity,
           }))
-          setAvailableCards(cards)
+          setUserOwnedCards(cards)
         })
         .catch(() => {
           // Handle error silently
@@ -63,6 +77,9 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
         .finally(() => setLoading(false))
     }
   }, [isOpen, user?.token])
+
+  // Determine which cards to show based on choosingFor
+  const availableCards = choosingFor === "give" ? userOwnedCards : all24Cards
 
   const handleChooseClick = (type: "give" | "get") => {
     setChoosingFor(type)
@@ -80,9 +97,11 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
     }
   }
 
-  // 處理交易成功
+  // 處理交易成功 - 使用 ref 確保只執行一次
   useEffect(() => {
-    if (isSuccess && onSuccess) {
+    if (isSuccess && onSuccess && !hasHandledSuccess.current) {
+      // 標記為已處理
+      hasHandledSuccess.current = true
       // 重置表單
       setYouGiveCard(null)
       setYouGetCards([])
@@ -105,8 +124,17 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
       setYouGetCards([])
       setError(null)
       setPendingTransaction(null)
+      // 重置成功處理標記
+      hasHandledSuccess.current = false
     }
   }, [isOpen])
+
+  // 當開始新交易時重置成功處理標記
+  useEffect(() => {
+    if (isPending) {
+      hasHandledSuccess.current = false
+    }
+  }, [isPending])
 
   // 當鏈切換到 BSC testnet 後，自動執行待處理的交易
   useEffect(() => {
@@ -308,6 +336,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
         onClose={() => setIsChooseModalOpen(false)}
         onConfirm={handleCardSelected}
         availableCards={availableCards}
+        isForYouGet={choosingFor === "get"}
       />
     </>
   )

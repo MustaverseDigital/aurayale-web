@@ -6,7 +6,6 @@ interface Card {
   name: string
   image: string
   quantity: number
-  owned?: boolean
 }
 
 interface ChooseCardModalProps {
@@ -14,17 +13,22 @@ interface ChooseCardModalProps {
   onClose: () => void
   onConfirm: (card: Card) => void
   availableCards: Card[]
+  isForYouGet?: boolean
 }
 
-export function ChooseCardModal({ isOpen, onClose, onConfirm, availableCards }: ChooseCardModalProps) {
+export function ChooseCardModal({ isOpen, onClose, onConfirm, availableCards, isForYouGet = false }: ChooseCardModalProps) {
   const [selectedCard, setSelectedCard] = useState<Card | null>(null)
+
+  // Reset selected card when modal closes
+  const handleClose = () => {
+    setSelectedCard(null)
+    onClose()
+  }
 
   if (!isOpen) return null
 
   const handleCardClick = (card: Card) => {
-    if (card.owned !== false) {
-      setSelectedCard(card)
-    }
+    setSelectedCard(card)
   }
 
   const handleConfirm = () => {
@@ -42,7 +46,7 @@ export function ChooseCardModal({ isOpen, onClose, onConfirm, availableCards }: 
         <div className="border-b border-[#898cd2]/30 p-6 flex justify-between items-center relative flex-shrink-0">
           <h2 className="text-xl font-bold text-white text-center flex-1">Choose a Card</h2>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="absolute right-4 top-4 text-white hover:text-gray-300 transition-colors"
           >
             <X size={24} />
@@ -81,19 +85,15 @@ export function ChooseCardModal({ isOpen, onClose, onConfirm, availableCards }: 
           ) : (
             <div className="grid grid-cols-5 gap-4">
               {availableCards.map((card) => {
-                const isOwned = card.owned !== false
                 const isSelected = selectedCard?.id === card.id
 
                 return (
                   <button
                     key={card.id}
                     onClick={() => handleCardClick(card)}
-                    disabled={!isOwned}
-                    className={`group transition-all relative ${!isOwned
-                      ? "opacity-40 cursor-not-allowed grayscale"
-                      : isSelected
-                        ? "ring-2 ring-[#898cd2] scale-105"
-                        : "hover:scale-105 hover:ring-2 hover:ring-[#898cd2]/50"
+                    className={`group transition-all relative ${isSelected
+                      ? "ring-2 ring-[#898cd2] scale-105"
+                      : "hover:scale-105 hover:ring-2 hover:ring-[#898cd2]/50"
                       }`}
                   >
                     <div className="border-2 border-[#898cd2] rounded-lg overflow-hidden bg-black/20">
@@ -104,17 +104,19 @@ export function ChooseCardModal({ isOpen, onClose, onConfirm, availableCards }: 
                       />
                       <div className="p-2 border-t border-[#898cd2]/50">
                         <div className="text-xs font-semibold text-white truncate mb-1">{card.name}</div>
-                        <div className="flex items-center justify-center gap-1">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-gray-400">
-                            <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2" />
-                            <path d="M9 9h6v6H9z" fill="currentColor" />
-                          </svg>
-                          <span className="text-xs font-semibold text-white">{card.quantity}</span>
-                        </div>
+                        {!isForYouGet && (
+                          <div className="flex items-center justify-center gap-1">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-gray-400">
+                              <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2" />
+                              <path d="M9 9h6v6H9z" fill="currentColor" />
+                            </svg>
+                            <span className="text-xs font-semibold text-white">{card.quantity}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
 
-                    {isSelected && isOwned && (
+                    {isSelected && (
                       <div className="absolute top-2 right-2 bg-[#898cd2] rounded-full p-1 shadow-lg">
                         <Check size={16} className="text-white" />
                       </div>
