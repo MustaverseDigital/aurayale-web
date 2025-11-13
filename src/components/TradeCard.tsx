@@ -14,10 +14,16 @@ interface TradeCardProps {
 }
 
 export function TradeCard({ status, youGet, youGive, tradeId, address, serviceFee, onClick }: TradeCardProps) {
+  const isClickable = !!onClick
+  
   return (
     <div
       onClick={onClick}
-      className="bg-[#898cd2]/20 backdrop-blur-sm border border-[#898cd2]/30 rounded-xl p-3 cursor-pointer hover:bg-[#898cd2]/30 hover:border-[#898cd2]/50 transition-all duration-200"
+      className={`bg-[#898cd2]/20 backdrop-blur-sm border border-[#898cd2]/30 rounded-xl p-3 transition-all duration-200 ${
+        isClickable 
+          ? "cursor-pointer hover:bg-[#898cd2]/30 hover:border-[#898cd2]/50" 
+          : "cursor-default opacity-75"
+      }`}
     >
       {/* Status indicator */}
       <div className="flex items-center gap-2 mb-3">

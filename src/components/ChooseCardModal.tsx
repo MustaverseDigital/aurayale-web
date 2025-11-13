@@ -90,10 +90,10 @@ export function ChooseCardModal({ isOpen, onClose, onConfirm, availableCards }: 
                     onClick={() => handleCardClick(card)}
                     disabled={!isOwned}
                     className={`group transition-all relative ${!isOwned
-                        ? "opacity-40 cursor-not-allowed grayscale"
-                        : isSelected
-                          ? "ring-2 ring-[#898cd2] scale-105"
-                          : "hover:scale-105 hover:ring-2 hover:ring-[#898cd2]/50"
+                      ? "opacity-40 cursor-not-allowed grayscale"
+                      : isSelected
+                        ? "ring-2 ring-[#898cd2] scale-105"
+                        : "hover:scale-105 hover:ring-2 hover:ring-[#898cd2]/50"
                       }`}
                   >
                     <div className="border-2 border-[#898cd2] rounded-lg overflow-hidden bg-black/20">
