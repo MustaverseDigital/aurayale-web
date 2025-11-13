@@ -142,7 +142,7 @@ export default function ProfilePage() {
     setBindSuccess("");
     setBindError("");
     try {
-      await unbindWallet(user!.token, user!.walletAddress!);
+      await unbindWallet(user!.token);
       setUser({ ...user!, walletAddress: "" });
       setBindSuccess("Wallet unbound successfully!");
     } catch (e: any) {
