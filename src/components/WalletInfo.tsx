@@ -4,10 +4,12 @@ import { useEffect, useState } from "react"
 import { getUserGems, GemItem } from "../api/auraServer"
 import { useAccount } from "wagmi"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
+import { useRouter } from "next/router"
 
 export function WalletInfo() {
   const { user } = useUser()
   const { address: connectedAddress, isConnected } = useAccount()
+  const router = useRouter()
   const [gems, setGems] = useState<GemItem[]>([])
   const [totalCards, setTotalCards] = useState(0)
 
@@ -35,6 +37,10 @@ export function WalletInfo() {
     if (walletAddress) {
       navigator.clipboard.writeText(walletAddress)
     }
+  }
+
+  const handleEditClick = () => {
+    router.push("/deck")
   }
 
   return (
@@ -111,7 +117,10 @@ export function WalletInfo() {
             />
           )}
         </div>
-        <button className="bg-[#898cd2]/50 text-white px-3 py-1 rounded text-sm font-semibold hover:bg-[#898cd2]/70 transition">
+        <button
+          className="bg-[#898cd2]/50 text-white px-3 py-1 rounded text-sm font-semibold hover:bg-[#898cd2]/70 transition"
+          onClick={handleEditClick}
+        >
           Edit
         </button>
       </div>
