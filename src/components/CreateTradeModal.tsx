@@ -4,6 +4,7 @@ import { ChooseCardModal } from "./ChooseCardModal"
 import { useUser } from "../context/UserContext"
 import { getUserGems, GemItem } from "../api/auraServer"
 import { useCreateTradeOrder } from "../hooks/useTradeOrder"
+import { useAccount, useSwitchChain } from "wagmi"
 
 interface Card {
   id: string
@@ -27,6 +28,12 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
   const [availableCards, setAvailableCards] = useState<Card[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [pendingTransaction, setPendingTransaction] = useState<{ offeredTokenId: bigint; wantedTokenIds: bigint[] } | null>(null)
+  const { chainId, isConnected } = useAccount()
+  const { switchChain, isPending: isSwitchingChain } = useSwitchChain()
+
+  // BSC Testnet chain ID
+  const BSC_TESTNET_CHAIN_ID = 97
 
   const {
     createTradeOrder,
@@ -97,10 +104,19 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
       setYouGiveCard(null)
       setYouGetCards([])
       setError(null)
+      setPendingTransaction(null)
     }
   }, [isOpen])
 
-  const handlePost = () => {
+  // 當鏈切換到 BSC testnet 後，自動執行待處理的交易
+  useEffect(() => {
+    if (pendingTransaction && chainId === BSC_TESTNET_CHAIN_ID && !isSwitchingChain) {
+      createTradeOrder(pendingTransaction.offeredTokenId, pendingTransaction.wantedTokenIds)
+      setPendingTransaction(null)
+    }
+  }, [chainId, isSwitchingChain, pendingTransaction])
+
+  const handlePost = async () => {
     if (!youGiveCard) {
       setError("Please select a card to give")
       return
@@ -113,15 +129,41 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
 
     setError(null)
 
+    // 檢查是否已連接錢包
+    if (!isConnected) {
+      setError("Please connect your wallet first")
+      return
+    }
+
     // 將卡片 ID 轉換為 bigint tokenId
     const offeredTokenId = BigInt(youGiveCard.id)
     const wantedTokenIds = youGetCards.map((card) => BigInt(card.id))
+
+    // 檢查並切換到 BSC testnet
+    if (chainId !== BSC_TESTNET_CHAIN_ID) {
+      if (switchChain) {
+        try {
+          // 保存待執行的交易參數
+          setPendingTransaction({ offeredTokenId, wantedTokenIds })
+          await switchChain({ chainId: BSC_TESTNET_CHAIN_ID })
+          // 鏈切換完成後，useEffect 會自動執行交易
+          return
+        } catch (switchError: any) {
+          setError(switchError.message || "Failed to switch to BSC testnet")
+          setPendingTransaction(null)
+          return
+        }
+      } else {
+        setError("Please switch to BSC testnet manually")
+        return
+      }
+    }
 
     // 調用智能合約創建訂單
     createTradeOrder(offeredTokenId, wantedTokenIds)
   }
 
-  const isProcessing = isPending || isConfirming
+  const isProcessing = isPending || isConfirming || isSwitchingChain
 
   if (!isOpen) return null
 
@@ -250,7 +292,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
                 {isProcessing ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    {isConfirming ? "Confirming..." : "Processing..."}
+                    {isSwitchingChain ? "Switching Chain..." : isConfirming ? "Confirming..." : "Processing..."}
                   </>
                 ) : (
                   "Post"

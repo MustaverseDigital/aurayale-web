@@ -4,6 +4,7 @@ import { ChooseCardModal } from "./ChooseCardModal"
 import { useUser } from "../context/UserContext"
 import { getUserGems, GemItem } from "../api/auraServer"
 import { useAcceptTradeOrder } from "../hooks/useTradeOrder"
+import { useAccount, useSwitchChain } from "wagmi"
 
 interface Card {
   name: string
@@ -33,6 +34,12 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
   const [isChooseCardOpen, setIsChooseCardOpen] = useState(false)
   const [walletCards, setWalletCards] = useState<any[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [pendingTransaction, setPendingTransaction] = useState<{ orderId: bigint; selectedTokenId: bigint } | null>(null)
+  const { chainId, isConnected } = useAccount()
+  const { switchChain, isPending: isSwitchingChain } = useSwitchChain()
+
+  // BSC Testnet chain ID
+  const BSC_TESTNET_CHAIN_ID = 97
 
   const {
     acceptTradeOrder,
@@ -104,10 +111,19 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
       setSelectedCard(null)
       setSelectedCardId(null)
       setError(null)
+      setPendingTransaction(null)
     }
   }, [isOpen])
 
-  const handleAccept = () => {
+  // 當鏈切換到 BSC testnet 後，自動執行待處理的交易
+  useEffect(() => {
+    if (pendingTransaction && chainId === BSC_TESTNET_CHAIN_ID && !isSwitchingChain) {
+      acceptTradeOrder(pendingTransaction.orderId, pendingTransaction.selectedTokenId)
+      setPendingTransaction(null)
+    }
+  }, [chainId, isSwitchingChain, pendingTransaction])
+
+  const handleAccept = async () => {
     if (!tradeData) {
       setError("Trade data is missing")
       return
@@ -125,15 +141,41 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
 
     setError(null)
 
+    // 檢查是否已連接錢包
+    if (!isConnected) {
+      setError("Please connect your wallet first")
+      return
+    }
+
     // 將 orderId 和 selectedCardId 轉換為 bigint
     const orderId = BigInt(tradeData.orderId)
     const selectedTokenId = BigInt(selectedCardId)
+
+    // 檢查並切換到 BSC testnet
+    if (chainId !== BSC_TESTNET_CHAIN_ID) {
+      if (switchChain) {
+        try {
+          // 保存待執行的交易參數
+          setPendingTransaction({ orderId, selectedTokenId })
+          await switchChain({ chainId: BSC_TESTNET_CHAIN_ID })
+          // 鏈切換完成後，useEffect 會自動執行交易
+          return
+        } catch (switchError: any) {
+          setError(switchError.message || "Failed to switch to BSC testnet")
+          setPendingTransaction(null)
+          return
+        }
+      } else {
+        setError("Please switch to BSC testnet manually")
+        return
+      }
+    }
 
     // 調用智能合約接受訂單
     acceptTradeOrder(orderId, selectedTokenId)
   }
 
-  const isProcessing = isPending || isConfirming
+  const isProcessing = isPending || isConfirming || isSwitchingChain
 
   if (!isOpen || !tradeData) return null
 
@@ -284,7 +326,7 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
                 {isProcessing ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    {isConfirming ? "Confirming..." : "Processing..."}
+                    {isSwitchingChain ? "Switching Chain..." : isConfirming ? "Confirming..." : "Processing..."}
                   </>
                 ) : (
                   "Accept"
