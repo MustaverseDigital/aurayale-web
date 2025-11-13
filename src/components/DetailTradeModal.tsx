@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import { X, Loader2 } from "lucide-react"
 import { ChooseCardModal } from "./ChooseCardModal"
 import { useUser } from "../context/UserContext"
@@ -37,6 +37,9 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
   const [pendingTransaction, setPendingTransaction] = useState<{ orderId: bigint; selectedTokenId: bigint } | null>(null)
   const { chainId, isConnected } = useAccount()
   const { switchChain, isPending: isSwitchingChain } = useSwitchChain()
+
+  // 追蹤是否已經處理過成功狀態，防止無限迴圈
+  const hasHandledSuccess = useRef(false)
 
   // BSC Testnet chain ID
   const BSC_TESTNET_CHAIN_ID = 97
@@ -87,9 +90,11 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
     setSelectedCardId(card.id)
   }
 
-  // 處理交易成功
+  // 處理交易成功 - 使用 ref 確保只執行一次
   useEffect(() => {
-    if (isSuccess && onSuccess) {
+    if (isSuccess && onSuccess && !hasHandledSuccess.current) {
+      // 標記為已處理
+      hasHandledSuccess.current = true
       // 重置狀態
       setSelectedCard(null)
       setSelectedCardId(null)
@@ -112,8 +117,17 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
       setSelectedCardId(null)
       setError(null)
       setPendingTransaction(null)
+      // 重置成功處理標記
+      hasHandledSuccess.current = false
     }
   }, [isOpen])
+
+  // 當開始新交易時重置成功處理標記
+  useEffect(() => {
+    if (isPending) {
+      hasHandledSuccess.current = false
+    }
+  }, [isPending])
 
   // 當鏈切換到 BSC testnet 後，自動執行待處理的交易
   useEffect(() => {
