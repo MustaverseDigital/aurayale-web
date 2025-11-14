@@ -40,7 +40,7 @@ export default function DeckPage() {
     }).catch(e => {
       setError(e.message);
     }).finally(() => setLoading(false));
-    setUsername(user.username);
+    setUsername(user.name || user.userId.toString());
     setWalletAddress(user.walletAddress || "");
   }, [router, user]);
 
