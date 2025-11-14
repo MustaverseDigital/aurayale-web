@@ -125,7 +125,7 @@ export default function DeckPage() {
         {/* 返回個人頁面 */}
         <button
           className="btn btn-square rounded-xl flex items-center justify-center p-3 absolute left-2 bottom-2 text-sm bg-transparent hover:bg-white/10 transition"
-          onClick={() => router.push("/profile")}
+          onClick={() => router.push("/platform")}
           title="返回個人頁面"
         >
           <CornerDownLeft className="w-6 h-6" />
