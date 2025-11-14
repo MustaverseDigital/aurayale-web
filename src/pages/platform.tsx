@@ -78,16 +78,19 @@ export default function PlatformPage() {
     // 將 tokenId 轉換為 gem metadata 的輔助函數
     const getGemMetadata = (tokenId: number): { name: string; image: string } => {
       const gem = gems.find((g) => g.id === tokenId)
+      // 統一使用 public 資料夾中的圖片
+      const imagePath = `/img/${tokenId.toString().padStart(3, "0")}.png`
+
       if (gem && gem.metadata) {
         return {
           name: gem.metadata.name || `Card ${tokenId}`,
-          image: gem.metadata.image || `/img/${tokenId.toString().padStart(3, "0")}.png`,
+          image: imagePath,
         }
       }
       // 默認值
       return {
         name: `Card ${tokenId}`,
-        image: `/img/${tokenId.toString().padStart(3, "0")}.png`,
+        image: imagePath,
       }
     }
 
