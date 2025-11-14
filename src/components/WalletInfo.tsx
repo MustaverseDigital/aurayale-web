@@ -109,9 +109,9 @@ export function WalletInfo() {
       </div>
       <div className="text-right">
         <div className="w-12 h-16 bg-card rounded border-2 border-[#898cd2]/30 mb-2">
-          {gems.length > 0 && gems[0].metadata?.image && (
+          {gems.length > 0 && (
             <img
-              src={gems[0].metadata.image || `/img/${gems[0].id.toString().padStart(3, "0")}.png`}
+              src={`/img/${gems[0].id.toString().padStart(3, "0")}.png`}
               alt="card"
               className="w-full h-full object-contain"
             />
