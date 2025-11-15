@@ -98,7 +98,7 @@ export function ChooseCardModal({ isOpen, onClose, onConfirm, availableCards, is
                   >
                     <div className="border-2 border-[#898cd2] rounded-lg overflow-hidden bg-black/20">
                       <img
-                        src={card.image || "/img/001.png"}
+                        src={`/img/${card.id.padStart(3, "0")}.png`}
                         alt={card.name}
                         className="w-full aspect-[3/4] object-cover"
                       />

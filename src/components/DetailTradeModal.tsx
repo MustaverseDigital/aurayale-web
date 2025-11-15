@@ -60,7 +60,7 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
           const cards = gems.map((gem) => ({
             id: gem.id.toString(),
             name: gem.metadata?.name || `Card ${gem.id}`,
-            image: gem.metadata?.image || `/img/${gem.id.toString().padStart(3, "0")}.png`,
+            image: `/img/${gem.id.toString().padStart(3, "0")}.png`,
             quantity: gem.quantity,
             owned: gem.quantity > 0,
           }))
