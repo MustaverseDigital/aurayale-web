@@ -3,8 +3,8 @@ import type { GemItem } from "../api/auraServer";
 
 export interface UserInfo {
   token: string;
-  userId: string;
-  username: string;
+  userId: number;
+  name?: string;
   walletAddress?: string;
   deck?: number[];
   gems?: GemItem[];
