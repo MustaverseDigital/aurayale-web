@@ -79,7 +79,7 @@ export function ChooseCardModal({ isOpen, onClose, onConfirm, availableCards, is
               </div>
               <p className="text-white text-lg font-semibold mb-2">No Available Cards</p>
               <p className="text-gray-400 text-sm max-w-sm">
-                You don't have any cards that match the requirements for this trade.
+                You don&apos;t have any cards that match the requirements for this trade.
               </p>
             </div>
           ) : (
