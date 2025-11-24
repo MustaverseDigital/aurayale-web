@@ -5,12 +5,12 @@ interface TabNavigationProps {
 
 export function TabNavigation({ activeTab, setActiveTab }: TabNavigationProps) {
   return (
-    <div className="flex border-b border-[#898cd2]/30 mt-6">
+    <div className="flex border-b border-[#FFFFFF]/30 mt-6">
       <button
         onClick={() => setActiveTab("market")}
         className={`flex-1 py-3 text-center font-semibold transition-colors ${
           activeTab === "market" 
-            ? "text-white border-b-2 border-[#898cd2]" 
+            ? "text-[#FFC800] border-b-2 border-[#FFC800]" 
             : "text-gray-400"
         }`}
       >
@@ -20,7 +20,7 @@ export function TabNavigation({ activeTab, setActiveTab }: TabNavigationProps) {
         onClick={() => setActiveTab("history")}
         className={`flex-1 py-3 text-center font-semibold transition-colors ${
           activeTab === "history" 
-            ? "text-white border-b-2 border-[#898cd2]" 
+            ? "text-[#FFC800] border-b-2 border-[#FFC800]" 
             : "text-gray-400"
         }`}
       >

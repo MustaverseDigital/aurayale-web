@@ -8,7 +8,7 @@ export function TradeFilters({ onAddClick }: TradeFiltersProps) {
   return (
     <div className="mt-6 space-y-4">
       <div className="flex gap-2">
-        <div className="flex-1 flex items-center bg-[#898cd2]/20 border border-[#898cd2]/30 rounded-lg px-3">
+        <div className="flex-1 flex items-center bg-[# ]/20 border border-[#898cd2]/30 rounded-lg px-3">
           <Search className="w-4 h-4 text-gray-400" />
           <input
             type="text"
@@ -22,7 +22,7 @@ export function TradeFilters({ onAddClick }: TradeFiltersProps) {
         </button>
         <button
           onClick={onAddClick}
-          className="bg-[#898cd2] text-white rounded-lg p-2 hover:bg-[#898cd2]/80 transition-opacity"
+          className="bg-[#713DE9] text-white rounded-lg p-2 hover:bg-[#898cd2]/80 transition-opacity"
         >
           <Plus className="w-5 h-5" />
         </button>

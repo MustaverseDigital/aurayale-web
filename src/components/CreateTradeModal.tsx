@@ -198,9 +198,9 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
   return (
     <>
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-        <div className="bg-[#898cd2]/30 backdrop-blur-sm border-2 border-[#898cd2]/50 rounded-xl max-w-md w-full shadow-2xl">
+        <div className="bg-[#3B2F36] backdrop-blur-sm border-2 border-[#3B3541]/50 rounded-xl max-w-md w-full shadow-2xl">
           {/* Header */}
-          <div className="border-b border-[#898cd2]/30 p-6 flex justify-between items-center relative">
+          <div className="border-b border-[#877B8A]/30 p-6 flex justify-between items-center relative">
             <h2 className="text-xl font-bold text-white text-center flex-1">CREATE</h2>
             <button
               onClick={onClose}
@@ -211,7 +211,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
 
             {/* Diamond separator */}
             <div className="absolute left-1/2 bottom-0 transform -translate-x-1/2 translate-y-1/2">
-              <div className="w-4 h-4 bg-[#898cd2] transform rotate-45" />
+              <div className="w-4 h-4 bg-[#877B8A] transform rotate-45" />
             </div>
           </div>
 
@@ -222,7 +222,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
               {/* You Give */}
               <div className="flex-1">
                 <div className="text-sm text-gray-300 mb-3">You Give</div>
-                <div className="border-2 border-[#898cd2] rounded-xl p-6 min-h-40 flex items-center justify-center bg-black/20">
+                <div className="border-2 border-[#877B8A] rounded-xl p-6 min-h-40 flex items-center justify-center bg-black/20">
                   {youGiveCard ? (
                     <div className="text-center">
                       <img
@@ -235,7 +235,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
                   ) : (
                     <button
                       onClick={() => handleChooseClick("give")}
-                      className="bg-[#898cd2] text-white px-4 py-2 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity"
+                      className="bg-[#877B8A] text-white px-4 py-2 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity"
                     >
                       Choose
                     </button>
@@ -261,12 +261,12 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
               {/* You Get */}
               <div className="flex-1">
                 <div className="text-sm text-gray-300 mb-3">You Get</div>
-                <div className="border-2 border-[#898cd2] rounded-xl p-3 min-h-40 flex flex-col items-center justify-center gap-2">
+                <div className="border-2 border-[#877B8A] rounded-xl p-3 min-h-40 flex flex-col items-center justify-center gap-2">
                   {youGetCards.length > 0 ? (
                     <>
                       <div className="grid grid-cols-2 gap-2 w-full">
                         {youGetCards.map((card, idx) => (
-                          <div key={idx} className="border border-[#898cd2] rounded-lg overflow-hidden">
+                          <div key={idx} className="border border-[#877B8A] rounded-lg overflow-hidden">
                             <img
                               src={card.image || "/img/001.png"}
                               alt={card.name}
@@ -277,7 +277,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
                       </div>
                       <button
                         onClick={() => handleChooseClick("get")}
-                        className="bg-[#898cd2] text-white px-4 py-2 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity"
+                        className="bg-[#877B8A] text-white px-4 py-2 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity"
                       >
                         Choose
                       </button>
@@ -285,7 +285,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
                   ) : (
                     <button
                       onClick={() => handleChooseClick("get")}
-                      className="bg-[#898cd2] text-white px-4 py-2 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity"
+                      className="bg-[#877B8A] text-white px-4 py-2 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity"
                     >
                       Choose
                     </button>
@@ -299,7 +299,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
               <p>The card will be locked until the transaction is completed or you manually cancel it.</p>
               <p>
                 Upon completion of the transaction, the card you receive will have an{" "}
-                <span className="text-[#898cd2]">[X]%</span> chance to upgrade to a higher-tier card!
+                <span className="text-[#877B8A]">[X]%</span> chance to upgrade to a higher-tier card!
               </p>
             </div>
 
@@ -315,7 +315,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
               <button
                 onClick={handlePost}
                 disabled={isProcessing}
-                className="bg-[#898cd2] text-white px-12 py-3 rounded-full font-bold text-lg border-2 border-[#898cd2]/50 hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="bg-[#713DE9] text-white px-12 py-3 rounded-full font-bold text-lg border-2 border-[#877B8A]/50 hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {isProcessing ? (
                   <>

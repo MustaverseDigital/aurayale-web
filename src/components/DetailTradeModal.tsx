@@ -195,10 +195,10 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-        <div className="bg-[#898cd2]/30 backdrop-blur-sm border-2 border-[#898cd2]/50 rounded-xl max-w-md w-full shadow-2xl">
+      <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+        <div className="bg-[#3B2F36] backdrop-blur-sm border-2 border-[#3B3541]/50 rounded-xl max-w-md w-full shadow-2xl">
           {/* Header */}
-          <div className="border-b border-[#898cd2]/30 p-6 flex justify-between items-center relative">
+          <div className="border-b border-[#877B8A] p-4 flex justify-between items-center relative">
             <h2 className="text-xl font-bold text-white text-center flex-1">DETAIL</h2>
             <button
               onClick={onClose}
@@ -209,23 +209,23 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
 
             {/* Diamond separator */}
             <div className="absolute left-1/2 bottom-0 transform -translate-x-1/2 translate-y-1/2">
-              <div className="w-4 h-4 bg-[#898cd2] transform rotate-45" />
+              <div className="w-4 h-4 bg-[#877B8A] transform rotate-45" />
             </div>
           </div>
 
           {/* Main Content */}
-          <div className="p-6 pt-8 space-y-6">
+          <div className="space-y-6 ">
             {/* Trade Selection Area */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 p-6 bg-exchage border-b border-[#877B8A]/60">
               {/* You Get */}
               <div className="flex-1">
                 <div className="text-sm text-gray-300 mb-3">You Get</div>
-                <div className="border-2 border-[#898cd2] rounded-xl p-4 flex items-center justify-center bg-black/20 aspect-square">
+                <div className="border-2 border-[#877B8A] rounded-xl p-4 flex items-center justify-center">
                   <div className="text-center">
                     <img
                       src={tradeData.youGet.image || "/img/001.png"}
                       alt={tradeData.youGet.name}
-                      className="w-24 h-32 object-cover rounded mb-2 mx-auto"
+                      className="w-full h-full object-cover rounded mb-2 mx-auto"
                     />
                     <p className="text-xs text-white font-semibold">{tradeData.youGet.name}</p>
                   </div>
@@ -248,30 +248,30 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
               </div>
 
               {/* You Give */}
-              <div className="flex-1">
+              <div className="flex-2">
                 <div className="text-sm text-gray-300 mb-3">
                   You Give
                   <br />
                   <span className="text-xs text-gray-400">Select Card to Swap</span>
                 </div>
-                <div className="border-2 border-[#898cd2] rounded-xl p-3 flex flex-col items-center justify-center gap-2">
+                <div className="border-2 border-[#877B8A] rounded-xl p-3 flex flex-col items-center justify-center gap-2">
                   {selectedCard ? (
                     <div className="w-full">
                       <img
                         src={selectedCard.image || "/img/001.png"}
                         alt={selectedCard.name}
-                        className="w-full aspect-[3/4] object-cover rounded"
+                        className="w-full h-full object-cover rounded"
                       />
                       <p className="text-xs text-white font-semibold text-center mt-2">{selectedCard.name}</p>
                     </div>
                   ) : tradeData.youGive.length > 0 ? (
                     <div className="grid grid-cols-2 gap-2 w-full">
                       {tradeData.youGive.map((card, idx) => (
-                        <div key={idx} className="border-2 border-[#898cd2] rounded-lg overflow-hidden">
+                        <div key={idx} className="">
                           <img
                             src={card.image || "/img/001.png"}
                             alt={card.name}
-                            className="w-full aspect-square object-cover"
+                            className="w-full h-full  object-cover"
                           />
                         </div>
                       ))}
@@ -282,7 +282,7 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
             </div>
 
             {/* Trade Info Section */}
-            <div className="space-y-4">
+            <div className="space-y-4 p-6">
               {/* Status */}
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full" />
@@ -290,7 +290,7 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
               </div>
 
               {/* Trade ID and Details */}
-              <div className="bg-black/20 border border-[#898cd2]/30 rounded-lg p-4 space-y-3">
+              <div className="bg-black/20 border border-[#877B8A]/30 rounded-lg p-4 space-y-3">
                 <div className="text-white font-semibold text-sm">{tradeData.tradeId}</div>
                 <div className="flex justify-between">
                   <div>
@@ -312,7 +312,7 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
               {/* Info Text */}
               <p className="text-sm text-gray-300">
                 Upon completion of the transaction, the card you receive will have an{" "}
-                <span className="text-[#898cd2]">[X]%</span> chance to upgrade to a higher-tier card!
+                <span className="text-[#713DE9]">[X]%</span> chance to upgrade to a higher-tier card!
               </p>
             </div>
 
@@ -324,18 +324,18 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
             )}
 
             {/* Action Buttons */}
-            <div className="flex gap-3 justify-center pt-4">
+            <div className="flex gap-3 justify-center pt-1">
               <button
                 onClick={() => setIsChooseCardOpen(true)}
                 disabled={isProcessing}
-                className="bg-[#898cd2] text-white px-6 py-2 rounded-full font-semibold text-sm border-2 border-[#898cd2]/50 hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-[#713DE9] text-white px-6 py-2 rounded-full font-semibold text-sm border-2 border-[#877B8A]/50 hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Select Card
               </button>
               <button
                 onClick={handleAccept}
                 disabled={isProcessing || !selectedCardId}
-                className="bg-[#898cd2] text-white px-8 py-2 rounded-full font-semibold text-sm border-2 border-[#898cd2]/50 hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="bg-[#713DE9] text-white px-8 py-2 rounded-full font-semibold text-sm border-2 border-[#877B8A]/50 hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {isProcessing ? (
                   <>
@@ -349,7 +349,7 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
               <button
                 onClick={onClose}
                 disabled={isProcessing}
-                className="bg-black/30 text-white px-6 py-2 rounded-full font-semibold text-sm border-2 border-[#898cd2]/30 hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-black/30 text-white px-6 py-2 rounded-full font-semibold text-sm border-2 border-[#877B8A]/30 hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>

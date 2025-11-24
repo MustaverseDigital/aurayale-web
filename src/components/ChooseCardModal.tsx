@@ -41,9 +41,9 @@ export function ChooseCardModal({ isOpen, onClose, onConfirm, availableCards, is
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[60]">
-      <div className="bg-[#898cd2]/30 backdrop-blur-sm border-2 border-[#898cd2]/50 rounded-xl max-w-2xl w-full shadow-2xl max-h-[90vh] flex flex-col">
+      <div className="bg-[#3B2F36]/30 backdrop-blur-sm border-2 border-[#877B8A]/50 rounded-xl max-w-2xl w-full shadow-2xl max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="border-b border-[#898cd2]/30 p-6 flex justify-between items-center relative flex-shrink-0">
+        <div className="border-b border-[#877B8A]/30 p-6 flex justify-between items-center relative flex-shrink-0">
           <h2 className="text-xl font-bold text-white text-center flex-1">Choose a Card</h2>
           <button
             onClick={handleClose}
@@ -54,7 +54,7 @@ export function ChooseCardModal({ isOpen, onClose, onConfirm, availableCards, is
 
           {/* Diamond separator */}
           <div className="absolute left-1/2 bottom-0 transform -translate-x-1/2 translate-y-1/2">
-            <div className="w-4 h-4 bg-[#898cd2] transform rotate-45" />
+            <div className="w-4 h-4 bg-[#877B8A] transform rotate-45" />
           </div>
         </div>
 
@@ -92,17 +92,17 @@ export function ChooseCardModal({ isOpen, onClose, onConfirm, availableCards, is
                     key={card.id}
                     onClick={() => handleCardClick(card)}
                     className={`group transition-all relative ${isSelected
-                      ? "ring-2 ring-[#898cd2] scale-105"
-                      : "hover:scale-105 hover:ring-2 hover:ring-[#898cd2]/50"
+                      ? "ring-2 ring-[#877B8A] scale-105"
+                      : "hover:scale-105 hover:ring-2 hover:ring-[#877B8A]/50"
                       }`}
                   >
-                    <div className="border-2 border-[#898cd2] rounded-lg overflow-hidden bg-black/20">
+                    <div className="border-2 border-[#877B8A] rounded-lg overflow-hidden bg-black/20">
                       <img
                         src={`/img/${card.id.padStart(3, "0")}.png`}
                         alt={card.name}
                         className="w-full aspect-[3/4] object-cover"
                       />
-                      <div className="p-2 border-t border-[#898cd2]/50">
+                      <div className="p-2 border-t border-[#877B8A]/50">
                         <div className="text-xs font-semibold text-white truncate mb-1">{card.name}</div>
                         {!isForYouGet && (
                           <div className="flex items-center justify-center gap-1">
@@ -117,7 +117,7 @@ export function ChooseCardModal({ isOpen, onClose, onConfirm, availableCards, is
                     </div>
 
                     {isSelected && (
-                      <div className="absolute top-2 right-2 bg-[#898cd2] rounded-full p-1 shadow-lg">
+                      <div className="absolute top-2 right-2 bg-[#877B8A] rounded-full p-1 shadow-lg">
                         <Check size={16} className="text-white" />
                       </div>
                     )}
@@ -134,7 +134,7 @@ export function ChooseCardModal({ isOpen, onClose, onConfirm, availableCards, is
             <button
               onClick={handleConfirm}
               disabled={!selectedCard}
-              className="bg-[#898cd2] text-white px-12 py-3 rounded-full font-bold text-lg border-2 border-[#898cd2]/50 hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-[#713DE9] text-white px-12 py-3 rounded-full font-bold text-lg border-2 border-[#877B8A]/50 hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Confirm
             </button>
