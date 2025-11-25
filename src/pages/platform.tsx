@@ -40,6 +40,7 @@ export default function PlatformPage() {
   const [trades, setTrades] = useState<any[]>([])
   const [tradesLoading, setTradesLoading] = useState(false)
   const [tradesError, setTradesError] = useState<string | null>(null)
+  const [searchTerm, setSearchTerm] = useState("")
 
   // 取得目前牌組與卡片資訊
   useEffect(() => {
@@ -228,7 +229,11 @@ export default function PlatformPage() {
             <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
 
             {/* Trade Filters */}
-            <TradeFilters onAddClick={() => setIsCreateModalOpen(true)} />
+            <TradeFilters
+              onAddClick={() => setIsCreateModalOpen(true)}
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+            />
 
             {/* Trade Cards List */}
             <div className="flex-1 overflow-y-auto mt-4 space-y-3 pb-4">
@@ -245,23 +250,31 @@ export default function PlatformPage() {
                   <div className="text-gray-400">No trades available</div>
                 </div>
               ) : (
-                trades.map((trade, index) => {
-                  // 在 history tab 中，只有 tradable 狀態的訂單才能點擊
-                  const isClickable = activeTab === "market" || (activeTab === "history" && trade.status === "tradable")
+                trades
+                  .filter((trade) => {
+                    if (!searchTerm) return true
+                    const searchLower = searchTerm.toLowerCase()
+                    return (
+                      trade.address.toLowerCase().includes(searchLower)
+                    )
+                  })
+                  .map((trade, index) => {
+                    // 在 history tab 中，只有 tradable 狀態的訂單才能點擊
+                    const isClickable = activeTab === "market" || (activeTab === "history" && trade.status === "tradable")
 
-                  return (
-                    <TradeCard
-                      key={trade.orderId || index}
-                      status={trade.status}
-                      youGet={trade.youGet}
-                      youGive={trade.youGive}
-                      tradeId={trade.tradeId}
-                      address={trade.address}
-                      serviceFee={trade.serviceFee}
-                      onClick={isClickable ? () => handleTradeCardClick(trade) : undefined}
-                    />
-                  )
-                })
+                    return (
+                      <TradeCard
+                        key={trade.orderId || index}
+                        status={trade.status}
+                        youGet={trade.youGet}
+                        youGive={trade.youGive}
+                        tradeId={trade.tradeId}
+                        address={trade.address}
+                        serviceFee={trade.serviceFee}
+                        onClick={isClickable ? () => handleTradeCardClick(trade) : undefined}
+                      />
+                    )
+                  })
               )}
             </div>
           </div>

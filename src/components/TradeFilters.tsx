@@ -2,9 +2,11 @@ import { Search, ChevronDown, Plus } from "lucide-react"
 
 interface TradeFiltersProps {
   onAddClick?: () => void
+  searchTerm: string
+  onSearchChange: (term: string) => void
 }
 
-export function TradeFilters({ onAddClick }: TradeFiltersProps) {
+export function TradeFilters({ onAddClick, searchTerm, onSearchChange }: TradeFiltersProps) {
   return (
     <div className="mt-6 space-y-4">
       <div className="flex gap-2">
@@ -14,6 +16,8 @@ export function TradeFilters({ onAddClick }: TradeFiltersProps) {
             type="text"
             placeholder="Wallet Address"
             className="flex-1 bg-transparent border-0 outline-none px-2 py-2 text-sm text-white placeholder-gray-400"
+            value={searchTerm || ''}
+            onChange={(e) => onSearchChange(e.target.value)}
           />
         </div>
         <button className="flex items-center gap-1 bg-[#898cd2]/20 border border-[#898cd2]/30 rounded-lg px-3 py-2 text-sm text-white">
