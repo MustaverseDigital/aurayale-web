@@ -216,11 +216,11 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
           {/* Main Content */}
           <div className="space-y-6 ">
             {/* Trade Selection Area */}
-            <div className="flex items-center gap-4 p-6 bg-exchage border-b border-[#877B8A]/60">
+            <div className="flex items-center justify-center  gap-4 p-6 bg-exchage border-b border-[#877B8A]/60">
               {/* You Get */}
-              <div className="flex-1">
-                <div className="text-sm text-gray-300 mb-3">You Get</div>
-                <div className="border-2 border-[#877B8A] rounded-xl p-4 flex items-center justify-center">
+              <div className="w-30 flex-initial">
+                <div className="text-sm text-white/60  text-center">You Get</div>
+                <div className="rounded-xl p-2 flex items-center justify-center">
                   <div className="text-center">
                     <img
                       src={tradeData.youGet.image || "/img/001.png"}
@@ -233,39 +233,29 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
               </div>
 
               {/* Exchange Arrow */}
-              <div className="flex-shrink-0">
-                <div className="text-gray-400 text-2xl">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M5 12h14M12 5l7 7-7 7"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+              <div className="w-20 flex-initial justify-center flex">
+                <div className="text-gray-400  text-center">
+                  <img  src="/img/icon_Exchange.png" alt="" />
                 </div>
               </div>
 
               {/* You Give */}
-              <div className="flex-2">
-                <div className="text-sm text-gray-300 mb-3">
+              <div className="w-30 flex-initial">
+                <div className="text-sm text-white/60 text-center">
                   You Give
-                  <br />
-                  <span className="text-xs text-gray-400">Select Card to Swap</span>
                 </div>
-                <div className="border-2 border-[#877B8A] rounded-xl p-3 flex flex-col items-center justify-center gap-2">
+                <div className="rounded-xl p-2 flex items-center justify-center">
                   {selectedCard ? (
-                    <div className="w-full">
+                    <div className="text-center">
                       <img
                         src={selectedCard.image || "/img/001.png"}
                         alt={selectedCard.name}
-                        className="w-full h-full object-cover rounded"
+                        className="w-full h-full object-cover rounded mb-2 mx-auto"
                       />
-                      <p className="text-xs text-white font-semibold text-center mt-2">{selectedCard.name}</p>
+                      <p className="text-xs text-white font-semibold">{selectedCard.name}</p>
                     </div>
                   ) : tradeData.youGive.length > 0 ? (
-                    <div className="grid grid-cols-2 gap-2 w-full">
+                    <div className="gap-2 w-full mb-2 mx-auto">
                       {tradeData.youGive.map((card, idx) => (
                         <div key={idx} className="">
                           <img
@@ -278,11 +268,12 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
                     </div>
                   ) : null}
                 </div>
+                  <div className="text-xs text-gray-400 text-center">Select Card</div>
               </div>
             </div>
 
             {/* Trade Info Section */}
-            <div className="space-y-4 p-6">
+            <div className="space-y-4 px-6">
               {/* Status */}
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full" />
@@ -312,7 +303,7 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
               {/* Info Text */}
               <p className="text-sm text-gray-300">
                 Upon completion of the transaction, the card you receive will have an{" "}
-                <span className="text-[#713DE9]">[X]%</span> chance to upgrade to a higher-tier card!
+                <span className="text-[#FFC800]">[X]%</span> chance to upgrade to a higher-tier card!
               </p>
             </div>
 
@@ -324,18 +315,18 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
             )}
 
             {/* Action Buttons */}
-            <div className="flex gap-3 justify-center pt-1">
+            <div className="flex gap-3 justify-center px-1 mb-4">
               <button
                 onClick={() => setIsChooseCardOpen(true)}
                 disabled={isProcessing}
-                className="bg-[#713DE9] text-white px-6 py-2 rounded-full font-semibold text-sm border-2 border-[#877B8A]/50 hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-[#713DE9] text-white px-6 py-1 rounded-full font-semibold text-sm border-2 border-[#877B8A]/50 hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Select Card
               </button>
               <button
                 onClick={handleAccept}
                 disabled={isProcessing || !selectedCardId}
-                className="bg-[#713DE9] text-white px-8 py-2 rounded-full font-semibold text-sm border-2 border-[#877B8A]/50 hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="bg-[#713DE9] text-white px-8 py-1 rounded-full font-semibold text-sm border-2 border-[#877B8A]/50 hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {isProcessing ? (
                   <>
@@ -349,7 +340,7 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
               <button
                 onClick={onClose}
                 disabled={isProcessing}
-                className="bg-black/30 text-white px-6 py-2 rounded-full font-semibold text-sm border-2 border-[#877B8A]/30 hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-black/30 text-white px-6 py-1 rounded-full font-semibold text-sm border-2 border-[#877B8A]/30 hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>

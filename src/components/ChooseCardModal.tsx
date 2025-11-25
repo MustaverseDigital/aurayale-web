@@ -41,7 +41,7 @@ export function ChooseCardModal({ isOpen, onClose, onConfirm, availableCards, is
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[60]">
-      <div className="bg-[#3B2F36]/30 backdrop-blur-sm border-2 border-[#877B8A]/50 rounded-xl max-w-2xl w-full shadow-2xl max-h-[90vh] flex flex-col">
+      <div className="bg-[#3B2F36] backdrop-blur-sm border-2 border-[#877B8A]/50 rounded-xl max-w-2xl w-full shadow-2xl max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="border-b border-[#877B8A]/30 p-6 flex justify-between items-center relative flex-shrink-0">
           <h2 className="text-xl font-bold text-white text-center flex-1">Choose a Card</h2>
@@ -83,7 +83,7 @@ export function ChooseCardModal({ isOpen, onClose, onConfirm, availableCards, is
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-5 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               {availableCards.map((card) => {
                 const isSelected = selectedCard?.id === card.id
 
@@ -92,21 +92,21 @@ export function ChooseCardModal({ isOpen, onClose, onConfirm, availableCards, is
                     key={card.id}
                     onClick={() => handleCardClick(card)}
                     className={`group transition-all relative ${isSelected
-                      ? "ring-2 ring-[#877B8A] scale-105"
-                      : "hover:scale-105 hover:ring-2 hover:ring-[#877B8A]/50"
+                      ? "ring-2 ring-[#FFC800] scale-105  rounded-xl"
+                      : "hover:scale-105 hover:ring-2 hover:ring-[#FFC800]/50 rounded-xl"
                       }`}
                   >
-                    <div className="border-2 border-[#877B8A] rounded-lg overflow-hidden bg-black/20">
+                    <div className="rounded-lg overflow-hidden bg-black/20">
                       <img
                         src={`/img/${card.id.padStart(3, "0")}.png`}
                         alt={card.name}
-                        className="w-full aspect-[3/4] object-cover"
+                        className="w-full object-cover"
                       />
-                      <div className="p-2 border-t border-[#877B8A]/50">
+                      <div className="p-2">
                         <div className="text-xs font-semibold text-white truncate mb-1">{card.name}</div>
                         {!isForYouGet && (
                           <div className="flex items-center justify-center gap-1">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-gray-400">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-[#FFC800]">
                               <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2" />
                               <path d="M9 9h6v6H9z" fill="currentColor" />
                             </svg>
@@ -117,8 +117,8 @@ export function ChooseCardModal({ isOpen, onClose, onConfirm, availableCards, is
                     </div>
 
                     {isSelected && (
-                      <div className="absolute top-2 right-2 bg-[#877B8A] rounded-full p-1 shadow-lg">
-                        <Check size={16} className="text-white" />
+                      <div className="absolute top-0 right-0 bg-[#FFC800]/90 rounded-full p-1 shadow-lg">
+                        <Check size={20} className="text-White" />
                       </div>
                     )}
                   </button>

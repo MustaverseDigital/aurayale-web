@@ -21,18 +21,18 @@ export function TradeCard({ status, youGet, youGive, tradeId, address, serviceFe
       onClick={onClick}
       className={`bg-[#ffffff]/10 backdrop-blur-sm border border-[#555260] rounded-xl transition-all duration-200 ${
         isClickable 
-          ? "cursor-pointer hover:bg-[#898cd2]/30 hover:border-[#898cd2]/50" 
+          ? "cursor-pointer hover:bg-[#ffffff]/15 hover:border-[#555260]/50" 
           : "cursor-default opacity-75"
       }`}
     >
       {/* Status indicator */}
       
 
-      <div className="flex items-center gap-3 bg-[#412932] p-3 rounded-xl">
+      <div className="flex items-center justify-center flex-initial  bg-exchage p-3 rounded-t-xl">
         {/* You Get section */}
-        <div className="flex-2">
+        <div className="w-20 flex-initial">
           <div className="text-xs text-center text-white/60 mb-1.5">You Get</div>
-          <div className="relative">
+          <div className="">
             <div className="w-full  bg-[#898cd2]/10  rounded-lg ">
               <img 
                 src={youGet.image || "/img/001.png"} 
@@ -45,29 +45,12 @@ export function TradeCard({ status, youGet, youGive, tradeId, address, serviceFe
         </div>
 
         {/* Exchange arrow */}
-        <div className="pt-4 flex-4 justify-center items-center flex">
-          <svg width="24" height="24" viewBox="0 0 32 32" fill="none" className="opacity-40">
-            <path
-              d="M6 12L12 6L18 12"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path d="M12 6V20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            <path
-              d="M26 20L20 26L14 20"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path d="M20 26V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          </svg>
+        <div className="pt-4 w-40 justify-center items-center flex flex-initial">
+          <img  src="/img/icon_Exchange.png" alt="" />
         </div>
 
         {/* You Give section */}
-        <div className="flex-2">
+        <div className="w-20 flex-initial">
           <div className="text-xs  text-center  text-white/60 mb-1.5">You Give</div>
           <div className="relative">
             {youGive.slice(0, 4).map((card, idx) => (

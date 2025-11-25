@@ -198,7 +198,7 @@ export default function PlatformPage() {
     <div className="min-h-screen bgImg text-white flex flex-col">
       {/* Unity-matched viewport container */}
       <div
-        className="fixed inset-0 z-0 flex flex-col items-center justify-center bg-black"
+        className="fixed inset-0 z-0 flex flex-col items-center justify-center bgImg"
         style={{
           width: `${canvasWidth}px`,
           height: viewportHeight,

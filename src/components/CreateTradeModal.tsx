@@ -200,7 +200,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
         <div className="bg-[#3B2F36] backdrop-blur-sm border-2 border-[#3B3541]/50 rounded-xl max-w-md w-full shadow-2xl">
           {/* Header */}
-          <div className="border-b border-[#877B8A]/30 p-6 flex justify-between items-center relative">
+          <div className="border-b border-[#877B8A]/30 p-4 flex justify-between items-center relative">
             <h2 className="text-xl font-bold text-white text-center flex-1">CREATE</h2>
             <button
               onClick={onClose}
@@ -216,19 +216,19 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
           </div>
 
           {/* Main Content */}
-          <div className="p-6 pt-8 space-y-6">
+          <div className="space-y-6">
             {/* Trade Selection Area */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 bg-exchage p-6">
               {/* You Give */}
               <div className="flex-1">
-                <div className="text-sm text-gray-300 mb-3">You Give</div>
-                <div className="border-2 border-[#877B8A] rounded-xl p-6 min-h-40 flex items-center justify-center bg-black/20">
+                <div className="text-sm text-gray-300 mb-3 text-center">You Give</div>
+                <div className="border-2 border-[#806745] rounded-xl p-2 min-h-45 flex items-center justify-center bg-[#3C2C32]">
                   {youGiveCard ? (
                     <div className="text-center">
                       <img
                         src={youGiveCard.image || "/img/001.png"}
                         alt={youGiveCard.name}
-                        className="w-20 h-28 object-cover rounded mx-auto mb-2"
+                        className="w-20 object-cover rounded mx-auto mb-2"
                       />
                       <p className="text-xs text-white">{youGiveCard.name}</p>
                     </div>
@@ -246,31 +246,23 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
               {/* Exchange Arrow */}
               <div className="flex-shrink-0">
                 <div className="text-gray-400 text-2xl">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M5 12h14M12 5l7 7-7 7"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                  <img  src="/img/icon_Exchange.png" alt="" />
                 </div>
               </div>
 
               {/* You Get */}
               <div className="flex-1">
-                <div className="text-sm text-gray-300 mb-3">You Get</div>
-                <div className="border-2 border-[#877B8A] rounded-xl p-3 min-h-40 flex flex-col items-center justify-center gap-2">
+                <div className="text-sm text-gray-300 mb-3  text-center">You Get</div>
+                <div className="border-2 border-[#806745] rounded-xl p-2 min-h-45 flex flex-col items-center justify-center gap-2 bg-[#3C2C32]">
                   {youGetCards.length > 0 ? (
                     <>
-                      <div className="grid grid-cols-2 gap-2 w-full">
+                      <div className="grid grid-cols-2 gap-1 w-full">
                         {youGetCards.map((card, idx) => (
-                          <div key={idx} className="border border-[#877B8A] rounded-lg overflow-hidden">
+                          <div key={idx} className="justify-center flex">
                             <img
                               src={card.image || "/img/001.png"}
                               alt={card.name}
-                              className="w-full aspect-square object-cover"
+                              className="w-20"
                             />
                           </div>
                         ))}
@@ -295,11 +287,11 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
             </div>
 
             {/* Info Text */}
-            <div className="space-y-3 text-sm text-gray-300">
+            <div className="space-y-3 text-sm text-gray-300 px-6">
               <p>The card will be locked until the transaction is completed or you manually cancel it.</p>
               <p>
                 Upon completion of the transaction, the card you receive will have an{" "}
-                <span className="text-[#877B8A]">[X]%</span> chance to upgrade to a higher-tier card!
+                <span className="text-[#FFC800]">[X]%</span> chance to upgrade to a higher-tier card!
               </p>
             </div>
 
@@ -311,11 +303,11 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
             )}
 
             {/* Post Button */}
-            <div className="flex justify-center pt-4">
+            <div className="flex justify-center mb-6">
               <button
                 onClick={handlePost}
                 disabled={isProcessing}
-                className="bg-[#713DE9] text-white px-12 py-3 rounded-full font-bold text-lg border-2 border-[#877B8A]/50 hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="bg-[#713DE9] text-white px-12 py-2 rounded-full font-bold text-lg border-2 border-[#877B8A]/50 hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {isProcessing ? (
                   <>
