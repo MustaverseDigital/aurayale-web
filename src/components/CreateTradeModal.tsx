@@ -98,7 +98,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
           const cards: Card[] = gems.map((gem) => ({
             id: gem.id.toString(),
             name: gem.metadata?.name || `Card ${gem.id}`,
-            image: gem.metadata?.image || `/img/${gem.id.toString().padStart(3, "0")}.png`,
+            image: `/img/${gem.id.toString().padStart(3, "0")}.png`,
             quantity: gem.quantity,
           }))
           setUserOwnedCards(cards)
@@ -277,7 +277,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
                   {youGiveCard ? (
                     <div className="text-center">
                       <img
-                        src={youGiveCard.image || "/img/001.png"}
+                        src={`/img/${youGiveCard.id.padStart(3, "0")}.png`}
                         alt={youGiveCard.name}
                         className="w-20 object-cover rounded mx-auto mb-2"
                       />
@@ -311,7 +311,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
                         {youGetCards.map((card, idx) => (
                           <div key={idx} className="justify-center flex">
                             <img
-                              src={card.image || "/img/001.png"}
+                              src={`/img/${card.id.padStart(3, "0")}.png`}
                               alt={card.name}
                               className="w-20"
                             />
