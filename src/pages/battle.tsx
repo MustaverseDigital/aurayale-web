@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Unity, useUnityContext } from "react-unity-webgl";
 import { useViewportRequirements } from "../context/ViewportRequirementsContext";
 import { useCanvasWidth } from "../hooks/useCanvasWidth";
+import { useUser } from "../context/UserContext";
 
 export default function BattlePage() {
   const [pendingDeck, setPendingDeck] = useState<string | null>(null);
@@ -18,6 +19,7 @@ export default function BattlePage() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const { isAllowed, viewportHeight, safeAreaInsetBottom } = useViewportRequirements();
   const canvasWidth = useCanvasWidth(viewportHeight);
+  const { user } = useUser();
 
   // 取得 battleDeck
   useEffect(() => {
@@ -32,6 +34,14 @@ export default function BattlePage() {
       setPendingDeck(null);
     }
   }, [isLoaded, pendingDeck, sendMessage]);
+
+  // Unity 載入完成後傳送使用者資料
+  useEffect(() => {
+    if (isLoaded && user) {
+      const jsonString = JSON.stringify(user);
+      sendMessage("Web(Tutorial)", "SetPlayerInfoJson", jsonString);
+    }
+  }, [isLoaded, user, sendMessage]);
 
   // 動態追蹤 devicePixelRatio
   useEffect(() => {
