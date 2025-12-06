@@ -7,10 +7,10 @@ import { useUser } from "../context/UserContext";
 export default function BattlePage() {
   const [pendingDeck, setPendingDeck] = useState<string | null>(null);
   const { unityProvider, isLoaded, loadingProgression, sendMessage } = useUnityContext({
-    loaderUrl: "/Build/Build.loader.js",
-    dataUrl: "/Build/Build.data.unityweb",
-    frameworkUrl: "/Build/Build.framework.js.unityweb",
-    codeUrl: "/Build/Build.wasm.unityweb",
+    loaderUrl: "/g8_Build/Build.loader.js",
+    dataUrl: "/g8_Build/Build.data.unityweb",
+    frameworkUrl: "/g8_Build/Build.framework.js.unityweb",
+    codeUrl: "/g8_Build/Build.wasm.unityweb",
   });
   // devicePixelRatio 狀態初始化
   const [devicePixelRatio, setDevicePixelRatio] = useState(
