@@ -21,25 +21,15 @@ export default function BattlePage() {
   const canvasWidth = useCanvasWidth(viewportHeight);
   const { user } = useUser();
 
-  // 取得 battleDeck
-  useEffect(() => {
-    const deck = localStorage.getItem("battleDeck");
-    if (deck) setPendingDeck(deck);
-  }, []);
-
-  // Unity 載入完成後傳送 deck
-  useEffect(() => {
-    if (isLoaded && pendingDeck) {
-      sendMessage("Web", "SetCardDeck", pendingDeck);
-      setPendingDeck(null);
-    }
-  }, [isLoaded, pendingDeck, sendMessage]);
-
-  // Unity 載入完成後傳送使用者資料
   useEffect(() => {
     if (isLoaded && user) {
-      const jsonString = JSON.stringify(user);
-      sendMessage("Web(Tutorial)", "SetPlayerInfoJson", jsonString);
+      const playerInfo = {
+        playerId: `${user.userId}`,
+        userName: user.name || "",
+        walletAddress: user.walletAddress || "",
+      };
+      const jsonString = JSON.stringify(playerInfo);
+      sendMessage("WebBridge", "SetPlayerInfoJson", jsonString);
     }
   }, [isLoaded, user, sendMessage]);
 
