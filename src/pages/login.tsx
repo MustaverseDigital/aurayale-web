@@ -61,7 +61,7 @@ export default function LoginPage() {
 
       setSuccess("Google 登入成功！");
       setTimeout(() => {
-        router.push("/platform");
+        router.push("/g8Battle");
       }, 1500);
     } catch (e: any) {
       setError(e.message || "Google 登入失敗");
@@ -109,7 +109,7 @@ export default function LoginPage() {
               deck,
               gems,
             });
-            router.push("/platform");
+            router.push("/g8Battle");
           }
         } catch (e: any) {
           setError(e.message);
