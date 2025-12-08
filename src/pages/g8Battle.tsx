@@ -27,6 +27,7 @@ export default function BattlePage() {
         playerId: `${user.userId}`,
         userName: user.name || "",
         walletAddress: user.walletAddress || "",
+        token: user.token,
       };
       const jsonString = JSON.stringify(playerInfo);
       sendMessage("WebBridge", "SetPlayerInfoJson", jsonString);
