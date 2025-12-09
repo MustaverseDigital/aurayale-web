@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react"
 import { X, Loader2 } from "lucide-react"
 import { ChooseCardModal } from "./ChooseCardModal"
 import { useUser } from "../context/UserContext"
-import { getUserGems, GemItem } from "../api/auraServer"
+import { getUserGems, getUserDeck, getUserTradeOrders, GemItem } from "../api/auraServer"
 import { useCreateTradeOrder } from "../hooks/useTradeOrder"
 import { useAccount, useSwitchChain } from "wagmi"
 
@@ -29,9 +29,11 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [pendingTransaction, setPendingTransaction] = useState<{ offeredTokenId: bigint; wantedTokenIds: bigint[] } | null>(null)
-  const { chainId, isConnected } = useAccount()
+  const { chainId, isConnected, address: connectedAddress } = useAccount()
   const { switchChain, isPending: isSwitchingChain } = useSwitchChain()
   const hasHandledSuccess = useRef(false)
+  const [deckCardIds, setDeckCardIds] = useState<Set<number>>(new Set())
+  const [orderedCardIds, setOrderedCardIds] = useState<Set<number>>(new Set())
 
   // BSC Testnet chain ID
   const BSC_TESTNET_CHAIN_ID = 97
@@ -57,6 +59,36 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
     })
   })[0]
 
+  // 獲取用戶牌組和活躍訂單
+  useEffect(() => {
+    if (isOpen && user?.token) {
+      // 獲取牌組
+      getUserDeck(user.token)
+        .then((deck: number[]) => {
+          setDeckCardIds(new Set(deck))
+        })
+        .catch(() => {
+          // Handle error silently
+        })
+
+      // 獲取活躍訂單
+      const walletAddress = connectedAddress || user?.walletAddress
+      if (walletAddress) {
+        getUserTradeOrders(walletAddress, { status: 'active' })
+          .then((response) => {
+            // 提取所有已被掛單的卡片 ID (offeredTokenId)
+            const orderedIds = new Set(
+              response.orders.map((order) => order.offeredTokenId)
+            )
+            setOrderedCardIds(orderedIds)
+          })
+          .catch(() => {
+            // Handle error silently
+          })
+      }
+    }
+  }, [isOpen, user?.token, connectedAddress, user?.walletAddress])
+
   // Fetch user gems from API for "you give" selection
   useEffect(() => {
     if (isOpen && user?.token) {
@@ -66,7 +98,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
           const cards: Card[] = gems.map((gem) => ({
             id: gem.id.toString(),
             name: gem.metadata?.name || `Card ${gem.id}`,
-            image: gem.metadata?.image || `/img/${gem.id.toString().padStart(3, "0")}.png`,
+            image: `/img/${gem.id.toString().padStart(3, "0")}.png`,
             quantity: gem.quantity,
           }))
           setUserOwnedCards(cards)
@@ -78,8 +110,24 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
     }
   }, [isOpen, user?.token])
 
-  // Determine which cards to show based on choosingFor
-  const availableCards = choosingFor === "give" ? userOwnedCards : all24Cards
+  // Determine which cards to show based on choosingFor, and filter out cards in deck or already ordered
+  const availableCards = (() => {
+    const baseCards = choosingFor === "give" ? userOwnedCards : all24Cards
+
+    // 過濾掉在牌組中的卡片和已被掛單的卡片
+    return baseCards.filter((card) => {
+      const cardId = parseInt(card.id, 10)
+      // 排除在牌組中的卡片
+      if (deckCardIds.has(cardId)) {
+        return false
+      }
+      // 排除已被掛單的卡片（僅對 "you give" 適用）
+      if (choosingFor === "give" && orderedCardIds.has(cardId)) {
+        return false
+      }
+      return true
+    })
+  })()
 
   const handleChooseClick = (type: "give" | "get") => {
     setChoosingFor(type)
@@ -126,6 +174,9 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
       setPendingTransaction(null)
       // 重置成功處理標記
       hasHandledSuccess.current = false
+      // 重置牌組和訂單狀態，以便下次打開時重新獲取
+      setDeckCardIds(new Set())
+      setOrderedCardIds(new Set())
     }
   }, [isOpen])
 
@@ -226,7 +277,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
                   {youGiveCard ? (
                     <div className="text-center">
                       <img
-                        src={youGiveCard.image || "/img/001.png"}
+                        src={`/img/${youGiveCard.id.padStart(3, "0")}.png`}
                         alt={youGiveCard.name}
                         className="w-20 object-cover rounded mx-auto mb-2"
                       />
@@ -246,7 +297,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
               {/* Exchange Arrow */}
               <div className="flex-shrink-0">
                 <div className="text-gray-400 text-2xl">
-                  <img  src="/img/icon_Exchange.png" alt="" />
+                  <img src="/img/icon_Exchange.png" alt="" />
                 </div>
               </div>
 
@@ -260,7 +311,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
                         {youGetCards.map((card, idx) => (
                           <div key={idx} className="justify-center flex">
                             <img
-                              src={card.image || "/img/001.png"}
+                              src={`/img/${card.id.padStart(3, "0")}.png`}
                               alt={card.name}
                               className="w-20"
                             />
