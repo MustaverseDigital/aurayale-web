@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+// import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { usePrivy } from "@privy-io/react-auth";
 import { useAccount, useSwitchChain } from "wagmi";
 import { Loader2, CheckCircle, AlertCircle, Search, Plus, Handshake, X, Network } from "lucide-react";
 import {
@@ -12,6 +13,7 @@ import {
 } from "../../hooks/useTradeOrder";
 
 export default function TestTradeOrderPage() {
+  const { connectWallet } = usePrivy();
   const { address, isConnected, chainId } = useAccount();
   const { switchChain, isPending: isSwitchingChain } = useSwitchChain();
 
@@ -178,7 +180,12 @@ export default function TestTradeOrderPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-4">交易訂單測試頁面</h1>
           <div className="flex items-center gap-4 mb-4 flex-wrap">
-            <ConnectButton />
+            <button
+                onClick={connectWallet}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+            >
+                {isConnected ? "Wallet Connected" : "Connect Wallet"}
+            </button>
             {isConnected && (
               <div className="text-sm text-gray-400 flex items-center gap-4">
                 <div>

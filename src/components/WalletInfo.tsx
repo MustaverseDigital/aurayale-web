@@ -3,18 +3,19 @@ import { useUser } from "../context/UserContext"
 import { useEffect, useState } from "react"
 import { getUserGems, GemItem } from "../api/auraServer"
 import { useAccount } from "wagmi"
-import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { useRouter } from "next/router"
+import { usePrivy } from "@privy-io/react-auth"
 
 export function WalletInfo() {
   const { user } = useUser()
   const { address: connectedAddress, isConnected } = useAccount()
+  const { connectWallet, user: privyUser } = usePrivy();
   const router = useRouter()
   const [gems, setGems] = useState<GemItem[]>([])
   const [totalCards, setTotalCards] = useState(0)
 
   useEffect(() => {
-    if (user?.token) {
+    if (user?.token && user.token !== "privy-auth-token") {
       getUserGems(user.token)
         .then((gemsData) => {
           setGems(gemsData)
@@ -27,8 +28,9 @@ export function WalletInfo() {
     }
   }, [user?.token])
 
-  // 優先使用當前連接的錢包地址，如果沒有則使用綁定的錢包地址
-  const walletAddress = connectedAddress || user?.walletAddress || null
+  // Priority: Wagmi connected address -> User context address -> Privy wallet address
+  const walletAddress = connectedAddress || user?.walletAddress || privyUser?.wallet?.address || null
+  
   const displayAddress = walletAddress && walletAddress.length > 10
     ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
     : walletAddress || "Not connected"
@@ -60,48 +62,13 @@ export function WalletInfo() {
                 )}
               </>
             ) : (
-              <ConnectButton.Custom>
-                {({
-                  account,
-                  chain,
-                  openAccountModal,
-                  openChainModal,
-                  openConnectModal,
-                  authenticationStatus,
-                  mounted,
-                }) => {
-                  const ready = mounted && authenticationStatus !== 'loading';
-                  const connected =
-                    ready &&
-                    account &&
-                    chain &&
-                    (!authenticationStatus ||
-                      authenticationStatus === 'authenticated');
-
-                  return (
-                    <div
-                      {...(!ready && {
-                        'aria-hidden': true,
-                        'style': {
-                          opacity: 0,
-                          pointerEvents: 'none',
-                          userSelect: 'none',
-                        },
-                      })}
-                    >
-                      {!connected && (
-                        <button
-                          onClick={openConnectModal}
-                          type="button"
-                          className="bg-[#713DE9] text-white px-4 py-2 rounded-full text-sm font-semibold hover:opacity-70 transition-opacity"
-                        >
-                          Connect Wallet
-                        </button>
-                      )}
-                    </div>
-                  );
-                }}
-              </ConnectButton.Custom>
+                <button
+                  onClick={connectWallet}
+                  type="button"
+                  className="bg-[#713DE9] text-white px-4 py-2 rounded-full text-sm font-semibold hover:opacity-70 transition-opacity"
+                >
+                  Connect Wallet
+                </button>
             )}
           </div>
           <div className="text-xs text-gray-300 mt-1">{totalCards} cards</div>
@@ -127,4 +94,3 @@ export function WalletInfo() {
     </div>
   )
 }
-

@@ -1,130 +1,53 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import LoginComponent from "../components/LoginComponent";
-import { loginWithPassword, registerWithPassword, loginWithGoogle, getUserDeck, getUserGems } from "../api/auraServer";
+import { usePrivy } from "@privy-io/react-auth";
 import { useUser } from "../context/UserContext";
-import { useAccount, useSwitchChain } from "wagmi";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [showRegister, setShowRegister] = useState(false);
+  const { login, ready, authenticated, user: privyUser } = usePrivy();
   const { setUser } = useUser();
-  const { isConnected, chainId } = useAccount();
-  const { switchChain } = useSwitchChain();
+  const [error, setError] = useState("");
 
-  // BSC Testnet chain ID
-  const BSC_TESTNET_CHAIN_ID = 97;
+  // Handle successful login
+  useEffect(() => {
+    if (ready && authenticated && privyUser) {
+        // User is logged in via Privy
+        // We set the user context with available info.
+        
+        const walletAddress = privyUser.wallet?.address || "";
+        const name = privyUser.email?.address || (walletAddress ? `${walletAddress.slice(0,6)}...` : "User");
 
-  // Google 登入處理函數
-  const handleGoogleLogin = async (idToken: string) => {
-    setLoading(true);
-    setError("");
-    setSuccess("");
-    try {
-      const data = await loginWithGoogle(idToken);
-      // 先寫入基本資料
-      setUser({
-        token: data.token,
-        userId: data.userId,
-        name: data.name,
-        walletAddress: data.walletAddress || "",
-      });
-      // 取得 deck 與 gems
-      const [deck, gems] = await Promise.all([
-        getUserDeck(data.token),
-        getUserGems(data.token),
-      ]);
-      // 寫入 context
-      setUser({
-        token: data.token,
-        userId: data.userId,
-        name: data.name,
-        walletAddress: data.walletAddress || "",
-        deck,
-        gems,
-      });
+        setUser({
+            token: "privy-auth-token", 
+            userId: 0, 
+            name: name,
+            walletAddress: walletAddress,
+            deck: [],
+            gems: []
+        });
 
-      // 如果用戶已經連接錢包，自動切換到 BSC testnet
-      if (isConnected && switchChain && chainId !== BSC_TESTNET_CHAIN_ID) {
-        try {
-          await switchChain({ chainId: BSC_TESTNET_CHAIN_ID });
-        } catch (switchError) {
-          // 切換鏈失敗不影響登入流程，只記錄錯誤
-          console.warn("Failed to switch to BSC testnet:", switchError);
-        }
-      }
-
-      setSuccess("Google 登入成功！");
-      setTimeout(() => {
         router.push("/platform");
-      }, 1500);
+    }
+  }, [ready, authenticated, privyUser, router, setUser]);
+
+  const handleLogin = () => {
+    setError("");
+    // Use Privy's general login modal which allows email/wallet
+    try {
+        login(); 
     } catch (e: any) {
-      setError(e.message || "Google 登入失敗");
-    } finally {
-      setLoading(false);
+        console.error(e);
+        setError(e.message || "Login failed");
     }
   };
 
   return (
     <LoginComponent
-      username={username}
-      password={password}
-      loading={loading}
+      loading={!ready || authenticated} // Show loading if not ready or already authenticated (redirecting)
       error={error}
-      success={success}
-      showRegister={showRegister}
-      onLogin={async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setLoading(true);
-        setError("");
-        setSuccess("");
-        try {
-          if (showRegister) {
-            await registerWithPassword(username, password);
-            setSuccess("註冊成功，請登入");
-            setShowRegister(false);
-          } else {
-            const data = await loginWithPassword(username, password);
-            // 先寫入基本資料
-            setUser({
-              token: data.token,
-              userId: data.userId,
-              walletAddress: data.walletAddress || "",
-            });
-            // 取得 deck 與 gems
-            const [deck, gems] = await Promise.all([
-              getUserDeck(data.token),
-              getUserGems(data.token),
-            ]);
-            // 寫入 context
-            setUser({
-              token: data.token,
-              userId: data.userId,
-              walletAddress: data.walletAddress || "",
-              deck,
-              gems,
-            });
-            router.push("/platform");
-          }
-        } catch (e: any) {
-          setError(e.message);
-        } finally {
-          setLoading(false);
-        }
-      }}
-      onGoogleLogin={handleGoogleLogin}
-      onToggleRegister={() => {
-        setShowRegister((v: boolean) => !v);
-        setError("");
-        setSuccess("");
-      }}
-      onUsernameChange={(e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}
-      onPasswordChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+      onLogin={handleLogin}
     />
   );
-} 
+}

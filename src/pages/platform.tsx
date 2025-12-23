@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/router"
 import { useAccount } from "wagmi"
+import { usePrivy } from "@privy-io/react-auth"
 import { useUser } from "../context/UserContext"
 import { useViewportRequirements } from "../context/ViewportRequirementsContext"
 import { useCanvasWidth } from "../hooks/useCanvasWidth"
@@ -21,8 +22,9 @@ import { CreateTradeModal } from "../components/CreateTradeModal"
 import { DetailTradeModal } from "../components/DetailTradeModal"
 
 export default function PlatformPage() {
-  const { user } = useUser()
+  const { user, setUser } = useUser()
   const { address: connectedAddress } = useAccount()
+  const { user: privyUser, ready, authenticated } = usePrivy()
   const router = useRouter()
   const { viewportHeight, safeAreaInsetBottom } = useViewportRequirements()
   const canvasWidth = useCanvasWidth(viewportHeight)
@@ -181,17 +183,34 @@ export default function PlatformPage() {
     fetchTrades() // 刷新訂單列表
   }
 
+  // Restore session from Privy if available
+  useEffect(() => {
+    if (ready && authenticated && privyUser && !user?.token) {
+        const walletAddress = privyUser.wallet?.address || "";
+        const name = privyUser.email?.address || (walletAddress ? `${walletAddress.slice(0,6)}...` : "User");
+        
+        setUser({
+            token: "privy-auth-token", 
+            userId: 0, 
+            name: name,
+            walletAddress: walletAddress,
+            deck: [],
+            gems: []
+        });
+    }
+  }, [ready, authenticated, privyUser, user, setUser]);
+
   // Redirect to login if not authenticated
   useEffect(() => {
-    // Wait for router to be ready before checking authentication
-    if (!router.isReady) return
+    // Wait for router to be ready and Privy to be ready before checking authentication
+    if (!router.isReady || !ready) return
 
-    if (!user?.token) {
+    if (!authenticated && !user?.token) {
       router.push("/login")
     }
-  }, [user, router, router.isReady])
+  }, [authenticated, user, router, router.isReady, ready])
 
-  if (!user?.token) {
+  if (!ready || (!authenticated && !user?.token)) {
     return null
   }
 
@@ -296,4 +315,3 @@ export default function PlatformPage() {
     </div>
   )
 }
-
