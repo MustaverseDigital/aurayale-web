@@ -4,13 +4,13 @@ import { http } from 'wagmi';
 
 export const soneiumMinato = defineChain({
   id: 1946,
-  name: 'Soneium Minato',
+  name: 'Soneium Minato Testnet',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: { http: ['https://rpc.minato.soneium.org/'] },
   },
   blockExplorers: {
-    default: { name: 'Soneium Minato Explorer', url: 'https://explorer-testnet.soneium.org' },
+    default: { name: 'Soneium Minato Explorer', url: 'https://soneium-minato.blockscout.com/' },
   },
   testnet: true,
 });

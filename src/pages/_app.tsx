@@ -9,7 +9,6 @@ import React from 'react';
 
 import { config, soneiumMinato } from '../wagmi';
 import { ViewportRequirementsProvider } from "../context/ViewportRequirementsContext";
-import PortraitRequirementOverlay from "../components/PortraitRequirementOverlay";
 
 const client = new QueryClient();
 
@@ -83,6 +82,14 @@ export default function App({ Component, pageProps }: AppProps) {
           accentColor: '#000000',
           logo: 'https://brown-implicit-bass-794.mypinata.cloud/ipfs/bafkreibvsexzxfkiglnmt3omi5tbioz5suzxin22mtpf3arih56c6svt3a',
           landingHeader: 'Welcome to Aurayale!',
+          loginMessage: 'Create your account or login to continue',
+          walletList: ['metamask','zerion', 'coinbase_wallet', 'rainbow', 'wallet_connect'],
+          showWalletLoginFirst: false,
+        },
+        embeddedWallets: {
+          ethereum: {
+            createOnLogin: 'users-without-wallets'
+          }
         },
         defaultChain: soneiumMinato,
         supportedChains: [soneiumMinato]
