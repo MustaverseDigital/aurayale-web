@@ -77,13 +77,10 @@ export default function App({ Component, pageProps }: AppProps) {
     <PrivyProvider
       appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID || ''}
       config={{
-        loginMethods: ['email', 'wallet', 'google'],
+        loginMethods: ['email', 'wallet', 'google', 'farcaster'],
         appearance: {
           theme: 'light',
           accentColor: '#676FFF',
-        },
-        embeddedWallets: {
-          createOnLogin: 'users-without-wallets',
         },
         defaultChain: soneiumMinato,
         supportedChains: [soneiumMinato]

@@ -187,7 +187,7 @@ export default function PlatformPage() {
   useEffect(() => {
     if (ready && authenticated && privyUser && !user?.token) {
         const walletAddress = privyUser.wallet?.address || "";
-        const name = privyUser.email?.address || (walletAddress ? `${walletAddress.slice(0,6)}...` : "User");
+        const name = privyUser.farcaster?.username || privyUser.email?.address || (walletAddress ? `${walletAddress.slice(0,6)}...` : "User");
         
         setUser({
             token: "privy-auth-token", 

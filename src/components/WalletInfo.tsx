@@ -8,8 +8,8 @@ import { usePrivy } from "@privy-io/react-auth"
 
 export function WalletInfo() {
   const { user } = useUser()
-  const { address: connectedAddress, isConnected } = useAccount()
-  const { connectWallet, user: privyUser } = usePrivy();
+  const { address: connectedAddress } = useAccount()
+  const { user: privyUser } = usePrivy();
   const router = useRouter()
   const [gems, setGems] = useState<GemItem[]>([])
   const [totalCards, setTotalCards] = useState(0)
@@ -28,12 +28,13 @@ export function WalletInfo() {
     }
   }, [user?.token])
 
-  // Priority: Wagmi connected address -> User context address -> Privy wallet address
-  const walletAddress = connectedAddress || user?.walletAddress || privyUser?.wallet?.address || null
+  // Priority: User context address (from Privy) -> Privy wallet address -> Wagmi connected address
+  // Since we are logged in with Privy, we should always have an address from the user object or privyUser
+  const walletAddress = user?.walletAddress || privyUser?.wallet?.address || connectedAddress || null
   
   const displayAddress = walletAddress && walletAddress.length > 10
     ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
-    : walletAddress || "Not connected"
+    : walletAddress || "Connecting..."
 
   const handleCopy = () => {
     if (walletAddress) {
@@ -53,23 +54,8 @@ export function WalletInfo() {
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2 text-sm text-white">
-            {walletAddress ? (
-              <>
-                <span>{displayAddress}</span>
-                <Copy className="w-4 h-4 cursor-pointer hover:text-yellow-200" onClick={handleCopy} />
-                {isConnected && connectedAddress && (
-                  <span className="text-xs text-green-400">(Connected)</span>
-                )}
-              </>
-            ) : (
-                <button
-                  onClick={connectWallet}
-                  type="button"
-                  className="bg-[#713DE9] text-white px-4 py-2 rounded-full text-sm font-semibold hover:opacity-70 transition-opacity"
-                >
-                  Connect Wallet
-                </button>
-            )}
+            <span>{displayAddress}</span>
+            <Copy className="w-4 h-4 cursor-pointer hover:text-yellow-200" onClick={handleCopy} />
           </div>
           <div className="text-xs text-gray-300 mt-1">{totalCards} cards</div>
         </div>
