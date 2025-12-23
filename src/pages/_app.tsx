@@ -79,8 +79,10 @@ export default function App({ Component, pageProps }: AppProps) {
       config={{
         loginMethods: ['email', 'wallet', 'google', 'farcaster'],
         appearance: {
-          theme: 'light',
-          accentColor: '#676FFF',
+          theme: 'dark',
+          accentColor: '#000000',
+          logo: 'https://brown-implicit-bass-794.mypinata.cloud/ipfs/bafkreibvsexzxfkiglnmt3omi5tbioz5suzxin22mtpf3arih56c6svt3a',
+          landingHeader: 'Welcome to Aurayale!',
         },
         defaultChain: soneiumMinato,
         supportedChains: [soneiumMinato]

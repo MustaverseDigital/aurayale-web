@@ -1,0 +1,19 @@
+{
+    "accountAssociation": {
+      "header": "",
+      "payload": "",
+      "signature": ""
+    },
+    "miniapp": {
+      "version": "1",
+      "name": "Aurayale",
+      "iconUrl": "https://brown-implicit-bass-794.mypinata.cloud/ipfs/bafkreibvsexzxfkiglnmt3omi5tbioz5suzxin22mtpf3arih56c6svt3a",
+      "homeUrl": "https://aura-yale-web.vercel.app",
+      "splashImageUrl": "https://aura-yale-web.vercel.app/img/splash.png",
+      "splashBackgroundColor": "#000000",
+      "subtitle": "Card Trading Game",
+      "description": "Trade cards and build your deck onchain!",
+      "primaryCategory": "games",
+      "tags": ["onchain", "games", "cards"]
+    }
+}

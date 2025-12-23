@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/router"
 import { useAccount } from "wagmi"
-import { usePrivy } from "@privy-io/react-auth"
+import { usePrivy, useWallets } from "@privy-io/react-auth"
 import { useUser } from "../context/UserContext"
 import { useViewportRequirements } from "../context/ViewportRequirementsContext"
 import { useCanvasWidth } from "../hooks/useCanvasWidth"
@@ -20,17 +20,24 @@ import { TradeFilters } from "../components/TradeFilters"
 import { TradeCard } from "../components/TradeCard"
 import { CreateTradeModal } from "../components/CreateTradeModal"
 import { DetailTradeModal } from "../components/DetailTradeModal"
+import { sdk } from '@farcaster/miniapp-sdk'
 
 export default function PlatformPage() {
   const { user, setUser } = useUser()
   const { address: connectedAddress } = useAccount()
   const { user: privyUser, ready, authenticated } = usePrivy()
+  const { wallets } = useWallets()
   const router = useRouter()
   const { viewportHeight, safeAreaInsetBottom } = useViewportRequirements()
   const canvasWidth = useCanvasWidth(viewportHeight)
 
+  const [farcasterUser, setFarcasterUser] = useState<{
+    username?: string;
+    fid?: number;
+  } | null>(null);
+
   // 優先使用當前連接的錢包地址，如果沒有則使用綁定的錢包地址
-  const walletAddress = connectedAddress || user?.walletAddress || null
+  const walletAddress = connectedAddress || wallets[0]?.address || user?.walletAddress || null
 
   const [activeTab, setActiveTab] = useState<"market" | "history">("market")
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)

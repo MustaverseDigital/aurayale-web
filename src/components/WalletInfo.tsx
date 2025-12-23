@@ -43,21 +43,33 @@ export function WalletInfo() {
   }
 
   const handleEditClick = () => {
+    
     router.push("/deck")
   }
+
+  const farcasterUsername = privyUser?.farcaster?.username;
+  const farcasterPfp = privyUser?.farcaster?.pfp;
+  const farcasterFid = privyUser?.farcaster?.fid;
 
   return (
     <div className=" rounded-2xl p-4 mt-4 flex items-center justify-between profile-card">
       <div className="flex items-center gap-3 flex-1">
-        <div className="w-16 h-16 bg-avatar rounded-lg flex items-center justify-center ">
-          <span className="text-2xl"></span>
+        <div className="w-16 h-16 bg-avatar rounded-lg flex items-center justify-center overflow-hidden">
+          {farcasterPfp ? (
+            <img src={farcasterPfp} alt={farcasterUsername || "User"} className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-2xl">{farcasterUsername ? farcasterUsername.charAt(0).toUpperCase() : ""}</span>
+          )}
         </div>
         <div className="flex-1">
-          <div className="flex items-center gap-2 text-sm text-white">
+          {farcasterUsername && (
+             <div className="text-white font-bold text-lg">@{farcasterUsername} <span className="text-xs text-gray-400 font-normal">(FID: {farcasterFid})</span></div>
+          )}
+          <div className="flex items-center gap-2 text-sm text-gray-300">
             <span>{displayAddress}</span>
             <Copy className="w-4 h-4 cursor-pointer hover:text-yellow-200" onClick={handleCopy} />
           </div>
-          <div className="text-xs text-gray-300 mt-1">{totalCards} cards</div>
+          <div className="text-xs text-gray-400 mt-1">{totalCards} cards</div>
         </div>
       </div>
       <div className="text-right">
