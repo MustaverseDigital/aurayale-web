@@ -1,4 +1,5 @@
 import { Menu } from "lucide-react"
+import { LogOut } from 'lucide-react';
 
 export function Header() {
   return (
@@ -7,8 +8,9 @@ export function Header() {
         <div className="text-2xl font-bold text-white">
           <img src="/img/Logo_s.svg" alt="" />
         </div>
+
         <button className="p-2">
-          <Menu className="w-6 h-6 text-white" />
+          <LogOut className="w-6 h-6 text-white" />
         </button>
       </div>
     </header>

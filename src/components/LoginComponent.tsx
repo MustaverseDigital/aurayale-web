@@ -71,7 +71,7 @@ const LoginComponent: React.FC<LoginComponentProps> = ({
           <button 
             type="button" 
             onClick={onLogin}
-            className="btn rounded-lg mt-3 px-3 py-2 btn-primary text-white mb-5 min-w-[200px]" 
+            className="btn rounded-lg mt-3 px-3 py-3 text-m btn-primary-l text-white mb-5 min-w-[250px]" 
             disabled={loading}
           >
             {loading ? "Loading..." : "Login / Register"}
