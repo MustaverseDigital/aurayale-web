@@ -49,6 +49,7 @@ export interface RegisterResponse {
 export interface LoginRequest {
   username: string;
   password: string;
+  chain_id?: string; // 選填，預設為 "bsc-testnet"
 }
 
 /**
@@ -57,6 +58,7 @@ export interface LoginRequest {
 export interface LoginResponse {
   token: string;
   userId: number;
+  chainId: string;
   walletAddress: string | null;
   gems: Record<string, unknown>;
 }
@@ -66,6 +68,7 @@ export interface LoginResponse {
  */
 export interface GoogleLoginRequest {
   idToken: string;
+  chain_id?: string; // 選填，預設為 "bsc-testnet"
 }
 
 /**
@@ -74,9 +77,34 @@ export interface GoogleLoginRequest {
 export interface GoogleLoginResponse {
   token: string;
   userId: number;
+  chainId: string;
   walletAddress: string | null;
   gems: Record<string, unknown>;
   email: string;
+  name: string;
+}
+
+/**
+ * Farcaster 登入請求
+ */
+export interface FarcasterLoginRequest {
+  walletAddress: string;
+  signature: string;
+  message?: string; // 選填，預設會自動生成
+  farcasterId?: string; // 選填，Farcaster ID (fid)
+  chain_id?: string; // 選填，預設為 "bsc-testnet"
+}
+
+/**
+ * Farcaster 登入回應
+ */
+export interface FarcasterLoginResponse {
+  token: string;
+  userId: number;
+  chainId: string;
+  walletAddress: string;
+  gems: Record<string, unknown>;
+  farcasterId?: string;
   name: string;
 }
 
@@ -130,7 +158,7 @@ export interface UserProfile {
   name: string;
   walletAddress: string | null;
   hasGoogleAccount: boolean;
-  loginType: 'google' | 'password';
+  loginType: 'google' | 'password' | 'farcaster';
 }
 
 /**
@@ -211,6 +239,7 @@ export interface ActiveOrdersQueryParams {
   page?: number;
   limit?: number;
   tier?: number;
+  chain_id?: string; // 選填，指定鏈 ID
 }
 
 /**
@@ -235,6 +264,7 @@ export interface UserOrdersQueryParams {
   status?: 'active' | 'completed' | 'all';
   page?: number;
   limit?: number;
+  chain_id?: string; // 選填，指定鏈 ID
 }
 
 /**
@@ -296,4 +326,3 @@ export interface HealthCheckResponse {
   timestamp: string;
   error?: string;
 }
-

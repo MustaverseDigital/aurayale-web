@@ -190,22 +190,20 @@ export default function PlatformPage() {
     fetchTrades() // 刷新訂單列表
   }
 
-  // Restore session from Privy if available
+  // 如果用戶通過 Privy 登入但沒有有效的 AuraServer token，重定向到登入頁面
+  // Farcaster 登入會在 login.tsx 中處理
   useEffect(() => {
     if (ready && authenticated && privyUser && !user?.token) {
-        const walletAddress = privyUser.wallet?.address || "";
-        const name = privyUser.farcaster?.username || privyUser.email?.address || (walletAddress ? `${walletAddress.slice(0,6)}...` : "User");
-        
-        setUser({
-            token: "privy-auth-token", 
-            userId: 0, 
-            name: name,
-            walletAddress: walletAddress,
-            deck: [],
-            gems: []
-        });
+      // 如果有 Farcaster 登入但沒有 token，重定向到登入頁面處理
+      if (privyUser.farcaster) {
+        router.push("/login");
+        return;
+      }
+      // 對於非 Farcaster 登入，也重定向到登入頁面
+      // 因為我們需要有效的 AuraServer token
+      router.push("/login");
     }
-  }, [ready, authenticated, privyUser, user, setUser]);
+  }, [ready, authenticated, privyUser, user, router]);
 
   // Redirect to login if not authenticated
   useEffect(() => {
