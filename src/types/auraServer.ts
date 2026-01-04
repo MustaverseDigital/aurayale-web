@@ -86,13 +86,20 @@ export interface GoogleLoginResponse {
 
 /**
  * Farcaster 登入請求
+ * 支援兩種登入方式：
+ * 1. 使用 Privy Access Token（推薦，無需簽名）
+ * 2. 使用錢包簽名（向後兼容）
  */
 export interface FarcasterLoginRequest {
-  walletAddress: string;
-  signature: string;
+  // 方式 1: Privy Token（推薦）
+  privyAccessToken?: string;
+  chain_id?: string; // 選填，預設為 "bsc-testnet"
+  
+  // 方式 2: 錢包簽名（向後兼容）
+  walletAddress?: string;
+  signature?: string;
   message?: string; // 選填，預設會自動生成
   farcasterId?: string; // 選填，Farcaster ID (fid)
-  chain_id?: string; // 選填，預設為 "bsc-testnet"
 }
 
 /**
@@ -105,6 +112,8 @@ export interface FarcasterLoginResponse {
   walletAddress: string;
   gems: Record<string, unknown>;
   farcasterId?: string;
+  farcasterUsername?: string;
+  farcasterPfpUrl?: string;
   name: string;
 }
 

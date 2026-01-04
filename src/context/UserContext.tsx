@@ -11,6 +11,8 @@ export interface UserInfo {
   gems?: GemItem[];
   loginType?: 'google' | 'password' | 'farcaster'; // 登入類型
   farcasterId?: string; // Farcaster ID（如果是 Farcaster 登入）
+  farcasterUsername?: string; // Farcaster 用戶名
+  farcasterPfpUrl?: string; // Farcaster 頭像 URL
 }
 
 interface UserContextType {
@@ -34,5 +36,3 @@ export const useUser = () => {
   if (!ctx) throw new Error("useUser must be used within a UserProvider");
   return ctx;
 };
-
-//TODO: 綁定錢包後，將使用者的卡片資料存在 context 中

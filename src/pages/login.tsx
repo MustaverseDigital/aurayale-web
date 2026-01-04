@@ -1,151 +1,97 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
 import LoginComponent from "../components/LoginComponent";
-import { usePrivy, useWallets } from "@privy-io/react-auth";
-import { useAccount, useSignMessage } from "wagmi";
+import { usePrivy } from "@privy-io/react-auth";
 import { useUser } from "../context/UserContext";
-import { loginWithFarcaster } from "../api/auraServer";
-import { generateFarcasterMessage } from "../lib/farcaster";
-
+import { getUserDeck, getUserGems, loginWithFarcasterByPrivy } from "../api/auraServer";
 export default function LoginPage() {
   const router = useRouter();
-  const { login, ready, authenticated, user: privyUser } = usePrivy();
-  const { wallets } = useWallets();
-  const { address: connectedAddress, isConnected } = useAccount();
-  const { signMessageAsync } = useSignMessage();
+  const { login, ready, authenticated, user: privyUser, getAccessToken } = usePrivy();
   const { setUser, user } = useUser();
   const [error, setError] = useState("");
-  const [isProcessingFarcaster, setIsProcessingFarcaster] = useState(false);
-  const hasProcessedFarcaster = useRef(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const hasProcessedRef = useRef(false); // 追蹤是否已經處理過登入
 
-  // Handle Farcaster login
+  // Handle successful login
   useEffect(() => {
-    if (
-      ready &&
-      authenticated &&
-      privyUser &&
-      privyUser.farcaster &&
-      !hasProcessedFarcaster.current &&
-      !isProcessingFarcaster &&
-      !user?.token
-    ) {
-      hasProcessedFarcaster.current = true;
-      handleFarcasterLogin();
+    // 如果已經處理過，或者已經有有效的 token，就不需要再處理
+    if (hasProcessedRef.current || (user?.token && user.token !== "privy-auth-token")) {
+      return;
     }
-  }, [ready, authenticated, privyUser, isProcessingFarcaster, user]);
 
-  const handleFarcasterLogin = async () => {
-    if (!privyUser?.farcaster) return;
+    if (ready && authenticated && privyUser && !isProcessing) {
+      const handleLogin = async () => {
+        setIsProcessing(true);
+        hasProcessedRef.current = true; // 標記為已處理
+        setError("");
 
-    setIsProcessingFarcaster(true);
-    setError("");
+        try {
+          // 檢查是否是 Farcaster 登入
+          if (privyUser.farcaster) {
+            // Farcaster 登入流程
+            const privyToken = await getAccessToken();
 
-    try {
-      // 獲取錢包地址（優先使用連接的錢包，否則使用 Privy wallet）
-      const walletAddress =
-        connectedAddress ||
-        wallets.find((w) => w.walletClientType !== "privy")?.address ||
-        privyUser.wallet?.address;
+            if (!privyToken) {
+              throw new Error("無法獲取 Privy access token");
+            }
 
-      if (!walletAddress) {
-        throw new Error("請先連接錢包");
-      }
+            // 調用後端 API 進行 Farcaster 登入
+            const response = await loginWithFarcasterByPrivy(privyToken, 'soneium-testnet');
 
-      // 確保錢包已連接
-      if (!isConnected && !wallets.some((w) => w.address === walletAddress)) {
-        throw new Error("請先連接錢包");
-      }
+            // 獲取用戶的寶石和牌組資料
+            const [gems, deck] = await Promise.all([
+              getUserGems(response.token),
+              getUserDeck(response.token),
+            ]);
 
-      // 獲取 Farcaster ID
-      const farcasterId = privyUser.farcaster.fid
-        ? String(privyUser.farcaster.fid)
-        : undefined;
+            // 存入 UserContext
+            setUser({
+              token: response.token,
+              userId: response.userId,
+              chainId: response.chainId,
+              name: response.name,
+              walletAddress: response.walletAddress,
+              deck: deck,
+              gems: gems,
+              loginType: 'farcaster',
+              farcasterId: response.farcasterId,
+              farcasterUsername: response.farcasterUsername,
+              farcasterPfpUrl: response.farcasterPfpUrl,
+            });
 
-      // 生成簽名消息
-      const message = generateFarcasterMessage(walletAddress, farcasterId);
+            router.push("/platform");
+          } else {
+            // 非 Farcaster 登入，保持原有邏輯
+            const walletAddress = privyUser.wallet?.address || "";
+            const name = privyUser.email?.address || (walletAddress ? `${walletAddress.slice(0, 6)}...` : "User");
 
-      // 簽名消息
-      let signature: string;
-      try {
-        const sig = await signMessageAsync({ message });
-        signature = sig;
-      } catch (signError: any) {
-        throw new Error(
-          signError.message || "簽名失敗，請確認錢包連接狀態"
-        );
-      }
+            setUser({
+              token: "privy-auth-token",
+              userId: 0,
+              name: name,
+              walletAddress: walletAddress,
+              deck: [],
+              gems: []
+            });
 
-      // 調用 Farcaster 登入 API（預設使用 soneium-testnet）
-      const response = await loginWithFarcaster(walletAddress, signature, {
-        farcasterId,
-        chain_id: "soneium-testnet",
-      });
+            router.push("/platform");
+          }
+        } catch (e: any) {
+          console.error("Login error:", e);
+          setError(e.message || "登入失敗");
+          hasProcessedRef.current = false; // 發生錯誤時重置，允許重試
+        } finally {
+          setIsProcessing(false);
+        }
+      };
 
-      // 更新 UserContext
-      setUser({
-        token: response.token,
-        userId: response.userId,
-        chainId: response.chainId,
-        name: response.name,
-        walletAddress: response.walletAddress,
-        loginType: "farcaster",
-        farcasterId: response.farcasterId,
-        deck: [],
-        gems: [],
-      });
-
-      // 重定向到平台
-      router.push("/platform");
-    } catch (e: any) {
-      console.error("Farcaster login error:", e);
-      setError(e.message || "Farcaster 登入失敗");
-      hasProcessedFarcaster.current = false; // 允許重試
-    } finally {
-      setIsProcessingFarcaster(false);
+      handleLogin();
     }
-  };
-
-  // Handle successful login (non-Farcaster)
-  useEffect(() => {
-    if (
-      ready &&
-      authenticated &&
-      privyUser &&
-      !privyUser.farcaster &&
-      !user?.token &&
-      !isProcessingFarcaster
-    ) {
-      // User is logged in via Privy (non-Farcaster)
-      // We set the user context with available info.
-      const walletAddress = privyUser.wallet?.address || "";
-      const name =
-        privyUser.email?.address ||
-        privyUser.google?.email ||
-        (walletAddress ? `${walletAddress.slice(0, 6)}...` : "User");
-
-      setUser({
-        token: "privy-auth-token",
-        userId: 0,
-        name: name,
-        walletAddress: walletAddress,
-        deck: [],
-        gems: [],
-      });
-
-      router.push("/platform");
-    }
-  }, [
-    ready,
-    authenticated,
-    privyUser,
-    router,
-    setUser,
-    user,
-    isProcessingFarcaster,
-  ]);
+  }, [ready, authenticated, privyUser, router, setUser, getAccessToken, user?.token]); // 移除 isProcessing，加入 user?.token
 
   const handleLogin = () => {
     setError("");
+    hasProcessedRef.current = false; // 重置處理標記，允許重新登入
     // Use Privy's general login modal which allows email/wallet
     try {
       login();
@@ -157,12 +103,7 @@ export default function LoginPage() {
 
   return (
     <LoginComponent
-      loading={
-        !ready ||
-        authenticated ||
-        isProcessingFarcaster ||
-        (authenticated && privyUser?.farcaster && !user?.token)
-      } // Show loading if not ready or already authenticated (redirecting) or processing Farcaster login
+      loading={!ready || authenticated || isProcessing} // Show loading if not ready, already authenticated, or processing
       error={error}
       onLogin={handleLogin}
     />
