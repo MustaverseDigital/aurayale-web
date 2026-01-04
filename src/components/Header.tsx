@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Menu, ChevronDown, Network } from "lucide-react";
 import { useChainSwitch, type SupportedChain } from "../hooks/useChainSwitch";
+import { LogOut } from 'lucide-react';
 
 export function Header() {
   const { currentChain, switchChain, isSwitching, getChainDisplayName } =
@@ -74,8 +75,9 @@ export function Header() {
             </div>
           )}
 
-          <button className="p-2">
-            <Menu className="w-6 h-6 text-white" />
+  
+        <button className="p-2">
+            <LogOut className="w-6 h-6 text-white" />
           </button>
         </div>
       </div>
