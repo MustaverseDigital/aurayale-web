@@ -20,7 +20,6 @@ import { TradeFilters } from "../components/TradeFilters"
 import { TradeCard } from "../components/TradeCard"
 import { CreateTradeModal } from "../components/CreateTradeModal"
 import { DetailTradeModal } from "../components/DetailTradeModal"
-import { sdk } from '@farcaster/miniapp-sdk'
 
 export default function PlatformPage() {
   const { user, setUser } = useUser()
@@ -231,7 +230,7 @@ export default function PlatformPage() {
           transform: "translateX(-50%)",
           marginBottom: safeAreaInsetBottom > 0 ? `${safeAreaInsetBottom}px` : '0',
         }}
-        >
+      >
         {/* Header */}
         <div
           className="fixed top-0 z-10 w-full"
@@ -251,73 +250,78 @@ export default function PlatformPage() {
 
             {/* Tab Navigation */}
             <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
-            {/* Games List */}
-            <div className="mt-4 space-y-3 pb-4 tab-content" id="tab-games">
-              <div className="mb-4 space-y-3 bg-cover relative">
-                <img className="rounded-[20px] shadow-lg" src="/img/banner_Aurayale.jpg" alt="" />
-                <div className="bg-[#ffc100] absolute top-[0px] left-[0px] text-sm p-1 rounded-tl-[20px] rounded-br-[20px] min-w-[80px] text-center">HOT</div>
-                <button
-                  className="bg-[#713DE9] text-white px-3 py-1 rounded text-sm font-semibold hover:opacity-70 transition absolute bottom-[0px] right-[0px] -translate-1/2 ">
-                  Edit
-                </button>
-                <button
-                  className="btn btn-battle text-shadow-lg rounded-xl px-8 py-2 text-xl disabled:opacity-50 disabled:cursor-not-allowed transition bg-opacity-90 hover:bg-opacity-100 inline-flex items-center justify-center h-10 w-28 whitespace-nowrap absolute -translate-1/2 bottom-[0px] left-[50%] "
-                >
-                  Battle
-                </button>
-              
-              </div>
-            </div>
-            <div className="tab-content" id="tab-market">
-              {/* Trade Filters */}
-              <TradeFilters
-                onAddClick={() => setIsCreateModalOpen(true)}
-                searchTerm={searchTerm}
-                onSearchChange={setSearchTerm}
-              />
-              {/* Trade Cards List */}
-              <div className="flex-1 overflow-y-auto mt-4 space-y-3 pb-4">
-                {tradesLoading ? (
-                  <div className="flex justify-center items-center py-8">
-                    <div className="text-gray-400">Loading trades...</div>
-                  </div>
-                ) : tradesError ? (
-                  <div className="flex justify-center items-center py-8">
-                    <div className="text-red-400 text-sm">{tradesError}</div>
-                  </div>
-                ) : trades.length === 0 ? (
-                  <div className="flex justify-center items-center py-8">
-                    <div className="text-gray-400">No trades available</div>
-                  </div>
-                ) : (
-                  trades
-                    .filter((trade) => {
-                      if (!searchTerm) return true
-                      const searchLower = searchTerm.toLowerCase()
-                      return (
-                        trade.address.toLowerCase().includes(searchLower)
-                      )
-                    })
-                    .map((trade, index) => {
-                      // 在 history tab 中，只有 tradable 狀態的訂單才能點擊
-                      const isClickable = activeTab === "market" || (activeTab === "history" && trade.status === "tradable")
+            {/* Games Tab Content - 只在 activeTab === "games" 時顯示 */}
+            {activeTab === "games" && (
+              <div className="mt-4 space-y-3 pb-4 tab-content" id="tab-games">
+                <div className="mb-4 space-y-3 bg-cover relative">
+                  <img className="rounded-[20px] shadow-lg" src="/img/banner_Aurayale.jpg" alt="" />
+                  <div className="bg-[#ffc100] absolute top-[0px] left-[0px] text-sm p-1 rounded-tl-[20px] rounded-br-[20px] min-w-[80px] text-center">HOT</div>
+                  <button
+                    className="bg-[#713DE9] text-white px-3 py-1 rounded text-sm font-semibold hover:opacity-70 transition absolute bottom-[0px] right-[0px] -translate-1/2 ">
+                    Edit
+                  </button>
+                  <button
+                    className="btn btn-battle text-shadow-lg rounded-xl px-8 py-2 text-xl disabled:opacity-50 disabled:cursor-not-allowed transition bg-opacity-90 hover:bg-opacity-100 inline-flex items-center justify-center h-10 w-28 whitespace-nowrap absolute -translate-1/2 bottom-[0px] left-[50%] "
+                  >
+                    Battle
+                  </button>
 
-                      return (
-                        <TradeCard
-                          key={trade.orderId || index}
-                          status={trade.status}
-                          youGet={trade.youGet}
-                          youGive={trade.youGive}
-                          tradeId={trade.tradeId}
-                          address={trade.address}
-                          serviceFee={trade.serviceFee}
-                          onClick={isClickable ? () => handleTradeCardClick(trade) : undefined}
-                        />
-                      )
-                    })
-                )}
+                </div>
               </div>
-            </div>
+            )}
+            {/* Market/History Tab Content - 只在 activeTab !== "games" 時顯示 */}
+            {(activeTab === "market" || activeTab === "history") && (
+              <div className="tab-content" id="tab-market">
+                {/* Trade Filters */}
+                <TradeFilters
+                  onAddClick={() => setIsCreateModalOpen(true)}
+                  searchTerm={searchTerm}
+                  onSearchChange={setSearchTerm}
+                />
+                {/* Trade Cards List */}
+                <div className="flex-1 overflow-y-auto mt-4 space-y-3 pb-4">
+                  {tradesLoading ? (
+                    <div className="flex justify-center items-center py-8">
+                      <div className="text-gray-400">Loading trades...</div>
+                    </div>
+                  ) : tradesError ? (
+                    <div className="flex justify-center items-center py-8">
+                      <div className="text-red-400 text-sm">{tradesError}</div>
+                    </div>
+                  ) : trades.length === 0 ? (
+                    <div className="flex justify-center items-center py-8">
+                      <div className="text-gray-400">No trades available</div>
+                    </div>
+                  ) : (
+                    trades
+                      .filter((trade) => {
+                        if (!searchTerm) return true
+                        const searchLower = searchTerm.toLowerCase()
+                        return (
+                          trade.address.toLowerCase().includes(searchLower)
+                        )
+                      })
+                      .map((trade, index) => {
+                        // 在 history tab 中，只有 tradable 狀態的訂單才能點擊
+                        const isClickable = activeTab === "market" || (activeTab === "history" && trade.status === "tradable")
+
+                        return (
+                          <TradeCard
+                            key={trade.orderId || index}
+                            status={trade.status}
+                            youGet={trade.youGet}
+                            youGive={trade.youGive}
+                            tradeId={trade.tradeId}
+                            address={trade.address}
+                            serviceFee={trade.serviceFee}
+                            onClick={isClickable ? () => handleTradeCardClick(trade) : undefined}
+                          />
+                        )
+                      })
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
