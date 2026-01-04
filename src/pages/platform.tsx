@@ -214,6 +214,10 @@ export default function PlatformPage() {
     }
   }, [authenticated, user, router, router.isReady, ready])
 
+  const handleEditClick = () => {
+    router.push("/deck")
+  }
+
   if (!ready || (!authenticated && !user?.token)) {
     return null
   }
@@ -257,11 +261,17 @@ export default function PlatformPage() {
                   <img className="rounded-[20px] shadow-lg" src="/img/banner_Aurayale.jpg" alt="" />
                   <div className="bg-[#ffc100] absolute top-[0px] left-[0px] text-sm p-1 rounded-tl-[20px] rounded-br-[20px] min-w-[80px] text-center">HOT</div>
                   <button
-                    className="bg-[#713DE9] text-white px-3 py-1 rounded text-sm font-semibold hover:opacity-70 transition absolute bottom-[0px] right-[0px] -translate-1/2 ">
+                    className="bg-[#713DE9] text-white px-3 py-1 rounded text-sm font-semibold hover:opacity-70 transition absolute bottom-[0px] right-[0px] -translate-1/2 "
+                    onClick={handleEditClick}
+                  >
                     Edit
                   </button>
                   <button
                     className="btn btn-battle text-shadow-lg rounded-xl px-8 py-2 text-xl disabled:opacity-50 disabled:cursor-not-allowed transition bg-opacity-90 hover:bg-opacity-100 inline-flex items-center justify-center h-10 w-28 whitespace-nowrap absolute -translate-1/2 bottom-[0px] left-[50%] "
+                    onClick={() => {
+                      localStorage.setItem("battleDeck", JSON.stringify(deck));
+                      router.push("/battle");
+                    }}
                   >
                     Battle
                   </button>

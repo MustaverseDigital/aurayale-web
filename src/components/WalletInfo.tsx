@@ -31,7 +31,6 @@ export function WalletInfo() {
   // Priority: User context address (from Privy) -> Privy wallet address -> Wagmi connected address
   // Since we are logged in with Privy, we should always have an address from the user object or privyUser
   const walletAddress = user?.walletAddress || privyUser?.wallet?.address || connectedAddress || null
-  
   const displayAddress = walletAddress && walletAddress.length > 10
     ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
     : walletAddress || "Connecting..."
@@ -40,11 +39,6 @@ export function WalletInfo() {
     if (walletAddress) {
       navigator.clipboard.writeText(walletAddress)
     }
-  }
-
-  const handleEditClick = () => {
-    
-    router.push("/deck")
   }
 
   const farcasterUsername = privyUser?.farcaster?.username;
@@ -63,7 +57,7 @@ export function WalletInfo() {
         </div>
         <div className="flex-1">
           {farcasterUsername && (
-             <div className="text-white font-bold text-lg">@{farcasterUsername} <span className="text-xs text-gray-400 font-normal">(FID: {farcasterFid})</span></div>
+            <div className="text-white font-bold text-lg">@{farcasterUsername} <span className="text-xs text-gray-400 font-normal">(FID: {farcasterFid})</span></div>
           )}
           <div className="flex items-center gap-2 text-sm text-gray-300">
             <span>{displayAddress}</span>
@@ -82,12 +76,6 @@ export function WalletInfo() {
             />
           )}
         </div>
-        <button
-          className="bg-[#713DE9] text-white px-3 py-1 rounded text-sm font-semibold hover:opacity-70 transition"
-          onClick={handleEditClick}
-        >
-          Edit
-        </button>
       </div>
     </div>
   )
