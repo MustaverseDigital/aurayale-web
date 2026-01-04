@@ -6,7 +6,12 @@ import {
 } from 'wagmi';
 import { GemContract } from '../contracts/abis/index';
 import { getContractAddress } from '../contracts/addresses';
-import { Address } from 'viem';
+import { Address, type Abi } from 'viem';
+import { isSoneiumTestnet } from '../lib/chainUtils';
+import {
+  usePrivyReadContract,
+  usePrivyWriteContract,
+} from './usePrivyContract';
 
 // 讀取交易訂單資訊
 export function useTradeOrder(orderId: bigint | undefined) {
@@ -15,22 +20,30 @@ export function useTradeOrder(orderId: bigint | undefined) {
     ? (getContractAddress(chainId) as Address)
     : undefined;
 
-  const { data, isLoading, error, refetch } = useReadContract({
+  const useSoneium = isSoneiumTestnet(chainId);
+
+  // 使用 Privy 讀取（soneium-testnet）
+  const privyRead = usePrivyReadContract({
+    address: contractAddress,
+    abi: GemContract as Abi,
+    functionName: 'getTradeOrder',
+    args: orderId !== undefined ? [orderId] : undefined,
+    enabled: useSoneium && !!orderId && !!contractAddress,
+  });
+
+  // 使用 Wagmi 讀取（其他鏈）
+  const wagmiRead = useReadContract({
     address: contractAddress,
     abi: GemContract,
     functionName: 'getTradeOrder',
     args: orderId !== undefined ? [orderId] : undefined,
     query: {
-      enabled: !!orderId && !!contractAddress,
+      enabled: !useSoneium && !!orderId && !!contractAddress,
     },
   });
 
-  return {
-    data,
-    isLoading,
-    error,
-    refetch,
-  };
+  // 根據鏈選擇返回對應的結果
+  return useSoneium ? privyRead : wagmiRead;
 }
 
 // 建立交易訂單
@@ -40,10 +53,22 @@ export function useCreateTradeOrder() {
     ? (getContractAddress(chainId) as Address)
     : undefined;
 
-  const { writeContract, data: hash, error, isPending } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
-    hash,
-  });
+  const useSoneium = isSoneiumTestnet(chainId);
+
+  // 使用 Privy 寫入（soneium-testnet）
+  const privyWrite = usePrivyWriteContract();
+
+  // 使用 Wagmi 寫入（其他鏈）
+  const {
+    writeContract: wagmiWriteContract,
+    data: wagmiHash,
+    error: wagmiError,
+    isPending: wagmiIsPending,
+  } = useWriteContract();
+  const { isLoading: wagmiIsConfirming, isSuccess: wagmiIsSuccess } =
+    useWaitForTransactionReceipt({
+      hash: wagmiHash,
+    });
 
   const createTradeOrder = (
     offeredTokenId: bigint,
@@ -51,22 +76,45 @@ export function useCreateTradeOrder() {
   ) => {
     if (!contractAddress) return;
 
-    writeContract({
-      address: contractAddress,
-      abi: GemContract,
-      functionName: 'createTradeOrder',
-      args: [offeredTokenId, wantedTokenIds],
-    });
+    if (useSoneium) {
+      // 使用 Privy
+      privyWrite.writeContract({
+        address: contractAddress,
+        abi: GemContract as Abi,
+        functionName: 'createTradeOrder',
+        args: [offeredTokenId, wantedTokenIds],
+      });
+    } else {
+      // 使用 Wagmi
+      wagmiWriteContract({
+        address: contractAddress,
+        abi: GemContract as Abi,
+        functionName: 'createTradeOrder',
+        args: [offeredTokenId, wantedTokenIds],
+      });
+    }
   };
 
-  return {
-    createTradeOrder,
-    hash,
-    isPending,
-    isConfirming,
-    isSuccess,
-    error,
-  };
+  // 根據鏈選擇返回對應的結果
+  if (useSoneium) {
+    return {
+      createTradeOrder,
+      hash: privyWrite.hash,
+      isPending: privyWrite.isPending,
+      isConfirming: privyWrite.isConfirming,
+      isSuccess: privyWrite.isSuccess,
+      error: privyWrite.error,
+    };
+  } else {
+    return {
+      createTradeOrder,
+      hash: wagmiHash,
+      isPending: wagmiIsPending,
+      isConfirming: wagmiIsConfirming,
+      isSuccess: wagmiIsSuccess,
+      error: wagmiError,
+    };
+  }
 }
 
 // 接受交易訂單
@@ -76,30 +124,65 @@ export function useAcceptTradeOrder() {
     ? (getContractAddress(chainId) as Address)
     : undefined;
 
-  const { writeContract, data: hash, error, isPending } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
-    hash,
-  });
+  const useSoneium = isSoneiumTestnet(chainId);
+
+  // 使用 Privy 寫入（soneium-testnet）
+  const privyWrite = usePrivyWriteContract();
+
+  // 使用 Wagmi 寫入（其他鏈）
+  const {
+    writeContract: wagmiWriteContract,
+    data: wagmiHash,
+    error: wagmiError,
+    isPending: wagmiIsPending,
+  } = useWriteContract();
+  const { isLoading: wagmiIsConfirming, isSuccess: wagmiIsSuccess } =
+    useWaitForTransactionReceipt({
+      hash: wagmiHash,
+    });
 
   const acceptTradeOrder = (orderId: bigint, selectedTokenId: bigint) => {
     if (!contractAddress) return;
 
-    writeContract({
-      address: contractAddress,
-      abi: GemContract,
-      functionName: 'acceptTradeOrder',
-      args: [orderId, selectedTokenId],
-    });
+    if (useSoneium) {
+      // 使用 Privy
+      privyWrite.writeContract({
+        address: contractAddress,
+        abi: GemContract as Abi,
+        functionName: 'acceptTradeOrder',
+        args: [orderId, selectedTokenId],
+      });
+    } else {
+      // 使用 Wagmi
+      wagmiWriteContract({
+        address: contractAddress,
+        abi: GemContract as Abi,
+        functionName: 'acceptTradeOrder',
+        args: [orderId, selectedTokenId],
+      });
+    }
   };
 
-  return {
-    acceptTradeOrder,
-    hash,
-    isPending,
-    isConfirming,
-    isSuccess,
-    error,
-  };
+  // 根據鏈選擇返回對應的結果
+  if (useSoneium) {
+    return {
+      acceptTradeOrder,
+      hash: privyWrite.hash,
+      isPending: privyWrite.isPending,
+      isConfirming: privyWrite.isConfirming,
+      isSuccess: privyWrite.isSuccess,
+      error: privyWrite.error,
+    };
+  } else {
+    return {
+      acceptTradeOrder,
+      hash: wagmiHash,
+      isPending: wagmiIsPending,
+      isConfirming: wagmiIsConfirming,
+      isSuccess: wagmiIsSuccess,
+      error: wagmiError,
+    };
+  }
 }
 
 // 取消交易訂單
@@ -109,27 +192,63 @@ export function useCancelTradeOrder() {
     ? (getContractAddress(chainId) as Address)
     : undefined;
 
-  const { writeContract, data: hash, error, isPending } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
-    hash,
-  });
+  const useSoneium = isSoneiumTestnet(chainId);
+
+  // 使用 Privy 寫入（soneium-testnet）
+  const privyWrite = usePrivyWriteContract();
+
+  // 使用 Wagmi 寫入（其他鏈）
+  const {
+    writeContract: wagmiWriteContract,
+    data: wagmiHash,
+    error: wagmiError,
+    isPending: wagmiIsPending,
+  } = useWriteContract();
+  const { isLoading: wagmiIsConfirming, isSuccess: wagmiIsSuccess } =
+    useWaitForTransactionReceipt({
+      hash: wagmiHash,
+    });
 
   const cancelTradeOrder = (orderId: bigint) => {
     if (!contractAddress) return;
-    writeContract({
-      address: contractAddress,
-      abi: GemContract,
-      functionName: 'cancelTradeOrder',
-      args: [orderId],
-    });
+
+    if (useSoneium) {
+      // 使用 Privy
+      privyWrite.writeContract({
+        address: contractAddress,
+        abi: GemContract as Abi,
+        functionName: 'cancelTradeOrder',
+        args: [orderId],
+      });
+    } else {
+      // 使用 Wagmi
+      wagmiWriteContract({
+        address: contractAddress,
+        abi: GemContract as Abi,
+        functionName: 'cancelTradeOrder',
+        args: [orderId],
+      });
+    }
   };
 
-  return {
-    cancelTradeOrder,
-    hash,
-    isPending,
-    isConfirming,
-    isSuccess,
-    error,
-  };
+  // 根據鏈選擇返回對應的結果
+  if (useSoneium) {
+    return {
+      cancelTradeOrder,
+      hash: privyWrite.hash,
+      isPending: privyWrite.isPending,
+      isConfirming: privyWrite.isConfirming,
+      isSuccess: privyWrite.isSuccess,
+      error: privyWrite.error,
+    };
+  } else {
+    return {
+      cancelTradeOrder,
+      hash: wagmiHash,
+      isPending: wagmiIsPending,
+      isConfirming: wagmiIsConfirming,
+      isSuccess: wagmiIsSuccess,
+      error: wagmiError,
+    };
+  }
 }
