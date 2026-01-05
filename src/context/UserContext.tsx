@@ -4,7 +4,7 @@ import type { GemItem } from "../api/auraServer";
 export interface UserInfo {
   token: string;
   userId: number;
-  chainId?: string; // 當前登入的鏈 ID
+  chainId?: 'bsc-testnet' | 'soneium-testnet' | string; // 當前登入的鏈 ID
   name?: string;
   walletAddress?: string;
   deck?: number[];

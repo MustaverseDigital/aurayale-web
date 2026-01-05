@@ -133,13 +133,14 @@ export default function PlatformPage() {
       let orders: TradeOrder[] = []
 
       if (activeTab === "market") {
-        const response = await getActiveTradeOrders({ page: 1, limit: 50 })
+        const response = await getActiveTradeOrders({ page: 1, limit: 50, chain_id: user?.chainId })
         orders = response.orders
       } else if (activeTab === "history" && walletAddress) {
         const response = await getUserTradeOrders(walletAddress, {
           status: "all",
           page: 1,
-          limit: 50
+          limit: 50,
+          chain_id: user?.chainId
         })
         orders = response.orders
       }

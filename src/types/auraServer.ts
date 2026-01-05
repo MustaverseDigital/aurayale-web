@@ -108,7 +108,7 @@ export interface FarcasterLoginRequest {
 export interface FarcasterLoginResponse {
   token: string;
   userId: number;
-  chainId: string;
+  chainId: 'bsc-testnet' | 'soneium-testnet' | string;
   walletAddress: string;
   gems: Record<string, unknown>;
   farcasterId?: string;
@@ -248,7 +248,7 @@ export interface ActiveOrdersQueryParams {
   page?: number;
   limit?: number;
   tier?: number;
-  chain_id?: string; // 選填，指定鏈 ID
+  chain_id?: 'bsc-testnet' | 'soneium-testnet' | string; // 選填，指定鏈 ID
 }
 
 /**
