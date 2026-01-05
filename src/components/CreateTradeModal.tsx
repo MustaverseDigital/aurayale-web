@@ -4,7 +4,9 @@ import { ChooseCardModal } from "./ChooseCardModal"
 import { useUser } from "../context/UserContext"
 import { getUserGems, getUserDeck, getUserTradeOrders, GemItem } from "../api/auraServer"
 import { useCreateTradeOrder } from "../hooks/useTradeOrder"
-import { useAccount, useSwitchChain } from "wagmi"
+import { useAccount } from "wagmi"
+import { useWallets, usePrivy } from "@privy-io/react-auth"
+import { soneiumMinato } from '../wagmi';
 
 interface Card {
   id: string
@@ -28,15 +30,49 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
   const [userOwnedCards, setUserOwnedCards] = useState<Card[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [pendingTransaction, setPendingTransaction] = useState<{ offeredTokenId: bigint; wantedTokenIds: bigint[] } | null>(null)
-  const { chainId, isConnected, address: connectedAddress } = useAccount()
-  const { switchChain, isPending: isSwitchingChain } = useSwitchChain()
+  // No longer needed with useActiveWallet logic
+  // const [pendingTransaction, setPendingTransaction] = useState<{ offeredTokenId: bigint; wantedTokenIds: bigint[] } | null>(null)
+  
+  const { chainId: wagmiChainId, isConnected, address: connectedAddress } = useAccount()
+  const { user: privyUser } = usePrivy()
+  const { wallets } = useWallets()
+  
+  // Soneium Minato chain ID
+  const SONEIUM_MINATO_CHAIN_ID = 1946
+
+  // Helper to determine active wallet logic (mirrors useTradeOrder.ts but simplified for check)
+  let activeWallet = wallets.find(w => w.walletClientType === 'privy' || w.connectorType === 'embedded');
+
+  if (!activeWallet && privyUser?.wallet) {
+    activeWallet = wallets.find(w => w.address.toLowerCase() === privyUser.wallet?.address.toLowerCase());
+  }
+
+  if (!activeWallet) {
+    activeWallet = wallets.filter(w => w.walletClientType !== 'coinbase_wallet')[0] || wallets[0];
+  }
+  
+  const walletAddress = activeWallet?.address || connectedAddress || user?.walletAddress;
+  const isWalletReady = !!walletAddress;
+
+  // Robust parsing of chainId
+  let currentChainId = wagmiChainId;
+  if (activeWallet?.chainId) {
+    if (typeof activeWallet.chainId === 'number') {
+      currentChainId = activeWallet.chainId;
+    } else if (typeof activeWallet.chainId === 'string') {
+      const chainIdStr = activeWallet.chainId as string;
+      if (chainIdStr.includes(':')) {
+        const parts = chainIdStr.split(':');
+        currentChainId = parts.length > 1 ? parseInt(parts[1]) : parseInt(parts[0]);
+      } else {
+        currentChainId = parseInt(chainIdStr);
+      }
+    }
+  }
+
   const hasHandledSuccess = useRef(false)
   const [deckCardIds, setDeckCardIds] = useState<Set<number>>(new Set())
   const [orderedCardIds, setOrderedCardIds] = useState<Set<number>>(new Set())
-
-  // BSC Testnet chain ID
-  const BSC_TESTNET_CHAIN_ID = 97
 
   const {
     createTradeOrder,
@@ -72,7 +108,6 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
         })
 
       // 獲取活躍訂單
-      const walletAddress = connectedAddress || user?.walletAddress
       if (walletAddress) {
         getUserTradeOrders(walletAddress, { status: 'active' })
           .then((response) => {
@@ -87,7 +122,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
           })
       }
     }
-  }, [isOpen, user?.token, connectedAddress, user?.walletAddress])
+  }, [isOpen, user?.token, walletAddress])
 
   // Fetch user gems from API for "you give" selection
   useEffect(() => {
@@ -171,7 +206,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
       setYouGiveCard(null)
       setYouGetCards([])
       setError(null)
-      setPendingTransaction(null)
+      // setPendingTransaction(null)
       // 重置成功處理標記
       hasHandledSuccess.current = false
       // 重置牌組和訂單狀態，以便下次打開時重新獲取
@@ -187,14 +222,6 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
     }
   }, [isPending])
 
-  // 當鏈切換到 BSC testnet 後，自動執行待處理的交易
-  useEffect(() => {
-    if (pendingTransaction && chainId === BSC_TESTNET_CHAIN_ID && !isSwitchingChain) {
-      createTradeOrder(pendingTransaction.offeredTokenId, pendingTransaction.wantedTokenIds)
-      setPendingTransaction(null)
-    }
-  }, [chainId, isSwitchingChain, pendingTransaction])
-
   const handlePost = async () => {
     if (!youGiveCard) {
       setError("Please select a card to give")
@@ -209,7 +236,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
     setError(null)
 
     // 檢查是否已連接錢包
-    if (!isConnected) {
+    if (!isWalletReady) {
       setError("Please connect your wallet first")
       return
     }
@@ -218,31 +245,20 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
     const offeredTokenId = BigInt(youGiveCard.id)
     const wantedTokenIds = youGetCards.map((card) => BigInt(card.id))
 
-    // 檢查並切換到 BSC testnet
-    if (chainId !== BSC_TESTNET_CHAIN_ID) {
-      if (switchChain) {
-        try {
-          // 保存待執行的交易參數
-          setPendingTransaction({ offeredTokenId, wantedTokenIds })
-          await switchChain({ chainId: BSC_TESTNET_CHAIN_ID })
-          // 鏈切換完成後，useEffect 會自動執行交易
-          return
-        } catch (switchError: any) {
-          setError(switchError.message || "Failed to switch to BSC testnet")
-          setPendingTransaction(null)
-          return
-        }
-      } else {
-        setError("Please switch to BSC testnet manually")
-        return
-      }
+    // Chain switching is now handled inside useCreateTradeOrder (in useTradeOrder.ts)
+    // We just need to ensure we are calling it.
+    
+    // Check chain ID just for UI feedback if needed, but the hook will try to switch
+    if (currentChainId !== soneiumMinato.id) {
+        // Optional: you could show a "Switching chain..." message here or let the hook handle it
+        console.log(`Current chain (${currentChainId}) is not Soneium Minato (${soneiumMinato.id}), hook will attempt switch.`);
     }
 
     // 調用智能合約創建訂單
     createTradeOrder(offeredTokenId, wantedTokenIds)
   }
 
-  const isProcessing = isPending || isConfirming || isSwitchingChain
+  const isProcessing = isPending || isConfirming
 
   if (!isOpen) return null
 
@@ -363,7 +379,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
                 {isProcessing ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    {isSwitchingChain ? "Switching Chain..." : isConfirming ? "Confirming..." : "Processing..."}
+                    {isConfirming ? "Confirming..." : "Processing..."}
                   </>
                 ) : (
                   "Post"

@@ -4,26 +4,36 @@ import { ChooseCardModal } from "./ChooseCardModal"
 import { useUser } from "../context/UserContext"
 import { getUserGems, GemItem } from "../api/auraServer"
 import { useAcceptTradeOrder } from "../hooks/useTradeOrder"
-import { useAccount, useSwitchChain } from "wagmi"
+import { useAccount } from "wagmi"
+import { useWallets, usePrivy } from "@privy-io/react-auth"
+import { soneiumMinato } from '../wagmi';
 
 interface Card {
+  id: string
   name: string
   image: string
+  quantity: number
+  owned?: boolean
+}
+
+interface TradeOrder {
+  orderId: string
+  offeredTokenId: number
+  wantedTokenIds: number[]
+  owner: string
+  status: string
+}
+
+interface TradeData {
+  orderId?: string
+  originalOrder?: TradeOrder
+  [key: string]: any
 }
 
 interface DetailTradeModalProps {
   isOpen: boolean
   onClose: () => void
-  tradeData: {
-    youGet: Card
-    youGive: Card[]
-    tradeId: string
-    address: string
-    serviceFee: string
-    status: string
-    orderId?: string
-    originalOrder?: any
-  } | null
+  tradeData: TradeData | null
   onSuccess?: () => void
 }
 
@@ -34,15 +44,46 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
   const [isChooseCardOpen, setIsChooseCardOpen] = useState(false)
   const [walletCards, setWalletCards] = useState<any[]>([])
   const [error, setError] = useState<string | null>(null)
-  const [pendingTransaction, setPendingTransaction] = useState<{ orderId: bigint; selectedTokenId: bigint } | null>(null)
-  const { chainId, isConnected } = useAccount()
-  const { switchChain, isPending: isSwitchingChain } = useSwitchChain()
+  
+  const { chainId: wagmiChainId, isConnected, address: connectedAddress } = useAccount()
+  const { user: privyUser } = usePrivy()
+  const { wallets } = useWallets()
+  
+  // Soneium Minato chain ID
+  const SONEIUM_MINATO_CHAIN_ID = 1946
+
+  // Helper to determine active wallet logic
+  let activeWallet = wallets.find(w => w.walletClientType === 'privy' || w.connectorType === 'embedded');
+  
+  if (!activeWallet && privyUser?.wallet) {
+    activeWallet = wallets.find(w => w.address.toLowerCase() === privyUser.wallet?.address.toLowerCase());
+  }
+
+  if (!activeWallet) {
+    activeWallet = wallets.filter(w => w.walletClientType !== 'coinbase_wallet')[0] || wallets[0];
+  }
+  
+  const walletAddress = activeWallet?.address || connectedAddress || user?.walletAddress;
+  const isWalletReady = !!walletAddress;
+
+  // Robust parsing of chainId
+  let currentChainId = wagmiChainId;
+  if (activeWallet?.chainId) {
+    if (typeof activeWallet.chainId === 'number') {
+      currentChainId = activeWallet.chainId;
+    } else if (typeof activeWallet.chainId === 'string') {
+      const chainIdStr = activeWallet.chainId as string;
+      if (chainIdStr.includes(':')) {
+        const parts = chainIdStr.split(':');
+        currentChainId = parts.length > 1 ? parseInt(parts[1]) : parseInt(parts[0]);
+      } else {
+        currentChainId = parseInt(chainIdStr);
+      }
+    }
+  }
 
   // 追蹤是否已經處理過成功狀態，防止無限迴圈
   const hasHandledSuccess = useRef(false)
-
-  // BSC Testnet chain ID
-  const BSC_TESTNET_CHAIN_ID = 97
 
   const {
     acceptTradeOrder,
@@ -86,7 +127,7 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
   }, [walletCards, tradeData?.originalOrder?.wantedTokenIds])
 
   const handleCardSelect = (card: { id: string; name: string; image: string; quantity: number }) => {
-    setSelectedCard({ name: card.name, image: card.image })
+    setSelectedCard({ name: card.name, image: card.image, id: card.id, quantity: card.quantity })
     setSelectedCardId(card.id)
   }
 
@@ -116,7 +157,7 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
       setSelectedCard(null)
       setSelectedCardId(null)
       setError(null)
-      setPendingTransaction(null)
+      // setPendingTransaction(null)
       // 重置成功處理標記
       hasHandledSuccess.current = false
     }
@@ -128,14 +169,6 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
       hasHandledSuccess.current = false
     }
   }, [isPending])
-
-  // 當鏈切換到 BSC testnet 後，自動執行待處理的交易
-  useEffect(() => {
-    if (pendingTransaction && chainId === BSC_TESTNET_CHAIN_ID && !isSwitchingChain) {
-      acceptTradeOrder(pendingTransaction.orderId, pendingTransaction.selectedTokenId)
-      setPendingTransaction(null)
-    }
-  }, [chainId, isSwitchingChain, pendingTransaction])
 
   const handleAccept = async () => {
     if (!tradeData) {
@@ -156,7 +189,7 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
     setError(null)
 
     // 檢查是否已連接錢包
-    if (!isConnected) {
+    if (!isWalletReady) {
       setError("Please connect your wallet first")
       return
     }
@@ -165,31 +198,16 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
     const orderId = BigInt(tradeData.orderId)
     const selectedTokenId = BigInt(selectedCardId)
 
-    // 檢查並切換到 BSC testnet
-    if (chainId !== BSC_TESTNET_CHAIN_ID) {
-      if (switchChain) {
-        try {
-          // 保存待執行的交易參數
-          setPendingTransaction({ orderId, selectedTokenId })
-          await switchChain({ chainId: BSC_TESTNET_CHAIN_ID })
-          // 鏈切換完成後，useEffect 會自動執行交易
-          return
-        } catch (switchError: any) {
-          setError(switchError.message || "Failed to switch to BSC testnet")
-          setPendingTransaction(null)
-          return
-        }
-      } else {
-        setError("Please switch to BSC testnet manually")
-        return
-      }
+    // 檢查並切換到 Soneium Minato
+    if (currentChainId !== soneiumMinato.id) {
+        console.log(`Current chain (${currentChainId}) is not Soneium Minato (${soneiumMinato.id}), hook will attempt switch.`);
     }
 
     // 調用智能合約接受訂單
     acceptTradeOrder(orderId, selectedTokenId)
   }
 
-  const isProcessing = isPending || isConfirming || isSwitchingChain
+  const isProcessing = isPending || isConfirming
 
   if (!isOpen || !tradeData) return null
 
@@ -223,126 +241,77 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
                 <div className="rounded-xl p-2 flex items-center justify-center">
                   <div className="text-center">
                     <img
-                      src={tradeData.youGet.image || "/img/001.png"}
-                      alt={tradeData.youGet.name}
-                      className="w-full h-full object-cover rounded mb-2 mx-auto"
+                      src={tradeData.youGet?.image || ""}
+                      alt={tradeData.youGet?.name || "Card"}
+                      className="w-20 object-cover rounded mx-auto mb-2"
                     />
-                    <p className="text-xs text-white font-semibold">{tradeData.youGet.name}</p>
+                    <p className="text-xs text-white">{tradeData.youGet?.name}</p>
                   </div>
                 </div>
               </div>
 
               {/* Exchange Arrow */}
-              <div className="w-20 flex-initial justify-center flex">
-                <div className="text-gray-400  text-center">
-                  <img  src="/img/icon_Exchange.png" alt="" />
+              <div className="flex-shrink-0">
+                <div className="text-gray-400 text-2xl">
+                  <img src="/img/icon_Exchange.png" alt="" />
                 </div>
               </div>
 
               {/* You Give */}
               <div className="w-30 flex-initial">
-                <div className="text-sm text-white/60 text-center">
-                  You Give
-                </div>
-                <div className="rounded-xl p-2 flex items-center justify-center">
+                <div className="text-sm text-white/60 text-center">You Give</div>
+                <div className="rounded-xl p-2 min-h-45 flex items-center justify-center">
                   {selectedCard ? (
-                    <div className="text-center">
+                    <div className="text-center cursor-pointer" onClick={() => setIsChooseCardOpen(true)}>
                       <img
-                        src={selectedCard.image || "/img/001.png"}
+                        src={selectedCard.image}
                         alt={selectedCard.name}
-                        className="w-full h-full object-cover rounded mb-2 mx-auto"
+                        className="w-20 object-cover rounded mx-auto mb-2"
                       />
-                      <p className="text-xs text-white font-semibold">{selectedCard.name}</p>
+                      <p className="text-xs text-white">{selectedCard.name}</p>
                     </div>
-                  ) : tradeData.youGive.length > 0 ? (
-                    <div className="gap-2 w-full mb-2 mx-auto">
-                      {tradeData.youGive.map((card, idx) => (
-                        <div key={idx} className="">
-                          <img
-                            src={card.image || "/img/001.png"}
-                            alt={card.name}
-                            className="w-full h-full  object-cover"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  ) : null}
+                  ) : (
+                    <button
+                      onClick={() => setIsChooseCardOpen(true)}
+                      className="bg-[#877B8A] text-white px-4 py-2 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity"
+                    >
+                      Choose
+                    </button>
+                  )}
                 </div>
-                  <div className="text-xs text-gray-400 text-center">Select Card</div>
               </div>
             </div>
 
-            {/* Trade Info Section */}
-            <div className="space-y-4 px-6">
-              {/* Status */}
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full" />
-                <span className="text-sm text-white font-semibold capitalize">{tradeData.status}</span>
-              </div>
-
-              {/* Trade ID and Details */}
-              <div className="bg-black/20 border border-[#877B8A]/30 rounded-lg p-4 space-y-3">
-                <div className="text-white font-semibold text-sm">{tradeData.tradeId}</div>
-                <div className="flex justify-between">
-                  <div>
-                    <div className="text-gray-400 text-xs mb-1">Address</div>
-                    <div className="text-white text-sm font-semibold flex items-center gap-1">
-                      {tradeData.address}
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-gray-400">
-                        <path d="M3 2h7v7H3z" stroke="currentColor" strokeWidth="1" />
-                      </svg>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-gray-400 text-xs mb-1">Service Fee</div>
-                    <div className="text-white text-sm font-semibold">{tradeData.serviceFee}</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Info Text */}
-              <p className="text-sm text-gray-300">
-                Upon completion of the transaction, the card you receive will have an{" "}
-                <span className="text-[#FFC800]">[X]%</span> chance to upgrade to a higher-tier card!
+            {/* Info Text */}
+            <div className="space-y-3 text-sm text-gray-300 px-6">
+              <p>The card will be swapped immediately upon confirmation.</p>
+              <p>
+                Please confirm the card details before proceeding with the transaction.
               </p>
             </div>
 
             {/* Error Message */}
             {error && (
-              <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3 text-sm text-red-300">
+              <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3 text-sm text-red-300 mx-6">
                 {error}
               </div>
             )}
 
-            {/* Action Buttons */}
-            <div className="flex gap-3 justify-center px-1 mb-4">
-              <button
-                onClick={() => setIsChooseCardOpen(true)}
-                disabled={isProcessing}
-                className="bg-[#713DE9] text-white px-6 py-1 rounded-full font-semibold text-sm border-2 border-[#877B8A]/50 hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Select Card
-              </button>
+            {/* Confirm Button */}
+            <div className="flex justify-center mb-6">
               <button
                 onClick={handleAccept}
-                disabled={isProcessing || !selectedCardId}
-                className="bg-[#713DE9] text-white px-8 py-1 rounded-full font-semibold text-sm border-2 border-[#877B8A]/50 hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                disabled={isProcessing}
+                className="bg-[#713DE9] text-white px-12 py-2 rounded-full font-bold text-lg border-2 border-[#877B8A]/50 hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {isProcessing ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    {isSwitchingChain ? "Switching Chain..." : isConfirming ? "Confirming..." : "Processing..."}
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    {isConfirming ? "Confirming..." : "Processing..."}
                   </>
                 ) : (
-                  "Accept"
+                  "Confirm Trade"
                 )}
-              </button>
-              <button
-                onClick={onClose}
-                disabled={isProcessing}
-                className="bg-black/30 text-white px-6 py-1 rounded-full font-semibold text-sm border-2 border-[#877B8A]/30 hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Cancel
               </button>
             </div>
           </div>
@@ -354,8 +323,8 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
         onClose={() => setIsChooseCardOpen(false)}
         onConfirm={handleCardSelect}
         availableCards={availableCards}
+        isForYouGet={false}
       />
     </>
   )
 }
-

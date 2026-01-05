@@ -25,7 +25,13 @@ function useActiveWallet() {
   // 1. Try to find Privy Embedded Wallet
   let activeWallet = wallets.find(w => w.walletClientType === 'privy' || w.connectorType === 'embedded');
 
-  // 2. If no embedded wallet, look for other wallets
+  // 2. If user is logged in with Privy but we don't have an active wallet in the list, 
+  // try to use the wallet from usePrivy() if it matches
+  if (!activeWallet && privyUser?.wallet) {
+    activeWallet = wallets.find(w => w.address.toLowerCase() === privyUser.wallet?.address.toLowerCase());
+  }
+
+  // 3. If still no embedded wallet, look for other wallets
   if (!activeWallet) {
     // Filter out Coinbase Wallet if we are on Soneium (1946) as it is reported to be unsupported
     const viableWallets = wallets.filter(w => w.walletClientType !== 'coinbase_wallet');
