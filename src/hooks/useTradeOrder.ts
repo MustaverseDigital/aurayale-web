@@ -12,7 +12,7 @@ import { soneiumMinato } from '../wagmi';
 import { useState } from 'react';
 
 // Helper to get the correct wallet client and chain ID
-// Priority: Privy Embedded Wallet -> Other Connected Wallets (skipping Coinbase if unsupported) -> Wagmi Connected Wallet -> Default Chain (if logged in)
+// Priority: Privy Embedded Wallet (Strict)
 function useActiveWallet() {
   const { chainId: wagmiChainId } = useAccount();
   const { wallets } = useWallets();
@@ -22,18 +22,11 @@ function useActiveWallet() {
   console.log('Available wallets:', wallets.map(w => ({ type: w.walletClientType, connector: w.connectorType, address: w.address })));
   console.log('Privy User Wallet:', privyUser?.wallet);
 
-  // 1. Priority: Match the specific wallet associated with the Privy User (e.g. Embedded Wallet)
+  // 1. Strict Priority: Match the specific wallet associated with the Privy User
   let activeWallet: any = undefined;
   if (privyUser?.wallet) {
     activeWallet = wallets.find(w => w.address.toLowerCase() === privyUser.wallet?.address.toLowerCase());
   }
-
-  // 2. If not found, try to find ANY Privy Embedded Wallet
-  if (!activeWallet) {
-    activeWallet = wallets.find(w => w.walletClientType === 'privy' || w.connectorType === 'embedded');
-  }
-
-  // NOTE: We do NOT fallback to other wallets here. We ONLY want Privy wallets.
   
   // Robust parsing of chainId
   let walletChainId: number | undefined;
@@ -100,8 +93,9 @@ export function useCreateTradeOrder() {
     ? (getContractAddress(chainId) as Address)
     : undefined;
 
-  // Wagmi state
-  const { writeContract, data: wagmiHash, error: wagmiError, isPending: wagmiIsPending } = useWriteContract();
+  // Wagmi state (only used for hash/error if we were using it, but now we strictly use Privy)
+  // We keep the hook calls to avoid breaking rules of hooks, but we won't use writeContract
+  const { data: wagmiHash, error: wagmiError, isPending: wagmiIsPending } = useWriteContract();
   
   // Custom state for Privy interaction
   const [privyHash, setPrivyHash] = useState<Hash | undefined>(undefined);
@@ -122,47 +116,42 @@ export function useCreateTradeOrder() {
   ) => {
     if (!contractAddress) return;
 
-    // If we have an active Privy wallet, use it directly
-    if (activeWallet) {
-      try {
+    // Strict check for activeWallet
+    if (!activeWallet) {
+        console.error('No active Privy wallet found. Cannot create trade order.');
+        return;
+    }
+
+    try {
         setPrivyIsPending(true);
         setPrivyError(null);
         
         // Switch chain if needed
         const currentChainId = parseInt(activeWallet.chainId.split(':')[1] || activeWallet.chainId);
         if (currentChainId !== soneiumMinato.id) {
-           await activeWallet.switchChain(soneiumMinato.id);
+            await activeWallet.switchChain(soneiumMinato.id);
         }
-
+        
         const provider = await activeWallet.getEthereumProvider();
         const walletClient = createWalletClient({
-          account: activeWallet.address as Address,
-          chain: soneiumMinato,
-          transport: custom(provider)
+            account: activeWallet.address as Address,
+            chain: soneiumMinato,
+            transport: custom(provider)
         });
 
         const txHash = await walletClient.writeContract({
-          address: contractAddress,
-          abi: GemContract,
-          functionName: 'createTradeOrder',
-          args: [offeredTokenId, wantedTokenIds],
+            address: contractAddress,
+            abi: GemContract,
+            functionName: 'createTradeOrder',
+            args: [offeredTokenId, wantedTokenIds],
         });
 
         setPrivyHash(txHash);
-      } catch (err: any) {
+    } catch (err: any) {
         console.error('Error using Privy wallet:', err);
         setPrivyError(err);
-      } finally {
+    } finally {
         setPrivyIsPending(false);
-      }
-    } else {
-      // Fallback to Wagmi
-      writeContract({
-        address: contractAddress,
-        abi: GemContract,
-        functionName: 'createTradeOrder',
-        args: [offeredTokenId, wantedTokenIds],
-      });
     }
   };
 
@@ -184,8 +173,7 @@ export function useAcceptTradeOrder() {
     ? (getContractAddress(chainId) as Address)
     : undefined;
 
-  // Wagmi state
-  const { writeContract, data: wagmiHash, error: wagmiError, isPending: wagmiIsPending } = useWriteContract();
+  const { data: wagmiHash, error: wagmiError, isPending: wagmiIsPending } = useWriteContract();
   
   // Custom state for Privy interaction
   const [privyHash, setPrivyHash] = useState<Hash | undefined>(undefined);
@@ -203,45 +191,42 @@ export function useAcceptTradeOrder() {
   const acceptTradeOrder = async (orderId: bigint, selectedTokenId: bigint) => {
     if (!contractAddress) return;
 
-    if (activeWallet) {
-      try {
+    if (!activeWallet) {
+        console.error('No active Privy wallet found. Cannot accept trade order.');
+        return;
+    }
+
+    try {
+        console.log('aaaaActive Wallet:', activeWallet);
         setPrivyIsPending(true);
         setPrivyError(null);
 
         // Switch chain if needed
         const currentChainId = parseInt(activeWallet.chainId.split(':')[1] || activeWallet.chainId);
         if (currentChainId !== soneiumMinato.id) {
-           await activeWallet.switchChain(soneiumMinato.id);
+            await activeWallet.switchChain(soneiumMinato.id);
         }
 
         const provider = await activeWallet.getEthereumProvider();
         const walletClient = createWalletClient({
-          account: activeWallet.address as Address,
-          chain: soneiumMinato,
-          transport: custom(provider)
+            account: activeWallet.address as Address,
+            chain: soneiumMinato,
+            transport: custom(provider)
         });
 
         const txHash = await walletClient.writeContract({
-          address: contractAddress,
-          abi: GemContract,
-          functionName: 'acceptTradeOrder',
-          args: [orderId, selectedTokenId],
+            address: contractAddress,
+            abi: GemContract,
+            functionName: 'acceptTradeOrder',
+            args: [orderId, selectedTokenId],
         });
 
         setPrivyHash(txHash);
-      } catch (err: any) {
+    } catch (err: any) {
         console.error('Error using Privy wallet:', err);
         setPrivyError(err);
-      } finally {
+    } finally {
         setPrivyIsPending(false);
-      }
-    } else {
-      writeContract({
-        address: contractAddress,
-        abi: GemContract,
-        functionName: 'acceptTradeOrder',
-        args: [orderId, selectedTokenId],
-      });
     }
   };
 
@@ -262,8 +247,7 @@ export function useCancelTradeOrder() {
     ? (getContractAddress(chainId) as Address)
     : undefined;
 
-  // Wagmi state
-  const { writeContract, data: wagmiHash, error: wagmiError, isPending: wagmiIsPending } = useWriteContract();
+  const { data: wagmiHash, error: wagmiError, isPending: wagmiIsPending } = useWriteContract();
   
   // Custom state for Privy interaction
   const [privyHash, setPrivyHash] = useState<Hash | undefined>(undefined);
@@ -281,45 +265,41 @@ export function useCancelTradeOrder() {
   const cancelTradeOrder = async (orderId: bigint) => {
     if (!contractAddress) return;
 
-    if (activeWallet) {
-      try {
+    if (!activeWallet) {
+        console.error('No active Privy wallet found. Cannot cancel trade order.');
+        return;
+    }
+
+    try {
         setPrivyIsPending(true);
         setPrivyError(null);
 
         // Switch chain if needed
         const currentChainId = parseInt(activeWallet.chainId.split(':')[1] || activeWallet.chainId);
         if (currentChainId !== soneiumMinato.id) {
-           await activeWallet.switchChain(soneiumMinato.id);
+            await activeWallet.switchChain(soneiumMinato.id);
         }
 
         const provider = await activeWallet.getEthereumProvider();
         const walletClient = createWalletClient({
-          account: activeWallet.address as Address,
-          chain: soneiumMinato,
-          transport: custom(provider)
+            account: activeWallet.address as Address,
+            chain: soneiumMinato,
+            transport: custom(provider)
         });
 
         const txHash = await walletClient.writeContract({
-          address: contractAddress,
-          abi: GemContract,
-          functionName: 'cancelTradeOrder',
-          args: [orderId],
+            address: contractAddress,
+            abi: GemContract,
+            functionName: 'cancelTradeOrder',
+            args: [orderId],
         });
 
         setPrivyHash(txHash);
-      } catch (err: any) {
+    } catch (err: any) {
         console.error('Error using Privy wallet:', err);
         setPrivyError(err);
-      } finally {
+    } finally {
         setPrivyIsPending(false);
-      }
-    } else {
-      writeContract({
-        address: contractAddress,
-        abi: GemContract,
-        functionName: 'cancelTradeOrder',
-        args: [orderId],
-      });
     }
   };
 
