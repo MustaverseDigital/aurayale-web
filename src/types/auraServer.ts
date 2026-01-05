@@ -6,6 +6,11 @@
 // ==================== 共用類型 ====================
 
 /**
+ * 支援的鏈類型
+ */
+export type SupportedChain = 'bsc-testnet' | 'soneium-testnet' | string;
+
+/**
  * 寶石項目
  */
 export interface GemItem {
@@ -94,7 +99,7 @@ export interface FarcasterLoginRequest {
   // 方式 1: Privy Token（推薦）
   privyAccessToken?: string;
   chain_id?: string; // 選填，預設為 "bsc-testnet"
-  
+
   // 方式 2: 錢包簽名（向後兼容）
   walletAddress?: string;
   signature?: string;
@@ -210,6 +215,23 @@ export interface UpdateGemDeckRequest {
  */
 export interface UpdateGemDeckResponse {
   deck: number[];
+}
+
+/**
+ * 用戶資訊（基於 API 登入回應構建）
+ */
+export interface UserInfo {
+  token: string;
+  userId: number;
+  chainId?: SupportedChain | string; // 當前登入的鏈 ID
+  name?: string;
+  walletAddress?: string;
+  deck?: number[];
+  gems?: GemItem[];
+  loginType?: 'google' | 'password' | 'farcaster'; // 登入類型
+  farcasterId?: string; // Farcaster ID（如果是 Farcaster 登入）
+  farcasterUsername?: string; // Farcaster 用戶名
+  farcasterPfpUrl?: string; // Farcaster 頭像 URL
 }
 
 // ==================== 交易訂單相關類型 ====================

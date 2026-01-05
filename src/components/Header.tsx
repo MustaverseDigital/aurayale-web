@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Menu, ChevronDown, Network } from "lucide-react";
-import { useChainSwitch, type SupportedChain } from "../hooks/useChainSwitch";
+import { useChainSwitch } from "../hooks/useChainSwitch";
+import type { SupportedChain } from "../types/auraServer";
 import { LogOut } from 'lucide-react';
 
 export function Header() {
@@ -59,11 +60,10 @@ export function Header() {
                         key={chain}
                         onClick={() => handleChainSwitch(chain)}
                         disabled={chain === currentChain || isSwitching}
-                        className={`w-full text-left px-4 py-2 text-sm transition-colors ${
-                          chain === currentChain
+                        className={`w-full text-left px-4 py-2 text-sm transition-colors ${chain === currentChain
                             ? "bg-[#898cd2]/30 text-white font-medium"
                             : "text-gray-300 hover:bg-[#898cd2]/20 hover:text-white"
-                        } disabled:opacity-50 disabled:cursor-not-allowed`}
+                          } disabled:opacity-50 disabled:cursor-not-allowed`}
                       >
                         {getChainDisplayName(chain)}
                         {chain === currentChain && " ✓"}
@@ -75,8 +75,8 @@ export function Header() {
             </div>
           )}
 
-  
-        <button className="p-2">
+
+          <button className="p-2">
             <LogOut className="w-6 h-6 text-white" />
           </button>
         </div>

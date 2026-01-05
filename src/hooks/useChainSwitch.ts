@@ -11,8 +11,7 @@ import {
   getUserDeck,
 } from '../api/auraServer';
 import { generateFarcasterMessage } from '../lib/farcaster';
-
-export type SupportedChain = 'bsc-testnet' | 'soneium-testnet';
+import type { SupportedChain } from '../types/auraServer';
 
 export function useChainSwitch() {
   const { user, setUser } = useUser();
