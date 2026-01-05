@@ -8,5 +8,5 @@ export function getContractAddress(chainId: number): string {
     137: '0x...', // Polygon
   };
 
-  return addresses[chainId] || '0x3fD693282Cb0680d975D8Fc74D6FF91655f68303';
+  return addresses[chainId] || '0x6555105Fd4BDE83514Fe90921B836f9a3B92da7c';
 }
