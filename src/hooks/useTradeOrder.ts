@@ -22,22 +22,19 @@ function useActiveWallet() {
   console.log('Available wallets:', wallets.map(w => ({ type: w.walletClientType, connector: w.connectorType, address: w.address })));
   console.log('Privy User Wallet:', privyUser?.wallet);
 
-  // 1. Try to find Privy Embedded Wallet
-  let activeWallet = wallets.find(w => w.walletClientType === 'privy' || w.connectorType === 'embedded');
-
-  // 2. If user is logged in with Privy but we don't have an active wallet in the list, 
-  // try to use the wallet from usePrivy() if it matches
-  if (!activeWallet && privyUser?.wallet) {
+  // 1. Priority: Match the specific wallet associated with the Privy User (e.g. Embedded Wallet)
+  let activeWallet: any = undefined;
+  if (privyUser?.wallet) {
     activeWallet = wallets.find(w => w.address.toLowerCase() === privyUser.wallet?.address.toLowerCase());
   }
 
-  // 3. If still no embedded wallet, look for other wallets
+  // 2. If not found, try to find ANY Privy Embedded Wallet
   if (!activeWallet) {
-    // Filter out Coinbase Wallet if we are on Soneium (1946) as it is reported to be unsupported
-    const viableWallets = wallets.filter(w => w.walletClientType !== 'coinbase_wallet');
-    activeWallet = viableWallets[0] || wallets[0];
+    activeWallet = wallets.find(w => w.walletClientType === 'privy' || w.connectorType === 'embedded');
   }
 
+  // NOTE: We do NOT fallback to other wallets here. We ONLY want Privy wallets.
+  
   // Robust parsing of chainId
   let walletChainId: number | undefined;
   if (activeWallet?.chainId) {

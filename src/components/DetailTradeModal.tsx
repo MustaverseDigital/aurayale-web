@@ -53,10 +53,13 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
   const SONEIUM_MINATO_CHAIN_ID = 1946
 
   // Helper to determine active wallet logic
-  let activeWallet = wallets.find(w => w.walletClientType === 'privy' || w.connectorType === 'embedded');
-  
-  if (!activeWallet && privyUser?.wallet) {
+  let activeWallet: any = undefined;
+  if (privyUser?.wallet) {
     activeWallet = wallets.find(w => w.address.toLowerCase() === privyUser.wallet?.address.toLowerCase());
+  }
+
+  if (!activeWallet) {
+    activeWallet = wallets.find(w => w.walletClientType === 'privy' || w.connectorType === 'embedded');
   }
 
   if (!activeWallet) {

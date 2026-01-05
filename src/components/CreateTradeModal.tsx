@@ -40,11 +40,14 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
   // Soneium Minato chain ID
   const SONEIUM_MINATO_CHAIN_ID = 1946
 
-  // Helper to determine active wallet logic (mirrors useTradeOrder.ts but simplified for check)
-  let activeWallet = wallets.find(w => w.walletClientType === 'privy' || w.connectorType === 'embedded');
-
-  if (!activeWallet && privyUser?.wallet) {
+  // Helper to determine active wallet logic (mirrors useTradeOrder.ts)
+  let activeWallet: any = undefined;
+  if (privyUser?.wallet) {
     activeWallet = wallets.find(w => w.address.toLowerCase() === privyUser.wallet?.address.toLowerCase());
+  }
+
+  if (!activeWallet) {
+    activeWallet = wallets.find(w => w.walletClientType === 'privy' || w.connectorType === 'embedded');
   }
 
   if (!activeWallet) {
