@@ -3,13 +3,16 @@ import { Menu, ChevronDown, Network } from "lucide-react";
 import { useChainSwitch } from "../hooks/useChainSwitch";
 import type { SupportedChain } from "../types/auraServer";
 import { LogOut } from 'lucide-react';
+import { usePrivy } from "@privy-io/react-auth";
+import { useRouter } from "next/router";
 
 export function Header() {
   const { currentChain, switchChain, isSwitching, getChainDisplayName } =
     useChainSwitch();
   const [showChainMenu, setShowChainMenu] = useState(false);
-
   const supportedChains: SupportedChain[] = ["bsc-testnet", "soneium-testnet"];
+  const { logout } = usePrivy();
+  const router = useRouter();
 
   const handleChainSwitch = async (chain: SupportedChain) => {
     if (chain === currentChain || isSwitching) return;
@@ -21,6 +24,11 @@ export function Header() {
       // 錯誤已在 hook 中處理
       console.error("Failed to switch chain:", error);
     }
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    router.push("/login");
   };
 
   return (
@@ -61,8 +69,8 @@ export function Header() {
                         onClick={() => handleChainSwitch(chain)}
                         disabled={chain === currentChain || isSwitching}
                         className={`w-full text-left px-4 py-2 text-sm transition-colors ${chain === currentChain
-                            ? "bg-[#898cd2]/30 text-white font-medium"
-                            : "text-gray-300 hover:bg-[#898cd2]/20 hover:text-white"
+                          ? "bg-[#898cd2]/30 text-white font-medium"
+                          : "text-gray-300 hover:bg-[#898cd2]/20 hover:text-white"
                           } disabled:opacity-50 disabled:cursor-not-allowed`}
                       >
                         {getChainDisplayName(chain)}
@@ -76,7 +84,7 @@ export function Header() {
           )}
 
 
-          <button className="p-2">
+          <button className="p-2" onClick={handleLogout}>
             <LogOut className="w-6 h-6 text-white" />
           </button>
         </div>
