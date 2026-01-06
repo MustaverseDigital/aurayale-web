@@ -72,7 +72,7 @@ export function WalletInfo() {
           <div className="text-xs text-gray-400 mt-1">{totalCards} cards</div>
           
           {/* Wallet Actions if missing */}
-          <div className="flex gap-2 mt-2">
+          {/* <div className="flex gap-2 mt-2">
              {showConnectButton && !showCreateButton && (
                 <button 
                   onClick={handleConnectWallet}
@@ -89,7 +89,7 @@ export function WalletInfo() {
                   <Plus size={12} /> Create Wallet
                 </button>
              )}
-          </div>
+          </div> */}
         </div>
       </div>
       <div className="text-right">
