@@ -4,6 +4,7 @@ import LoginComponent from "../components/LoginComponent";
 import { usePrivy } from "@privy-io/react-auth";
 import { useUser } from "../context/UserContext";
 import { getUserDeck, getUserGems, loginWithFarcasterByPrivy } from "../api/auraServer";
+
 export default function LoginPage() {
   const router = useRouter();
   const { login, ready, authenticated, user: privyUser, getAccessToken } = usePrivy();
@@ -11,6 +12,15 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const hasProcessedRef = useRef(false); // 追蹤是否已經處理過登入
+
+  // 當用戶登出後（user 為 null）或未認證時，重置處理標記
+  useEffect(() => {
+    if (!user && !authenticated) {
+      hasProcessedRef.current = false;
+      setIsProcessing(false);
+      setError("");
+    }
+  }, [user, authenticated]);
 
   // Handle successful login
   useEffect(() => {
@@ -103,7 +113,7 @@ export default function LoginPage() {
 
   return (
     <LoginComponent
-      loading={!ready || authenticated || isProcessing} // Show loading if not ready, already authenticated, or processing
+      loading={!ready || isProcessing || (authenticated && !user)} // Show loading if not ready, already authenticated, or processing
       error={error}
       onLogin={handleLogin}
     />
