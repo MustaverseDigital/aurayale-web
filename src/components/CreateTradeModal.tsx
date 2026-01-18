@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
 import { X, Loader2 } from "lucide-react"
 import { ChooseCardModal } from "./ChooseCardModal"
 import { useUser } from "../context/UserContext"
@@ -7,7 +7,7 @@ import { useCreateTradeOrder } from "../hooks/useTradeOrder"
 import { useWallets, usePrivy } from "@privy-io/react-auth"
 import { soneiumMinato } from '../wagmi';
 import { useAccount, useSwitchChain } from "wagmi"
-import { getCardImagePath } from "../lib/utils"
+import { getCardImagePath, getCardUpgradeLevel } from "../lib/utils"
 
 interface Card {
   id: string
@@ -99,6 +99,23 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
     })
   })[0]
 
+  // 根據升級等級生成對應的卡片列表
+  const generateCardsByLevel = (level: number): Card[] => {
+    return Array.from({ length: 24 }, (_, i) => {
+      const baseId = i + 1
+      // 等級 0：基礎卡片 (1-24)
+      // 等級 1：第一次升級 (101-124)
+      // 等級 2：第二次升級 (201-224)
+      const cardId = level === 0 ? baseId : level * 100 + baseId
+      return {
+        id: cardId.toString(),
+        name: `Card ${baseId}`,
+        image: getCardImagePath(cardId),
+        quantity: 0,
+      }
+    })
+  }
+
   // 獲取用戶牌組和活躍訂單
   useEffect(() => {
     if (isOpen && user?.token) {
@@ -150,8 +167,23 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
   }, [isOpen, user?.token])
 
   // Determine which cards to show based on choosingFor, and filter out cards in deck or already ordered
-  const availableCards = (() => {
-    const baseCards = choosingFor === "give" ? userOwnedCards : all24Cards
+  const availableCards = useMemo(() => {
+    let baseCards: Card[]
+
+    if (choosingFor === "give") {
+      // 選擇 "you give" 時，使用用戶擁有的卡片
+      baseCards = userOwnedCards
+    } else {
+      // 選擇 "you get" 時，根據 "you give" 卡片的等級來決定顯示哪些卡片
+      if (youGiveCard) {
+        const upgradeLevel = getCardUpgradeLevel(youGiveCard.id)
+        // 根據升級等級生成對應的卡片列表
+        baseCards = generateCardsByLevel(upgradeLevel)
+      } else {
+        // 如果還沒有選擇 "you give" 卡片，顯示基礎卡片
+        baseCards = all24Cards
+      }
+    }
 
     // 過濾掉在牌組中的卡片和已被掛單的卡片
     return baseCards.filter((card) => {
@@ -166,7 +198,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
       }
       return true
     })
-  })()
+  }, [choosingFor, youGiveCard, userOwnedCards, all24Cards, deckCardIds, orderedCardIds])
 
   const handleChooseClick = (type: "give" | "get") => {
     setChoosingFor(type)

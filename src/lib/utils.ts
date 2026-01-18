@@ -31,3 +31,23 @@ export function getCardImagePath(cardId: number | string): string {
     .toString()
     .padStart(2, '0')}.png`;
 }
+
+/**
+ * 獲取卡片的升級等級
+ * - ID < 100：返回 0（基礎卡片）
+ * - ID >= 100：返回升級等級（百位數，例如 104 → 1，204 → 2）
+ *
+ * @param cardId - 卡片 ID（數字或字串）
+ * @returns 升級等級（0 = 基礎卡片，1 = 第一次升級，2 = 第二次升級）
+ */
+export function getCardUpgradeLevel(cardId: number | string): number {
+  const id = typeof cardId === 'string' ? parseInt(cardId, 10) : cardId;
+
+  // 如果 ID < 100，返回 0（基礎卡片）
+  if (id < 100) {
+    return 0;
+  }
+
+  // 如果 ID >= 100，返回升級等級（百位數）
+  return Math.floor(id / 100);
+}
