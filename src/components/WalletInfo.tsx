@@ -5,6 +5,7 @@ import { getUserGems, GemItem } from "../api/auraServer"
 import { useAccount } from "wagmi"
 import { useRouter } from "next/router"
 import { usePrivy, useWallets } from "@privy-io/react-auth"
+import { getCardImagePath } from "../lib/utils"
 
 export function WalletInfo() {
   const { user } = useUser()
@@ -96,7 +97,7 @@ export function WalletInfo() {
         <div className="w-12 h-16 bg-card rounded border-2 border-[#898cd2]/30 mb-2">
           {gems.length > 0 && (
             <img
-              src={`/img/${gems[0].id.toString().padStart(3, "0")}.png`}
+              src={getCardImagePath(gems[0].id)}
               alt="card"
               className="w-full h-full object-contain"
             />

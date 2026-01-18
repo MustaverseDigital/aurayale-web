@@ -10,6 +10,7 @@ import { useUser } from "../context/UserContext";
 import { LogOut } from "lucide-react";
 import { useViewportRequirements } from "../context/ViewportRequirementsContext";
 import { useCanvasWidth } from "../hooks/useCanvasWidth";
+import { getCardImagePath } from "../lib/utils";
 
 export default function ProfilePage() {
   const { user, setUser } = useUser();
@@ -298,7 +299,7 @@ export default function ProfilePage() {
                         return (
                           <div key={i} className="aspect-[3/4] flex items-center justify-center bg-gray-800 rounded-lg shadow ">
                             <img
-                              src={`/img/${cardId.toString().padStart(3, "0")}.png`}
+                              src={getCardImagePath(cardId)}
                               alt={`Card ${cardId}`}
                               className="w-full h-full object-contain"
                             />

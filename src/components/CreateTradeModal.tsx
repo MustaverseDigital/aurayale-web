@@ -4,9 +4,10 @@ import { ChooseCardModal } from "./ChooseCardModal"
 import { useUser } from "../context/UserContext"
 import { getUserGems, getUserDeck, getUserTradeOrders, GemItem } from "../api/auraServer"
 import { useCreateTradeOrder } from "../hooks/useTradeOrder"
-import { useAccount } from "wagmi"
 import { useWallets, usePrivy } from "@privy-io/react-auth"
 import { soneiumMinato } from '../wagmi';
+import { useAccount, useSwitchChain } from "wagmi"
+import { getCardImagePath } from "../lib/utils"
 
 interface Card {
   id: string
@@ -32,11 +33,11 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
   const [error, setError] = useState<string | null>(null)
   // No longer needed with useActiveWallet logic
   // const [pendingTransaction, setPendingTransaction] = useState<{ offeredTokenId: bigint; wantedTokenIds: bigint[] } | null>(null)
-  
+
   const { chainId: wagmiChainId, isConnected, address: connectedAddress } = useAccount()
   const { user: privyUser } = usePrivy()
   const { wallets } = useWallets()
-  
+
   // Soneium Minato chain ID
   const SONEIUM_MINATO_CHAIN_ID = 1946
 
@@ -53,7 +54,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
   if (!activeWallet) {
     activeWallet = wallets.filter(w => w.walletClientType !== 'coinbase_wallet')[0] || wallets[0];
   }
-  
+
   const walletAddress = activeWallet?.address || connectedAddress || user?.walletAddress;
   const isWalletReady = !!walletAddress;
 
@@ -92,7 +93,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
       return {
         id,
         name: `Card ${id}`,
-        image: `/img/${id.padStart(3, "0")}.png`,
+        image: getCardImagePath(i + 1),
         quantity: 0,
       }
     })
@@ -136,7 +137,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
           const cards: Card[] = gems.map((gem) => ({
             id: gem.id.toString(),
             name: gem.metadata?.name || `Card ${gem.id}`,
-            image: `/img/${gem.id.toString().padStart(3, "0")}.png`,
+            image: getCardImagePath(gem.id),
             quantity: gem.quantity,
           }))
           setUserOwnedCards(cards)
@@ -250,11 +251,11 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
 
     // Chain switching is now handled inside useCreateTradeOrder (in useTradeOrder.ts)
     // We just need to ensure we are calling it.
-    
+
     // Check chain ID just for UI feedback if needed, but the hook will try to switch
     if (currentChainId !== soneiumMinato.id) {
-        // Optional: you could show a "Switching chain..." message here or let the hook handle it
-        console.log(`Current chain (${currentChainId}) is not Soneium Minato (${soneiumMinato.id}), hook will attempt switch.`);
+      // Optional: you could show a "Switching chain..." message here or let the hook handle it
+      console.log(`Current chain (${currentChainId}) is not Soneium Minato (${soneiumMinato.id}), hook will attempt switch.`);
     }
 
     // 調用智能合約創建訂單
@@ -296,7 +297,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
                   {youGiveCard ? (
                     <div className="text-center">
                       <img
-                        src={`/img/${youGiveCard.id.padStart(3, "0")}.png`}
+                        src={youGiveCard.image}
                         alt={youGiveCard.name}
                         className="w-20 object-cover rounded mx-auto mb-2"
                       />
@@ -330,7 +331,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
                         {youGetCards.map((card, idx) => (
                           <div key={idx} className="justify-center flex">
                             <img
-                              src={`/img/${card.id.padStart(3, "0")}.png`}
+                              src={card.image}
                               alt={card.name}
                               className="w-20"
                             />

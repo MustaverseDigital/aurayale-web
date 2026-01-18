@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { X, Check } from "lucide-react"
+import { getCardImagePath } from "../lib/utils"
 
 interface Card {
   id: string
@@ -98,7 +99,7 @@ export function ChooseCardModal({ isOpen, onClose, onConfirm, availableCards, is
                   >
                     <div className="rounded-lg overflow-hidden bg-black/20">
                       <img
-                        src={`/img/${card.id.padStart(3, "0")}.png`}
+                        src={getCardImagePath(card.id)}
                         alt={card.name}
                         className="w-full object-cover"
                       />
