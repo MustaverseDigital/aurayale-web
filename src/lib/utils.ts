@@ -7,8 +7,8 @@ export function cn(...inputs: ClassValue[]) {
 
 /**
  * 根據卡片 ID 生成圖片路徑
- * - ID < 100：顯示 `/img/XXX.png`（例如：7 → `/img/007.png`）
- * - ID >= 100：顯示 `/card-img/XXX_YY.png`（例如：104 → `/card-img/004_01.png`，204 → `/card-img/004_02.png`）
+ * - ID < 100：顯示 `/img/card-img/XXX_00.png`（例如：7 → `/img/card-img/007_00.png`）
+ * - ID >= 100：顯示 `/img/card-img/XXX_YY.png`（例如：104 → `/img/card-img/004_01.png`，204 → `/img/card-img/004_02.png`）
  *
  * @param cardId - 卡片 ID（數字或字串）
  * @returns 圖片路徑
@@ -16,9 +16,9 @@ export function cn(...inputs: ClassValue[]) {
 export function getCardImagePath(cardId: number | string): string {
   const id = typeof cardId === 'string' ? parseInt(cardId, 10) : cardId;
 
-  // 如果 ID < 100，使用標準圖片路徑
+  // 如果 ID < 100，使用標準圖片路徑（格式：XXX_00.png）
   if (id < 100) {
-    return `/img/${id.toString().padStart(3, '0')}.png`;
+    return `/img/card-img/${id.toString().padStart(3, '0')}_00.png`;
   }
 
   // 如果 ID >= 100，解析升級卡片
