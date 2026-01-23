@@ -1,16 +1,14 @@
 import '../styles/globals.css';
-import '@rainbow-me/rainbowkit/styles.css';
 import type { AppProps } from 'next/app';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { WagmiProvider } from 'wagmi';
-import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import { WagmiProvider } from '@privy-io/wagmi';
+import { PrivyProvider } from '@privy-io/react-auth';
 import { UserProvider, useUser } from "../context/UserContext";
 import React from 'react';
 
-import { config } from '../wagmi';
+import { config, soneiumMinato } from '../wagmi';
 import { ViewportRequirementsProvider } from "../context/ViewportRequirementsContext";
-import PortraitRequirementOverlay from "../components/PortraitRequirementOverlay";
 
 const client = new QueryClient();
 
@@ -75,18 +73,39 @@ function CollapsibleViewer({ title, position, children }: { title: string; posit
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <UserProvider>
-      <WagmiProvider config={config}>
-        <QueryClientProvider client={client}>
-          <ViewportRequirementsProvider>
-            <RainbowKitProvider>
+    <PrivyProvider
+      appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID || ''}
+      config={{
+        loginMethods: ['email', 'wallet', 'google', 'farcaster'],
+        appearance: {
+          theme: 'dark',
+          accentColor: '#000000',
+          logo: 'https://brown-implicit-bass-794.mypinata.cloud/ipfs/bafkreibvsexzxfkiglnmt3omi5tbioz5suzxin22mtpf3arih56c6svt3a',
+          landingHeader: 'Welcome to Aurayale!',
+          loginMessage: 'Create your account or login to continue',
+          walletList: ['metamask','zerion', 'rainbow', 'wallet_connect'],
+          showWalletLoginFirst: false,
+        },
+        embeddedWallets: {
+          ethereum: {
+            createOnLogin: 'users-without-wallets'
+          }
+        },
+        defaultChain: soneiumMinato,
+        supportedChains: [soneiumMinato]
+      }}
+    >
+      <QueryClientProvider client={client}>
+        <WagmiProvider config={config}>
+          <UserProvider>
+            <ViewportRequirementsProvider>
               <Component {...pageProps} />
               <ContextStateViewer />
               {/* <PortraitRequirementOverlay /> */}
-            </RainbowKitProvider>
-          </ViewportRequirementsProvider>
-        </QueryClientProvider>
-      </WagmiProvider>
-    </UserProvider>
+            </ViewportRequirementsProvider>
+          </UserProvider>
+        </WagmiProvider>
+      </QueryClientProvider>
+    </PrivyProvider>
   );
 }

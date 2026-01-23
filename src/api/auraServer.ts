@@ -5,6 +5,8 @@ import type {
   LoginResponse,
   GoogleLoginRequest,
   GoogleLoginResponse,
+  FarcasterLoginRequest,
+  FarcasterLoginResponse,
   BindWalletRequestRequest,
   BindWalletRequestResponse,
   BindWalletConfirmRequest,
@@ -29,12 +31,13 @@ const BASE_URL = 'https://aura-server.zeabur.app/api';
 
 export async function loginWithPassword(
   username: string,
-  password: string
+  password: string,
+  chain_id?: string
 ): Promise<LoginResponse> {
   const response = await fetch(`${BASE_URL}/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password } as LoginRequest),
+    body: JSON.stringify({ username, password, chain_id } as LoginRequest),
   });
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || 'Login failed');
@@ -142,15 +145,75 @@ export async function editGemDeck(
 }
 
 export async function loginWithGoogle(
-  idToken: string
+  idToken: string,
+  chain_id?: string
 ): Promise<GoogleLoginResponse> {
   const response = await fetch(`${BASE_URL}/google-login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ idToken } as GoogleLoginRequest),
+    body: JSON.stringify({ idToken, chain_id } as GoogleLoginRequest),
   });
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || 'Google login failed');
+  return data;
+}
+
+/**
+ * 使用 Privy Access Token 進行 Farcaster 登入（推薦方式）
+ * @param privyAccessToken Privy Access Token
+ * @param chain_id 鏈 ID，選填，預設為 "soneium-testnet"
+ * @returns Farcaster 登入回應
+ */
+export async function loginWithFarcasterByPrivy(
+  privyAccessToken: string,
+  chain_id?: string
+): Promise<FarcasterLoginResponse> {
+  const requestBody: FarcasterLoginRequest = {
+    privyAccessToken,
+    chain_id: chain_id || 'soneium-testnet', // 預設為 soneium-testnet
+  };
+
+  const response = await fetch(`${BASE_URL}/farcaster-login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(requestBody),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'Farcaster login failed');
+  return data;
+}
+
+/**
+ * 使用錢包簽名進行 Farcaster 登入（向後兼容）
+ * @param walletAddress 錢包地址
+ * @param signature 簽名
+ * @param options 可選參數
+ * @returns Farcaster 登入回應
+ */
+export async function loginWithFarcaster(
+  walletAddress: string,
+  signature: string,
+  options?: {
+    message?: string;
+    farcasterId?: string;
+    chain_id?: string;
+  }
+): Promise<FarcasterLoginResponse> {
+  const requestBody: FarcasterLoginRequest = {
+    walletAddress,
+    signature,
+    message: options?.message,
+    farcasterId: options?.farcasterId,
+    chain_id: options?.chain_id || 'soneium-testnet', // 預設為 soneium-testnet
+  };
+
+  const response = await fetch(`${BASE_URL}/farcaster-login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(requestBody),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'Farcaster login failed');
   return data;
 }
 
@@ -167,6 +230,7 @@ export async function getActiveTradeOrders(
   if (options?.page) params.append('page', String(options.page));
   if (options?.limit) params.append('limit', String(options.limit));
   if (options?.tier !== undefined) params.append('tier', String(options.tier));
+  if (options?.chain_id) params.append('chain_id', options.chain_id);
 
   const url = `${BASE_URL}/orders/active?${params.toString()}`;
   const response = await fetch(url, { method: 'GET' });
@@ -229,6 +293,7 @@ export async function getUserTradeOrders(
   if (options?.status) params.append('status', options.status);
   if (options?.page) params.append('page', String(options.page));
   if (options?.limit) params.append('limit', String(options.limit));
+  if (options?.chain_id) params.append('chain_id', options.chain_id);
   const url = `${BASE_URL}/orders/user/${address}${
     params.toString() ? '?' + params.toString() : ''
   }`;

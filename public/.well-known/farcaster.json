@@ -1,0 +1,22 @@
+{
+    "accountAssociation": {
+      "header": "",
+      "payload": "",
+      "signature": ""
+    },
+    "miniapp": {
+      "version": "1",
+      "name": "Aurayale",
+      "iconUrl": "https://aurayale-web.vercel.app/img/avatar.jpg",
+      "homeUrl": "https://aurayale-web.vercel.app/login",
+      "splashImageUrl": "https://aurayale-web.vercel.app/img/logo.png",
+      "splashBackgroundColor": "#000000",
+      "subtitle": "Card Trading Game",
+      "description": "Trade cards and build your deck onchain!",
+      "primaryCategory": "games",
+      "tags": ["onchain", "games", "cards"],
+      "screenshotUrls": [
+        "https://aurayale-web.vercel.app/img/screenshot.png"
+      ]
+    }
+}

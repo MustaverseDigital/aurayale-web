@@ -1,6 +1,10 @@
 {
   "name": "aura-frontend",
   "private": true,
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "version": "0.1.0",
   "scripts": {
     "dev": "next dev",
@@ -8,6 +12,9 @@
     "start": "next start"
   },
   "dependencies": {
+    "@farcaster/miniapp-sdk": "^0.2.1",
+    "@privy-io/react-auth": "^3.9.1",
+    "@privy-io/wagmi": "^2.1.2",
     "@rainbow-me/rainbowkit": "2.1.7",
     "@tailwindcss/postcss": "^4.1.12",
     "@tanstack/react-query": "^5.85.5",
@@ -22,7 +29,7 @@
     "react-unity-webgl": "^10.1.5",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.12",
-    "viem": "^2.38.6",
+    "viem": "^2.43.3",
     "wagmi": "^2.19.2"
   },
   "devDependencies": {

@@ -1,130 +1,121 @@
-import { useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
 import LoginComponent from "../components/LoginComponent";
-import { loginWithPassword, registerWithPassword, loginWithGoogle, getUserDeck, getUserGems } from "../api/auraServer";
+import { usePrivy } from "@privy-io/react-auth";
 import { useUser } from "../context/UserContext";
-import { useAccount, useSwitchChain } from "wagmi";
+import { getUserDeck, getUserGems, loginWithFarcasterByPrivy } from "../api/auraServer";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const { login, ready, authenticated, user: privyUser, getAccessToken } = usePrivy();
+  const { setUser, user } = useUser();
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [showRegister, setShowRegister] = useState(false);
-  const { setUser } = useUser();
-  const { isConnected, chainId } = useAccount();
-  const { switchChain } = useSwitchChain();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const hasProcessedRef = useRef(false); // 追蹤是否已經處理過登入
 
-  // BSC Testnet chain ID
-  const BSC_TESTNET_CHAIN_ID = 97;
+  // 當用戶登出後（user 為 null）或未認證時，重置處理標記
+  useEffect(() => {
+    if (!user && !authenticated) {
+      hasProcessedRef.current = false;
+      setIsProcessing(false);
+      setError("");
+    }
+  }, [user, authenticated]);
 
-  // Google 登入處理函數
-  const handleGoogleLogin = async (idToken: string) => {
-    setLoading(true);
-    setError("");
-    setSuccess("");
-    try {
-      const data = await loginWithGoogle(idToken);
-      // 先寫入基本資料
-      setUser({
-        token: data.token,
-        userId: data.userId,
-        name: data.name,
-        walletAddress: data.walletAddress || "",
-      });
-      // 取得 deck 與 gems
-      const [deck, gems] = await Promise.all([
-        getUserDeck(data.token),
-        getUserGems(data.token),
-      ]);
-      // 寫入 context
-      setUser({
-        token: data.token,
-        userId: data.userId,
-        name: data.name,
-        walletAddress: data.walletAddress || "",
-        deck,
-        gems,
-      });
+  // Handle successful login
+  useEffect(() => {
+    // 如果已經處理過，或者已經有有效的 token，就不需要再處理
+    if (hasProcessedRef.current || (user?.token && user.token !== "privy-auth-token")) {
+      return;
+    }
 
-      // 如果用戶已經連接錢包，自動切換到 BSC testnet
-      if (isConnected && switchChain && chainId !== BSC_TESTNET_CHAIN_ID) {
+    if (ready && authenticated && privyUser && !isProcessing) {
+      const handleLogin = async () => {
+        setIsProcessing(true);
+        hasProcessedRef.current = true; // 標記為已處理
+        setError("");
+
         try {
-          await switchChain({ chainId: BSC_TESTNET_CHAIN_ID });
-        } catch (switchError) {
-          // 切換鏈失敗不影響登入流程，只記錄錯誤
-          console.warn("Failed to switch to BSC testnet:", switchError);
-        }
-      }
+          // 檢查是否是 Farcaster 登入
+          if (privyUser.farcaster) {
+            // Farcaster 登入流程
+            const privyToken = await getAccessToken();
 
-      setSuccess("Google 登入成功！");
-      setTimeout(() => {
-        router.push("/g8Battle");
-      }, 1500);
+            if (!privyToken) {
+              throw new Error("無法獲取 Privy access token");
+            }
+
+            // 調用後端 API 進行 Farcaster 登入
+            const response = await loginWithFarcasterByPrivy(privyToken, 'soneium-testnet');
+
+            // 獲取用戶的寶石和牌組資料
+            const [gems, deck] = await Promise.all([
+              getUserGems(response.token),
+              getUserDeck(response.token),
+            ]);
+
+            // 存入 UserContext
+            setUser({
+              token: response.token,
+              userId: response.userId,
+              chainId: response.chainId,
+              name: response.name,
+              walletAddress: response.walletAddress,
+              deck: deck,
+              gems: gems,
+              loginType: 'farcaster',
+              farcasterId: response.farcasterId,
+              farcasterUsername: response.farcasterUsername,
+              farcasterPfpUrl: response.farcasterPfpUrl,
+            });
+
+            router.push("/platform");
+          } else {
+            // 非 Farcaster 登入，保持原有邏輯
+            const walletAddress = privyUser.wallet?.address || "";
+            const name = privyUser.email?.address || (walletAddress ? `${walletAddress.slice(0, 6)}...` : "User");
+
+            setUser({
+              token: "privy-auth-token",
+              userId: 0,
+              name: name,
+              walletAddress: walletAddress,
+              deck: [],
+              gems: []
+            });
+
+            router.push("/platform");
+          }
+        } catch (e: any) {
+          console.error("Login error:", e);
+          setError(e.message || "登入失敗");
+          hasProcessedRef.current = false; // 發生錯誤時重置，允許重試
+        } finally {
+          setIsProcessing(false);
+        }
+      };
+
+      handleLogin();
+    }
+  }, [ready, authenticated, privyUser, router, setUser, getAccessToken, user?.token]); // 移除 isProcessing，加入 user?.token
+
+  const handleLogin = () => {
+    setError("");
+    hasProcessedRef.current = false; // 重置處理標記，允許重新登入
+    // Use Privy's general login modal which allows email/wallet
+    try {
+      login();
     } catch (e: any) {
-      setError(e.message || "Google 登入失敗");
-    } finally {
-      setLoading(false);
+      console.error(e);
+      setError(e.message || "Login failed");
     }
   };
 
   return (
     <LoginComponent
-      username={username}
-      password={password}
-      loading={loading}
+      loading={!ready || isProcessing || (authenticated && !user)} // Show loading if not ready, already authenticated, or processing
       error={error}
-      success={success}
-      showRegister={showRegister}
-      onLogin={async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setLoading(true);
-        setError("");
-        setSuccess("");
-        try {
-          if (showRegister) {
-            await registerWithPassword(username, password);
-            setSuccess("註冊成功，請登入");
-            setShowRegister(false);
-          } else {
-            const data = await loginWithPassword(username, password);
-            // 先寫入基本資料
-            setUser({
-              token: data.token,
-              userId: data.userId,
-              walletAddress: data.walletAddress || "",
-            });
-            // 取得 deck 與 gems
-            const [deck, gems] = await Promise.all([
-              getUserDeck(data.token),
-              getUserGems(data.token),
-            ]);
-            // 寫入 context
-            setUser({
-              token: data.token,
-              userId: data.userId,
-              walletAddress: data.walletAddress || "",
-              deck,
-              gems,
-            });
-            router.push("/g8Battle");
-          }
-        } catch (e: any) {
-          setError(e.message);
-        } finally {
-          setLoading(false);
-        }
-      }}
-      onGoogleLogin={handleGoogleLogin}
-      onToggleRegister={() => {
-        setShowRegister((v: boolean) => !v);
-        setError("");
-        setSuccess("");
-      }}
-      onUsernameChange={(e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}
-      onPasswordChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+      onLogin={handleLogin}
     />
   );
-} 
+}

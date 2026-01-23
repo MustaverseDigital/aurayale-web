@@ -1,11 +1,22 @@
 interface TabNavigationProps {
-  activeTab: "market" | "history"
-  setActiveTab: (tab: "market" | "history") => void
+  activeTab: "games" | "market" | "history"
+  setActiveTab: (tab: "games" | "market" | "history") => void
 }
 
 export function TabNavigation({ activeTab, setActiveTab }: TabNavigationProps) {
   return (
     <div className="flex border-b border-[#FFFFFF]/30 mt-6">
+      <button
+        onClick={() => setActiveTab("games")}
+        className={`flex-1 py-3 text-center font-semibold transition-colors ${
+          activeTab === "games" 
+            ? "text-[#FFC800] border-b-2 border-[#FFC800]" 
+            : "text-gray-400"
+        }`}
+        data-bs-toggle="tab" data-bs-target="#tab-games"
+      >
+        Games
+      </button>
       <button
         onClick={() => setActiveTab("market")}
         className={`flex-1 py-3 text-center font-semibold transition-colors ${
@@ -13,6 +24,7 @@ export function TabNavigation({ activeTab, setActiveTab }: TabNavigationProps) {
             ? "text-[#FFC800] border-b-2 border-[#FFC800]" 
             : "text-gray-400"
         }`}
+        data-bs-toggle="tab" data-bs-target="#tab-market"
       >
         Market
       </button>
@@ -23,6 +35,7 @@ export function TabNavigation({ activeTab, setActiveTab }: TabNavigationProps) {
             ? "text-[#FFC800] border-b-2 border-[#FFC800]" 
             : "text-gray-400"
         }`}
+        data-bs-toggle="tab" data-bs-target="#tab-market"
       >
         History
       </button>

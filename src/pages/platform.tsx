@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/router"
 import { useAccount } from "wagmi"
+import { usePrivy, useWallets } from "@privy-io/react-auth"
 import { useUser } from "../context/UserContext"
 import { useViewportRequirements } from "../context/ViewportRequirementsContext"
 import { useCanvasWidth } from "../hooks/useCanvasWidth"
@@ -21,16 +22,23 @@ import { CreateTradeModal } from "../components/CreateTradeModal"
 import { DetailTradeModal } from "../components/DetailTradeModal"
 
 export default function PlatformPage() {
-  const { user } = useUser()
+  const { user, setUser } = useUser()
   const { address: connectedAddress } = useAccount()
+  const { user: privyUser, ready, authenticated } = usePrivy()
+  const { wallets } = useWallets()
   const router = useRouter()
   const { viewportHeight, safeAreaInsetBottom } = useViewportRequirements()
   const canvasWidth = useCanvasWidth(viewportHeight)
 
-  // 優先使用當前連接的錢包地址，如果沒有則使用綁定的錢包地址
-  const walletAddress = connectedAddress || user?.walletAddress || null
+  const [farcasterUser, setFarcasterUser] = useState<{
+    username?: string;
+    fid?: number;
+  } | null>(null);
 
-  const [activeTab, setActiveTab] = useState<"market" | "history">("market")
+  // 優先使用當前連接的錢包地址，如果沒有則使用綁定的錢包地址
+  const walletAddress = connectedAddress || wallets[0]?.address || user?.walletAddress || null
+
+  const [activeTab, setActiveTab] = useState<"games" | "market" | "history">("games")
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
   const [selectedTrade, setSelectedTrade] = useState<any>(null)
@@ -125,13 +133,14 @@ export default function PlatformPage() {
       let orders: TradeOrder[] = []
 
       if (activeTab === "market") {
-        const response = await getActiveTradeOrders({ page: 1, limit: 50 })
+        const response = await getActiveTradeOrders({ page: 1, limit: 50, chain_id: user?.chainId })
         orders = response.orders
       } else if (activeTab === "history" && walletAddress) {
         const response = await getUserTradeOrders(walletAddress, {
           status: "all",
           page: 1,
-          limit: 50
+          limit: 50,
+          chain_id: user?.chainId
         })
         orders = response.orders
       }
@@ -181,17 +190,36 @@ export default function PlatformPage() {
     fetchTrades() // 刷新訂單列表
   }
 
+  // 如果用戶通過 Privy 登入但沒有有效的 AuraServer token，重定向到登入頁面
+  // Farcaster 登入會在 login.tsx 中處理
+  useEffect(() => {
+    if (ready && authenticated && privyUser && !user?.token) {
+      // 如果有 Farcaster 登入但沒有 token，重定向到登入頁面處理
+      if (privyUser.farcaster) {
+        router.push("/login");
+        return;
+      }
+      // 對於非 Farcaster 登入，也重定向到登入頁面
+      // 因為我們需要有效的 AuraServer token
+      router.push("/login");
+    }
+  }, [ready, authenticated, privyUser, user, router]);
+
   // Redirect to login if not authenticated
   useEffect(() => {
-    // Wait for router to be ready before checking authentication
-    if (!router.isReady) return
+    // Wait for router to be ready and Privy to be ready before checking authentication
+    if (!router.isReady || !ready) return
 
-    if (!user?.token) {
+    if (!authenticated && !user?.token) {
       router.push("/login")
     }
-  }, [user, router, router.isReady])
+  }, [authenticated, user, router, router.isReady, ready])
 
-  if (!user?.token) {
+  const handleEditClick = () => {
+    router.push("/deck")
+  }
+
+  if (!ready || (!authenticated && !user?.token)) {
     return null
   }
 
@@ -227,73 +255,100 @@ export default function PlatformPage() {
 
             {/* Tab Navigation */}
             <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
+            {/* Games Tab Content - 只在 activeTab === "games" 時顯示 */}
+            {activeTab === "games" && (
+              <div className="mt-4 space-y-3 pb-4 tab-content" id="tab-games">
+                <div className="mb-4 space-y-3 bg-cover relative">
+                  <img className="rounded-[20px] shadow-lg" src="/img/banner_Aurayale.jpg" alt="" />
+                  <div className="bg-[#ffc100] absolute top-[0px] left-[0px] text-sm p-1 rounded-tl-[20px] rounded-br-[20px] min-w-[80px] text-center">HOT</div>
+                  <button
+                    className="bg-[#713DE9] text-white px-3 py-1 rounded text-sm font-semibold hover:opacity-70 transition absolute bottom-[0px] right-[0px] -translate-1/2 "
+                    onClick={handleEditClick}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="btn btn-battle text-shadow-lg rounded-xl px-8 py-2 text-xl disabled:opacity-50 disabled:cursor-not-allowed transition bg-opacity-90 hover:bg-opacity-100 inline-flex items-center justify-center h-10 w-28 whitespace-nowrap absolute -translate-1/2 bottom-[0px] left-[50%] "
+                    onClick={() => {
+                      localStorage.setItem("battleDeck", JSON.stringify(deck));
+                      router.push("/battle");
+                    }}
+                  >
+                    Battle
+                  </button>
 
-            {/* Trade Filters */}
-            <TradeFilters
-              onAddClick={() => setIsCreateModalOpen(true)}
-              searchTerm={searchTerm}
-              onSearchChange={setSearchTerm}
-            />
+                </div>
+              </div>
+            )}
+            {/* Market/History Tab Content - 只在 activeTab !== "games" 時顯示 */}
+            {(activeTab === "market" || activeTab === "history") && (
+              <div className="tab-content" id="tab-market">
+                {/* Trade Filters */}
+                <TradeFilters
+                  onAddClick={() => setIsCreateModalOpen(true)}
+                  searchTerm={searchTerm}
+                  onSearchChange={setSearchTerm}
+                />
+                {/* Trade Cards List */}
+                <div className="flex-1 overflow-y-auto mt-4 space-y-3 pb-4">
+                  {tradesLoading ? (
+                    <div className="flex justify-center items-center py-8">
+                      <div className="text-gray-400">Loading trades...</div>
+                    </div>
+                  ) : tradesError ? (
+                    <div className="flex justify-center items-center py-8">
+                      <div className="text-red-400 text-sm">{tradesError}</div>
+                    </div>
+                  ) : trades.length === 0 ? (
+                    <div className="flex justify-center items-center py-8">
+                      <div className="text-gray-400">No trades available</div>
+                    </div>
+                  ) : (
+                    trades
+                      .filter((trade) => {
+                        if (!searchTerm) return true
+                        const searchLower = searchTerm.toLowerCase()
+                        return (
+                          trade.address.toLowerCase().includes(searchLower)
+                        )
+                      })
+                      .map((trade, index) => {
+                        // 在 history tab 中，只有 tradable 狀態的訂單才能點擊
+                        const isClickable = activeTab === "market" || (activeTab === "history" && trade.status === "tradable")
 
-            {/* Trade Cards List */}
-            <div className="flex-1 overflow-y-auto mt-4 space-y-3 pb-4">
-              {tradesLoading ? (
-                <div className="flex justify-center items-center py-8">
-                  <div className="text-gray-400">Loading trades...</div>
+                        return (
+                          <TradeCard
+                            key={trade.orderId || index}
+                            status={trade.status}
+                            youGet={trade.youGet}
+                            youGive={trade.youGive}
+                            tradeId={trade.tradeId}
+                            address={trade.address}
+                            serviceFee={trade.serviceFee}
+                            onClick={isClickable ? () => handleTradeCardClick(trade) : undefined}
+                          />
+                        )
+                      })
+                  )}
                 </div>
-              ) : tradesError ? (
-                <div className="flex justify-center items-center py-8">
-                  <div className="text-red-400 text-sm">{tradesError}</div>
-                </div>
-              ) : trades.length === 0 ? (
-                <div className="flex justify-center items-center py-8">
-                  <div className="text-gray-400">No trades available</div>
-                </div>
-              ) : (
-                trades
-                  .filter((trade) => {
-                    if (!searchTerm) return true
-                    const searchLower = searchTerm.toLowerCase()
-                    return (
-                      trade.address.toLowerCase().includes(searchLower)
-                    )
-                  })
-                  .map((trade, index) => {
-                    // 在 history tab 中，只有 tradable 狀態的訂單才能點擊
-                    const isClickable = activeTab === "market" || (activeTab === "history" && trade.status === "tradable")
-
-                    return (
-                      <TradeCard
-                        key={trade.orderId || index}
-                        status={trade.status}
-                        youGet={trade.youGet}
-                        youGive={trade.youGive}
-                        tradeId={trade.tradeId}
-                        address={trade.address}
-                        serviceFee={trade.serviceFee}
-                        onClick={isClickable ? () => handleTradeCardClick(trade) : undefined}
-                      />
-                    )
-                  })
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
-      </div>
 
-      {/* Modals */}
-      <CreateTradeModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onSuccess={handleCreateSuccess}
-      />
-      <DetailTradeModal
-        isOpen={isDetailModalOpen}
-        onClose={() => setIsDetailModalOpen(false)}
-        tradeData={selectedTrade}
-        onSuccess={handleAcceptSuccess}
-      />
+        {/* Modals */}
+        <CreateTradeModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onSuccess={handleCreateSuccess}
+        />
+        <DetailTradeModal
+          isOpen={isDetailModalOpen}
+          onClose={() => setIsDetailModalOpen(false)}
+          tradeData={selectedTrade}
+          onSuccess={handleAcceptSuccess}
+        />
+      </div>
     </div>
   )
 }
-

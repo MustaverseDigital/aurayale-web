@@ -6,6 +6,11 @@
 // ==================== 共用類型 ====================
 
 /**
+ * 支援的鏈類型
+ */
+export type SupportedChain = 'bsc-testnet' | 'soneium-testnet' | string;
+
+/**
  * 寶石項目
  */
 export interface GemItem {
@@ -49,6 +54,7 @@ export interface RegisterResponse {
 export interface LoginRequest {
   username: string;
   password: string;
+  chain_id?: string; // 選填，預設為 "bsc-testnet"
 }
 
 /**
@@ -57,6 +63,7 @@ export interface LoginRequest {
 export interface LoginResponse {
   token: string;
   userId: number;
+  chainId: string;
   walletAddress: string | null;
   gems: Record<string, unknown>;
 }
@@ -66,6 +73,7 @@ export interface LoginResponse {
  */
 export interface GoogleLoginRequest {
   idToken: string;
+  chain_id?: string; // 選填，預設為 "bsc-testnet"
 }
 
 /**
@@ -74,9 +82,43 @@ export interface GoogleLoginRequest {
 export interface GoogleLoginResponse {
   token: string;
   userId: number;
+  chainId: string;
   walletAddress: string | null;
   gems: Record<string, unknown>;
   email: string;
+  name: string;
+}
+
+/**
+ * Farcaster 登入請求
+ * 支援兩種登入方式：
+ * 1. 使用 Privy Access Token（推薦，無需簽名）
+ * 2. 使用錢包簽名（向後兼容）
+ */
+export interface FarcasterLoginRequest {
+  // 方式 1: Privy Token（推薦）
+  privyAccessToken?: string;
+  chain_id?: string; // 選填，預設為 "bsc-testnet"
+
+  // 方式 2: 錢包簽名（向後兼容）
+  walletAddress?: string;
+  signature?: string;
+  message?: string; // 選填，預設會自動生成
+  farcasterId?: string; // 選填，Farcaster ID (fid)
+}
+
+/**
+ * Farcaster 登入回應
+ */
+export interface FarcasterLoginResponse {
+  token: string;
+  userId: number;
+  chainId: 'bsc-testnet' | 'soneium-testnet' | string;
+  walletAddress: string;
+  gems: Record<string, unknown>;
+  farcasterId?: string;
+  farcasterUsername?: string;
+  farcasterPfpUrl?: string;
   name: string;
 }
 
@@ -130,7 +172,7 @@ export interface UserProfile {
   name: string;
   walletAddress: string | null;
   hasGoogleAccount: boolean;
-  loginType: 'google' | 'password';
+  loginType: 'google' | 'password' | 'farcaster';
 }
 
 /**
@@ -175,6 +217,23 @@ export interface UpdateGemDeckResponse {
   deck: number[];
 }
 
+/**
+ * 用戶資訊（基於 API 登入回應構建）
+ */
+export interface UserInfo {
+  token: string;
+  userId: number;
+  chainId?: SupportedChain | string; // 當前登入的鏈 ID
+  name?: string;
+  walletAddress?: string;
+  deck?: number[];
+  gems?: GemItem[];
+  loginType?: 'google' | 'password' | 'farcaster'; // 登入類型
+  farcasterId?: string; // Farcaster ID（如果是 Farcaster 登入）
+  farcasterUsername?: string; // Farcaster 用戶名
+  farcasterPfpUrl?: string; // Farcaster 頭像 URL
+}
+
 // ==================== 交易訂單相關類型 ====================
 
 /**
@@ -211,6 +270,7 @@ export interface ActiveOrdersQueryParams {
   page?: number;
   limit?: number;
   tier?: number;
+  chain_id?: 'bsc-testnet' | 'soneium-testnet' | string; // 選填，指定鏈 ID
 }
 
 /**
@@ -235,6 +295,7 @@ export interface UserOrdersQueryParams {
   status?: 'active' | 'completed' | 'all';
   page?: number;
   limit?: number;
+  chain_id?: string; // 選填，指定鏈 ID
 }
 
 /**
@@ -296,4 +357,3 @@ export interface HealthCheckResponse {
   timestamp: string;
   error?: string;
 }
-
