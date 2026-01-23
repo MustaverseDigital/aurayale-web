@@ -297,7 +297,7 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
             {/* Error Message */}
             {error && (
               <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3 text-sm text-red-300 mx-6">
-                {error}
+                transaction failed
               </div>
             )}
 
