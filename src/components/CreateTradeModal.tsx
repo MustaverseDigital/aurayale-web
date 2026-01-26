@@ -166,7 +166,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
     }
   }, [isOpen, user?.token])
 
-  // Determine which cards to show based on choosingFor, and filter out cards in deck or already ordered
+  // Determine which cards to show based on choosingFor, and filter out already ordered cards (for "give") or the selected "give" card (for "get")
   const availableCards = useMemo(() => {
     let baseCards: Card[]
 
@@ -186,20 +186,20 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
       }
     }
 
-    // 過濾掉在牌組中的卡片和已被掛單的卡片
+    // 過濾掉已被掛單的卡片（僅對 "you give" 適用）和 "you give" 中已選擇的卡片（僅對 "you get" 適用）
     return baseCards.filter((card) => {
       const cardId = parseInt(card.id, 10)
-      // 排除在牌組中的卡片
-      if (deckCardIds.has(cardId)) {
-        return false
-      }
       // 排除已被掛單的卡片（僅對 "you give" 適用）
       if (choosingFor === "give" && orderedCardIds.has(cardId)) {
         return false
       }
+      // 排除 "you give" 中已選擇的卡片（僅對 "you get" 適用）
+      if (choosingFor === "get" && youGiveCard && parseInt(youGiveCard.id, 10) === cardId) {
+        return false
+      }
       return true
     })
-  }, [choosingFor, youGiveCard, userOwnedCards, all24Cards, deckCardIds, orderedCardIds])
+  }, [choosingFor, youGiveCard, userOwnedCards, all24Cards, orderedCardIds])
 
   const handleChooseClick = (type: "give" | "get") => {
     // 防呆機制：選擇 "get" 時必須先選擇 "give"
