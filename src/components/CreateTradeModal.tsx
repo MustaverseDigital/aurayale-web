@@ -175,13 +175,14 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
       baseCards = userOwnedCards
     } else {
       // 選擇 "you get" 時，根據 "you give" 卡片的等級來決定顯示哪些卡片
+      // 防呆機制：必須先選擇 "you give" 才能選擇 "you get"
       if (youGiveCard) {
         const upgradeLevel = getCardUpgradeLevel(youGiveCard.id)
         // 根據升級等級生成對應的卡片列表
         baseCards = generateCardsByLevel(upgradeLevel)
       } else {
-        // 如果還沒有選擇 "you give" 卡片，顯示基礎卡片
-        baseCards = all24Cards
+        // 如果還沒有選擇 "you give" 卡片，返回空陣列
+        baseCards = []
       }
     }
 
@@ -201,6 +202,11 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
   }, [choosingFor, youGiveCard, userOwnedCards, all24Cards, deckCardIds, orderedCardIds])
 
   const handleChooseClick = (type: "give" | "get") => {
+    // 防呆機制：選擇 "get" 時必須先選擇 "give"
+    if (type === "get" && !youGiveCard) {
+      setError("Please select a card to give first")
+      return
+    }
     setChoosingFor(type)
     setIsChooseModalOpen(true)
   }
@@ -372,7 +378,9 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
                       </div>
                       <button
                         onClick={() => handleChooseClick("get")}
-                        className="bg-[#877B8A] text-white px-4 py-2 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity"
+                        disabled={!youGiveCard}
+                        className="bg-[#877B8A] text-white px-4 py-2 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                        title={!youGiveCard ? "Please select a card to give first" : ""}
                       >
                         Choose
                       </button>
@@ -380,7 +388,9 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
                   ) : (
                     <button
                       onClick={() => handleChooseClick("get")}
-                      className="bg-[#877B8A] text-white px-4 py-2 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity"
+                      disabled={!youGiveCard}
+                      className="bg-[#877B8A] text-white px-4 py-2 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                      title={!youGiveCard ? "Please select a card to give first" : ""}
                     >
                       Choose
                     </button>
