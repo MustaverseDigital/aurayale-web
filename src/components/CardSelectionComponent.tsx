@@ -1,6 +1,7 @@
 import React from "react";
 import { Check } from "lucide-react";
 import { GemItem } from "../api/auraServer";
+import { getCardImagePath } from "../lib/utils";
 
 interface CardSelectionComponentProps {
   gems: GemItem[];
@@ -69,7 +70,7 @@ const CardSelectionComponent: React.FC<CardSelectionComponentProps> = ({
             >
               <div className={`p-2 flex flex-col space-y-1.5 relative overflow-hidden ${isSelected ? "scale-95" : ""}`}>
                 <img
-                  src={`/img/${gem.id.toString().padStart(3, "0")}.png`}
+                  src={getCardImagePath(gem.id)}
                   alt={gem.metadata?.name || `Card ${gem.id}`}
                   className={`aspect-[3/4] bg-card bg-card-1 rounded mb-2 object-contain w-full ${isSelected ? "scale-95" : ""}`}
                 />

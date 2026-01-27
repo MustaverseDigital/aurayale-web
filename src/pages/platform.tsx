@@ -20,6 +20,7 @@ import { TradeFilters } from "../components/TradeFilters"
 import { TradeCard } from "../components/TradeCard"
 import { CreateTradeModal } from "../components/CreateTradeModal"
 import { DetailTradeModal } from "../components/DetailTradeModal"
+import { getCardImagePath } from "../lib/utils"
 
 export default function PlatformPage() {
   const { user, setUser } = useUser()
@@ -87,8 +88,8 @@ export default function PlatformPage() {
     // 將 tokenId 轉換為 gem metadata 的輔助函數
     const getGemMetadata = (tokenId: number): { name: string; image: string } => {
       const gem = gems.find((g) => g.id === tokenId)
-      // 統一使用 public 資料夾中的圖片
-      const imagePath = `/img/${tokenId.toString().padStart(3, "0")}.png`
+      // 使用 getCardImagePath 來處理升級卡片
+      const imagePath = getCardImagePath(tokenId)
 
       if (gem && gem.metadata) {
         return {

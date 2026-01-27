@@ -1,5 +1,6 @@
 import React from "react";
 import { GemItem } from "../api/auraServer";
+import { getCardImagePath } from "../lib/utils";
 
 interface DeckComponentProps {
   currentDeck: number[];
@@ -42,7 +43,7 @@ const DeckComponent: React.FC<DeckComponentProps> = ({
                   title={useSelected ? "Click to remove" : ""}
                 >
                   <img
-                    src={`/img/${card.id.toString().padStart(3, "0")}.png`}
+                    src={getCardImagePath(card.id)}
                     alt={card.metadata.name}
                     className="w-full aspect-[3/4] object-contain rounded mb-1"
                   />

@@ -4,9 +4,10 @@ import { ChooseCardModal } from "./ChooseCardModal"
 import { useUser } from "../context/UserContext"
 import { getUserGems, GemItem } from "../api/auraServer"
 import { useAcceptTradeOrder } from "../hooks/useTradeOrder"
-import { useAccount } from "wagmi"
 import { useWallets, usePrivy } from "@privy-io/react-auth"
 import { soneiumMinato } from '../wagmi';
+import { useAccount, useSwitchChain } from "wagmi"
+import { getCardImagePath } from "../lib/utils"
 
 interface Card {
   id: string
@@ -44,11 +45,11 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
   const [isChooseCardOpen, setIsChooseCardOpen] = useState(false)
   const [walletCards, setWalletCards] = useState<any[]>([])
   const [error, setError] = useState<string | null>(null)
-  
+
   const { chainId: wagmiChainId, isConnected, address: connectedAddress } = useAccount()
   const { user: privyUser } = usePrivy()
   const { wallets } = useWallets()
-  
+
   // Soneium Minato chain ID
   const SONEIUM_MINATO_CHAIN_ID = 1946
 
@@ -65,7 +66,7 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
   if (!activeWallet) {
     activeWallet = wallets.filter(w => w.walletClientType !== 'coinbase_wallet')[0] || wallets[0];
   }
-  
+
   const walletAddress = activeWallet?.address || connectedAddress || user?.walletAddress;
   const isWalletReady = !!walletAddress;
 
@@ -104,7 +105,7 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
           const cards = gems.map((gem) => ({
             id: gem.id.toString(),
             name: gem.metadata?.name || `Card ${gem.id}`,
-            image: `/img/${gem.id.toString().padStart(3, "0")}.png`,
+            image: getCardImagePath(gem.id),
             quantity: gem.quantity,
             owned: gem.quantity > 0,
           }))
@@ -203,7 +204,7 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
 
     // 檢查並切換到 Soneium Minato
     if (currentChainId !== soneiumMinato.id) {
-        console.log(`Current chain (${currentChainId}) is not Soneium Minato (${soneiumMinato.id}), hook will attempt switch.`);
+      console.log(`Current chain (${currentChainId}) is not Soneium Minato (${soneiumMinato.id}), hook will attempt switch.`);
     }
 
     // 調用智能合約接受訂單
@@ -296,7 +297,7 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
             {/* Error Message */}
             {error && (
               <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3 text-sm text-red-300 mx-6">
-                {error}
+                transaction failed
               </div>
             )}
 

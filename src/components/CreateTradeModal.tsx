@@ -1,12 +1,13 @@
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
 import { X, Loader2 } from "lucide-react"
 import { ChooseCardModal } from "./ChooseCardModal"
 import { useUser } from "../context/UserContext"
 import { getUserGems, getUserDeck, getUserTradeOrders, GemItem } from "../api/auraServer"
 import { useCreateTradeOrder } from "../hooks/useTradeOrder"
-import { useAccount } from "wagmi"
 import { useWallets, usePrivy } from "@privy-io/react-auth"
 import { soneiumMinato } from '../wagmi';
+import { useAccount, useSwitchChain } from "wagmi"
+import { getCardImagePath, getCardUpgradeLevel } from "../lib/utils"
 
 interface Card {
   id: string
@@ -32,11 +33,11 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
   const [error, setError] = useState<string | null>(null)
   // No longer needed with useActiveWallet logic
   // const [pendingTransaction, setPendingTransaction] = useState<{ offeredTokenId: bigint; wantedTokenIds: bigint[] } | null>(null)
-  
+
   const { chainId: wagmiChainId, isConnected, address: connectedAddress } = useAccount()
   const { user: privyUser } = usePrivy()
   const { wallets } = useWallets()
-  
+
   // Soneium Minato chain ID
   const SONEIUM_MINATO_CHAIN_ID = 1946
 
@@ -53,7 +54,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
   if (!activeWallet) {
     activeWallet = wallets.filter(w => w.walletClientType !== 'coinbase_wallet')[0] || wallets[0];
   }
-  
+
   const walletAddress = activeWallet?.address || connectedAddress || user?.walletAddress;
   const isWalletReady = !!walletAddress;
 
@@ -92,11 +93,28 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
       return {
         id,
         name: `Card ${id}`,
-        image: `/img/${id.padStart(3, "0")}.png`,
+        image: getCardImagePath(i + 1),
         quantity: 0,
       }
     })
   })[0]
+
+  // 根據升級等級生成對應的卡片列表
+  const generateCardsByLevel = (level: number): Card[] => {
+    return Array.from({ length: 24 }, (_, i) => {
+      const baseId = i + 1
+      // 等級 0：基礎卡片 (1-24)
+      // 等級 1：第一次升級 (101-124)
+      // 等級 2：第二次升級 (201-224)
+      const cardId = level === 0 ? baseId : level * 100 + baseId
+      return {
+        id: cardId.toString(),
+        name: `Card ${baseId}`,
+        image: getCardImagePath(cardId),
+        quantity: 0,
+      }
+    })
+  }
 
   // 獲取用戶牌組和活躍訂單
   useEffect(() => {
@@ -136,7 +154,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
           const cards: Card[] = gems.map((gem) => ({
             id: gem.id.toString(),
             name: gem.metadata?.name || `Card ${gem.id}`,
-            image: `/img/${gem.id.toString().padStart(3, "0")}.png`,
+            image: getCardImagePath(gem.id),
             quantity: gem.quantity,
           }))
           setUserOwnedCards(cards)
@@ -148,26 +166,47 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
     }
   }, [isOpen, user?.token])
 
-  // Determine which cards to show based on choosingFor, and filter out cards in deck or already ordered
-  const availableCards = (() => {
-    const baseCards = choosingFor === "give" ? userOwnedCards : all24Cards
+  // Determine which cards to show based on choosingFor, and filter out already ordered cards (for "give") or the selected "give" card (for "get")
+  const availableCards = useMemo(() => {
+    let baseCards: Card[]
 
-    // 過濾掉在牌組中的卡片和已被掛單的卡片
+    if (choosingFor === "give") {
+      // 選擇 "you give" 時，使用用戶擁有的卡片
+      baseCards = userOwnedCards
+    } else {
+      // 選擇 "you get" 時，根據 "you give" 卡片的等級來決定顯示哪些卡片
+      // 防呆機制：必須先選擇 "you give" 才能選擇 "you get"
+      if (youGiveCard) {
+        const upgradeLevel = getCardUpgradeLevel(youGiveCard.id)
+        // 根據升級等級生成對應的卡片列表
+        baseCards = generateCardsByLevel(upgradeLevel)
+      } else {
+        // 如果還沒有選擇 "you give" 卡片，返回空陣列
+        baseCards = []
+      }
+    }
+
+    // 過濾掉已被掛單的卡片（僅對 "you give" 適用）和 "you give" 中已選擇的卡片（僅對 "you get" 適用）
     return baseCards.filter((card) => {
       const cardId = parseInt(card.id, 10)
-      // 排除在牌組中的卡片
-      if (deckCardIds.has(cardId)) {
-        return false
-      }
       // 排除已被掛單的卡片（僅對 "you give" 適用）
       if (choosingFor === "give" && orderedCardIds.has(cardId)) {
         return false
       }
+      // 排除 "you give" 中已選擇的卡片（僅對 "you get" 適用）
+      if (choosingFor === "get" && youGiveCard && parseInt(youGiveCard.id, 10) === cardId) {
+        return false
+      }
       return true
     })
-  })()
+  }, [choosingFor, youGiveCard, userOwnedCards, all24Cards, orderedCardIds])
 
   const handleChooseClick = (type: "give" | "get") => {
+    // 防呆機制：選擇 "get" 時必須先選擇 "give"
+    if (type === "get" && !youGiveCard) {
+      setError("Please select a card to give first")
+      return
+    }
     setChoosingFor(type)
     setIsChooseModalOpen(true)
   }
@@ -250,11 +289,11 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
 
     // Chain switching is now handled inside useCreateTradeOrder (in useTradeOrder.ts)
     // We just need to ensure we are calling it.
-    
+
     // Check chain ID just for UI feedback if needed, but the hook will try to switch
     if (currentChainId !== soneiumMinato.id) {
-        // Optional: you could show a "Switching chain..." message here or let the hook handle it
-        console.log(`Current chain (${currentChainId}) is not Soneium Minato (${soneiumMinato.id}), hook will attempt switch.`);
+      // Optional: you could show a "Switching chain..." message here or let the hook handle it
+      console.log(`Current chain (${currentChainId}) is not Soneium Minato (${soneiumMinato.id}), hook will attempt switch.`);
     }
 
     // 調用智能合約創建訂單
@@ -296,7 +335,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
                   {youGiveCard ? (
                     <div className="text-center">
                       <img
-                        src={`/img/${youGiveCard.id.padStart(3, "0")}.png`}
+                        src={youGiveCard.image}
                         alt={youGiveCard.name}
                         className="w-20 object-cover rounded mx-auto mb-2"
                       />
@@ -330,7 +369,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
                         {youGetCards.map((card, idx) => (
                           <div key={idx} className="justify-center flex">
                             <img
-                              src={`/img/${card.id.padStart(3, "0")}.png`}
+                              src={card.image}
                               alt={card.name}
                               className="w-20"
                             />
@@ -339,7 +378,9 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
                       </div>
                       <button
                         onClick={() => handleChooseClick("get")}
-                        className="bg-[#877B8A] text-white px-4 py-2 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity"
+                        disabled={!youGiveCard}
+                        className="bg-[#877B8A] text-white px-4 py-2 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                        title={!youGiveCard ? "Please select a card to give first" : ""}
                       >
                         Choose
                       </button>
@@ -347,7 +388,9 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
                   ) : (
                     <button
                       onClick={() => handleChooseClick("get")}
-                      className="bg-[#877B8A] text-white px-4 py-2 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity"
+                      disabled={!youGiveCard}
+                      className="bg-[#877B8A] text-white px-4 py-2 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                      title={!youGiveCard ? "Please select a card to give first" : ""}
                     >
                       Choose
                     </button>
