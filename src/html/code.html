@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aurayale | Mustaverse Studio</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#a78bfa", // More purple/indigo tone for Aurayale
+                        secondary: "#6366f1",
+                        "background-dark": "#050507",
+                        "background-indigo": "#0f0c29",
+                        gold: "#d4af37"
+                    },
+                    fontFamily: {
+                        display: ["Space Grotesk", "sans-serif"],
+                        body: ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.5rem",
+                        lg: "1rem",
+                        xl: "1.5rem",
+                        "2xl": "2rem",
+                        "3xl": "3rem",
+                    }
+                }
+            }
+        };
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply bg-background-dark text-slate-300;
+                background-image: 
+                    radial-gradient(circle at 15% 50%, rgba(76, 29, 149, 0.15) 0%, transparent 50%),
+                    radial-gradient(circle at 85% 30%, rgba(49, 46, 129, 0.15) 0%, transparent 50%);
+            }
+        }
+        .glass-panel {
+            @apply backdrop-blur-xl bg-white/[0.03] border border-white/[0.08] shadow-[0_8px_32px_0_rgba(0,0,0,0.37)];
+        }
+        .glass-card {
+            @apply backdrop-blur-md bg-gradient-to-br from-white/[0.05] to-white/[0.01] border border-white/[0.05] hover:border-white/[0.15] hover:bg-white/[0.07] transition-all duration-500 shadow-xl;
+        }
+        .glass-card-deep {
+            @apply backdrop-blur-2xl bg-[#0f0c29]/60 border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.5)];
+        }
+        .text-gradient-gold {
+            @apply bg-clip-text text-transparent bg-gradient-to-r from-[#bf953f] via-[#fcf6ba] to-[#b38728];
+        }
+        .text-gradient-main {
+             @apply bg-clip-text text-transparent bg-gradient-to-br from-white via-indigo-100 to-indigo-400;
+        }::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0a0c; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555; 
+        }
+    </style>
+</head>
+<body class="font-body antialiased min-h-screen flex flex-col selection:bg-primary/30 selection:text-white">
+<header class="sticky top-0 z-50 w-full glass-panel border-b border-white/5 h-20 flex items-center">
+<div class="w-full max-w-[1400px] mx-auto px-6 md:px-8">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-12">
+<a class="flex items-center gap-3 group" href="#">
+<div class="size-8 text-primary group-hover:text-white transition-colors">
+<svg class="w-full h-full" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M24 4L6 14V34L24 44L42 34V14L24 4Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+<path d="M24 14L32 24L24 34L16 24L24 14Z" fill="currentColor" fill-opacity="0.5"></path>
+</svg>
+</div>
+<span class="font-display text-xl font-bold tracking-tight text-white uppercase">Mustaverse</span>
+</a>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-xs font-medium uppercase tracking-widest text-slate-400 hover:text-white transition-colors" href="#">Home</a>
+<a class="text-xs font-medium uppercase tracking-widest text-white transition-colors relative after:content-[''] after:absolute after:-bottom-2 after:left-0 after:w-full after:h-px after:bg-primary" href="#">Aurayale</a>
+<a class="text-xs font-medium uppercase tracking-widest text-slate-400 hover:text-white transition-colors" href="#">Deal</a>
+<a class="text-xs font-medium uppercase tracking-widest text-slate-400 hover:text-white transition-colors" href="#">Contact</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<a class="hidden md:block text-xs font-medium uppercase tracking-widest text-slate-400 hover:text-white transition-colors" href="#">Login</a>
+<button class="hidden md:flex items-center justify-center px-6 py-2 text-xs font-bold uppercase tracking-widest bg-white/10 hover:bg-white/20 border border-white/10 text-white transition-all rounded-full backdrop-blur-sm">
+                    Connect Wallet
+                </button>
+<button class="md:hidden p-2 text-slate-400 hover:text-white">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-grow">
+<section class="relative h-[900px] flex items-center justify-center overflow-hidden pt-20">
+<div class="absolute inset-0 z-0">
+<div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1614726365723-49cfae978b7b?q=80&amp;w=2574&amp;auto=format&amp;fit=crop')] bg-cover bg-center opacity-30 mix-blend-screen"></div>
+<div class="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen"></div>
+<div class="absolute bottom-0 right-0 w-[800px] h-[600px] bg-purple-900/30 rounded-full blur-[100px]"></div>
+<div class="absolute inset-0 bg-gradient-to-b from-background-dark/80 via-transparent to-background-dark"></div>
+</div>
+<div class="relative z-10 max-w-7xl mx-auto px-6 text-center">
+<div class="inline-flex items-center gap-3 px-6 py-2 rounded-full border border-white/10 bg-white/[0.02] backdrop-blur-md mb-12 shadow-[0_0_20px_rgba(167,139,250,0.1)]">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+<span class="text-[10px] font-bold text-indigo-200 tracking-[0.3em] uppercase">Season 1: Genesis Mint Live</span>
+</div>
+<h1 class="font-display text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-white mb-8 leading-[1.1] drop-shadow-2xl">
+                Rule the Multiverse<br/>
+<span class="text-gradient-main">One Gem at a Time.</span>
+</h1>
+<p class="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-12 leading-relaxed font-light tracking-wide">
+                Immerse yourself in a high-fidelity Web3 odyssey. Collect, trade, and dominate in a universe built on transparency and strategy.
+            </p>
+<div class="flex flex-col sm:flex-row items-center justify-center gap-6">
+<button class="group w-full sm:w-auto px-12 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-full font-bold text-sm uppercase tracking-widest transition-all shadow-[0_0_30px_rgba(99,102,241,0.4)] hover:shadow-[0_0_50px_rgba(99,102,241,0.6)] flex items-center justify-center gap-2">
+                    Start Adventure <span class="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+<button class="w-full sm:w-auto px-12 py-4 glass-panel border-white/20 text-white hover:bg-white/10 rounded-full font-bold text-sm uppercase tracking-widest transition-all backdrop-blur-md">
+                    Watch Trailer
+                </button>
+</div>
+</div>
+<div class="absolute bottom-12 left-1/2 -translate-x-1/2 animate-bounce opacity-50">
+<span class="material-symbols-outlined text-white text-3xl">keyboard_arrow_down</span>
+</div>
+</section>
+<section class="py-32 relative">
+<div class="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-indigo-900/10 to-transparent pointer-events-none"></div>
+<div class="max-w-7xl mx-auto px-6">
+<div class="grid lg:grid-cols-2 gap-20 items-center">
+<div class="relative z-10 order-2 lg:order-1">
+<div class="relative group">
+<div class="aspect-[4/3] rounded-[2rem] glass-card-deep p-2 relative overflow-visible transform rotate-[-2deg] hover:rotate-0 transition-transform duration-700">
+<div class="absolute -top-12 -right-12 w-32 h-32 bg-purple-500/30 rounded-full blur-[40px] z-0"></div>
+<div class="relative h-full w-full rounded-[1.5rem] overflow-hidden">
+<img alt="Primo Planet 3D Render" class="w-full h-full object-cover opacity-90 hover:scale-105 transition-transform duration-1000" src="https://lh3.googleusercontent.com/aida-public/AB6AXuARaEX6v6-TyAUU8ND66RT4iQI-SmhT-ouUkoISE2adJHTi4mn_K4k-RZ6LUOIvVyAb75Ps2TJrevuztLlD35HdTYxWxZ3kWlvkanTSw00JJ6taEoO5-CLiMLoXT85nTFsUbo5GYUMNTPM8Sq60tVXQ8Tsf9sf2QJvYsFrtkKs_25wV2mHF-dilRzogWt7P6lhfM9TMX8p4WxRcPlMcklpqIkUSuhSpR-lX_tDEMfA5AICLRKIEf2PgCrUQEJiYnKNjNRTmetiz5r8"/>
+<div class="absolute inset-0 bg-gradient-to-t from-[#0f0c29] via-transparent to-transparent opacity-60"></div>
+</div>
+<div class="absolute -bottom-10 -right-8 glass-panel p-6 rounded-2xl border border-white/10 shadow-2xl animate-[float_6s_ease-in-out_infinite]">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-300">
+<span class="material-symbols-outlined">diamond</span>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-widest text-slate-400">Rare Artifact</p>
+<p class="text-white font-display font-bold">Ether Gem #042</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="relative z-10 order-1 lg:order-2">
+<span class="text-primary font-bold tracking-[0.2em] text-xs uppercase mb-6 block flex items-center gap-2">
+<span class="w-8 h-px bg-primary"></span> Worldview
+                    </span>
+<h2 class="font-display text-4xl md:text-5xl font-bold text-white mb-8 tracking-tight leading-tight">
+                        Space Odyssey <br/>
+<span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-purple-300">Epic Adventure</span>
+</h2>
+<p class="text-slate-400 text-lg leading-relaxed mb-10 font-light max-w-lg">
+                        Journey to the Primo Planet, a celestial body rich in crystalline resources. Navigate the cosmos, extract valuable gems, and build your legacy in a persistent universe rendered in stunning detail.
+                    </p>
+<div class="flex gap-4">
+<div class="glass-card px-6 py-4 rounded-xl text-center">
+<h4 class="text-2xl font-bold text-white font-display">5</h4>
+<p class="text-[10px] uppercase tracking-wider text-slate-500 mt-1">Planetary Zones</p>
+</div>
+<div class="glass-card px-6 py-4 rounded-xl text-center">
+<h4 class="text-2xl font-bold text-white font-display">∞</h4>
+<p class="text-[10px] uppercase tracking-wider text-slate-500 mt-1">Possibilities</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="py-32 relative bg-[#080810]">
+<div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]"></div>
+<div class="max-w-7xl mx-auto px-6 relative z-10">
+<div class="text-center mb-24">
+<h2 class="font-display text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">Light Strategic Fun</h2>
+<p class="text-slate-400 max-w-xl mx-auto font-light">Master the art of gem cutting. Different cuts yield different powers in the Aurayale economy.</p>
+</div>
+<div class="grid md:grid-cols-3 gap-8">
+<div class="glass-card p-1 rounded-[2rem] group hover:-translate-y-2 transition-transform duration-500">
+<div class="bg-gradient-to-b from-white/[0.05] to-transparent p-8 rounded-[1.8rem] h-full flex flex-col items-center text-center relative overflow-hidden">
+<div class="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+<div class="w-32 h-32 mb-8 relative flex items-center justify-center">
+<div class="absolute inset-0 bg-pink-500/20 rounded-full blur-[40px] group-hover:bg-pink-500/30 transition-colors"></div>
+<span class="material-symbols-outlined text-6xl text-pink-300 drop-shadow-[0_0_15px_rgba(244,114,182,0.5)]">favorite</span>
+</div>
+<h3 class="text-2xl font-display font-bold text-white mb-2">Heart Cut</h3>
+<p class="text-slate-400 text-sm leading-relaxed mb-6">Rare emotional resonance. Increases community bonding and yields higher staking multipliers.</p>
+<div class="mt-auto pt-6 border-t border-white/5 w-full">
+<span class="text-[10px] uppercase tracking-[0.2em] text-pink-400 font-bold">Rarity: Legendary</span>
+</div>
+</div>
+</div>
+<div class="glass-card p-1 rounded-[2rem] group hover:-translate-y-2 transition-transform duration-500">
+<div class="bg-gradient-to-b from-white/[0.05] to-transparent p-8 rounded-[1.8rem] h-full flex flex-col items-center text-center relative overflow-hidden">
+<div class="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+<div class="w-32 h-32 mb-8 relative flex items-center justify-center">
+<div class="absolute inset-0 bg-blue-500/20 rounded-full blur-[40px] group-hover:bg-blue-500/30 transition-colors"></div>
+<span class="material-symbols-outlined text-6xl text-blue-300 drop-shadow-[0_0_15px_rgba(147,197,253,0.5)]">diamond</span>
+</div>
+<h3 class="text-2xl font-display font-bold text-white mb-2">Marquis Cut</h3>
+<p class="text-slate-400 text-sm leading-relaxed mb-6">Sharp elegance. Optimized for speed transactions and quick liquidity swaps.</p>
+<div class="mt-auto pt-6 border-t border-white/5 w-full">
+<span class="text-[10px] uppercase tracking-[0.2em] text-blue-400 font-bold">Rarity: Epic</span>
+</div>
+</div>
+</div>
+<div class="glass-card p-1 rounded-[2rem] group hover:-translate-y-2 transition-transform duration-500">
+<div class="bg-gradient-to-b from-white/[0.05] to-transparent p-8 rounded-[1.8rem] h-full flex flex-col items-center text-center relative overflow-hidden">
+<div class="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+<div class="w-32 h-32 mb-8 relative flex items-center justify-center">
+<div class="absolute inset-0 bg-amber-500/20 rounded-full blur-[40px] group-hover:bg-amber-500/30 transition-colors"></div>
+<span class="material-symbols-outlined text-6xl text-amber-300 drop-shadow-[0_0_15px_rgba(252,211,77,0.5)]">change_history</span>
+</div>
+<h3 class="text-2xl font-display font-bold text-white mb-2">Trilliant Cut</h3>
+<p class="text-slate-400 text-sm leading-relaxed mb-6">Maximum brilliance. A balanced cut offering stability and consistent governance weight.</p>
+<div class="mt-auto pt-6 border-t border-white/5 w-full">
+<span class="text-[10px] uppercase tracking-[0.2em] text-amber-400 font-bold">Rarity: Rare</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="py-32 relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-br from-indigo-950/30 to-background-dark z-0"></div>
+<div class="max-w-7xl mx-auto px-6 relative z-10">
+<div class="glass-panel rounded-[3rem] p-12 md:p-20 border border-white/10 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3"></div>
+<div class="grid lg:grid-cols-2 gap-16 items-center">
+<div>
+<span class="inline-block px-4 py-1 rounded-full border border-primary/30 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-widest mb-6">SwUp System V1.0</span>
+<h2 class="font-display text-4xl md:text-5xl font-bold text-white mb-6">Empowering <br/>Digital Assets</h2>
+<p class="text-slate-400 text-lg leading-relaxed mb-8 font-light">
+                            Built on the robust ERC-1155 standard, Aurayale assets are more than just collectibles. We integrate Chainlink VRF for provably fair drop rates, ensuring true scarcity and value.
+                        </p>
+<ul class="space-y-6">
+<li class="flex items-start gap-4">
+<div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10 shrink-0 mt-1">
+<span class="material-symbols-outlined text-sm text-green-400">check</span>
+</div>
+<div>
+<h4 class="text-white font-bold text-sm">ERC-1155 Multi-Token Standard</h4>
+<p class="text-slate-500 text-xs mt-1">Gas-efficient batch transfers and mixed asset types.</p>
+</div>
+</li>
+<li class="flex items-start gap-4">
+<div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10 shrink-0 mt-1">
+<span class="material-symbols-outlined text-sm text-blue-400">verified_user</span>
+</div>
+<div>
+<h4 class="text-white font-bold text-sm">Chainlink VRF Integration</h4>
+<p class="text-slate-500 text-xs mt-1">Verifiable randomness for all gem generation events.</p>
+</div>
+</li>
+</ul>
+</div>
+<div class="relative">
+<div class="glass-card-deep p-8 rounded-2xl border border-white/10 relative z-10">
+<div class="flex justify-between items-center mb-8 border-b border-white/5 pb-4">
+<span class="text-xs text-slate-500 uppercase tracking-wider">Transaction Hash</span>
+<span class="text-xs text-emerald-400 font-mono">0x71C...9A23</span>
+</div>
+<div class="space-y-4 font-mono text-xs text-slate-400">
+<div class="flex justify-between">
+<span>Standard</span>
+<span class="text-white">ERC-1155</span>
+</div>
+<div class="flex justify-between">
+<span>Token ID</span>
+<span class="text-white">4592</span>
+</div>
+<div class="flex justify-between">
+<span>Contract</span>
+<span class="text-blue-300">Verified <span class="material-symbols-outlined text-[10px] align-middle">verified</span></span>
+</div>
+<div class="p-4 bg-black/40 rounded-lg mt-6 border border-white/5">
+<div class="flex items-center gap-2 text-yellow-500 mb-2">
+<span class="material-symbols-outlined text-sm">lock</span>
+<span class="uppercase font-bold text-[10px] tracking-widest">VRF Proof</span>
+</div>
+<p class="break-all opacity-50 text-[10px] leading-tight">0x9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8</p>
+</div>
+</div>
+</div>
+<div class="absolute top-4 -right-4 w-full h-full glass-panel rounded-2xl -z-10 opacity-50 scale-95"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="py-24 bg-white/[0.01] border-y border-white/5">
+<div class="max-w-7xl mx-auto px-6 text-center">
+<h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em] mb-12">Recognized By Industry Leaders</h3>
+<div class="flex flex-wrap justify-center items-center gap-16 md:gap-24 opacity-80">
+<div class="flex flex-col items-center gap-2 group cursor-default">
+<span class="material-symbols-outlined text-4xl text-[#d4af37]/60 group-hover:text-[#d4af37] transition-colors">diamond</span>
+<span class="font-display font-bold text-xl tracking-wide text-slate-400 group-hover:text-white transition-colors">ETHGlobal</span>
+<span class="text-[9px] uppercase tracking-widest text-[#d4af37]/60">Finalist 2024</span>
+</div>
+<div class="w-px h-12 bg-white/10 hidden md:block"></div>
+<div class="flex flex-col items-center gap-2 group cursor-default">
+<span class="material-symbols-outlined text-4xl text-[#d4af37]/60 group-hover:text-[#d4af37] transition-colors">rocket_launch</span>
+<span class="font-display font-bold text-xl tracking-wide text-slate-400 group-hover:text-white transition-colors">BYBIT <span class="font-light">Unleashed</span></span>
+<span class="text-[9px] uppercase tracking-widest text-[#d4af37]/60">Grant Recipient</span>
+</div>
+<div class="w-px h-12 bg-white/10 hidden md:block"></div>
+<div class="flex flex-col items-center gap-2 group cursor-default">
+<span class="material-symbols-outlined text-4xl text-[#d4af37]/60 group-hover:text-[#d4af37] transition-colors">hexagon</span>
+<span class="font-display font-bold text-xl tracking-wide text-slate-400 group-hover:text-white transition-colors">POLYGON</span>
+<span class="text-[9px] uppercase tracking-widest text-[#d4af37]/60">Ecosystem Partner</span>
+</div>
+</div>
+</div>
+</section>
+<section class="py-32 relative">
+<div class="max-w-4xl mx-auto px-6 text-center relative z-10">
+<div class="glass-panel py-20 px-8 rounded-[3rem] border border-white/10 shadow-[0_0_100px_rgba(79,70,229,0.15)] bg-gradient-to-b from-white/[0.02] to-transparent">
+<h2 class="font-display text-5xl md:text-7xl font-bold text-white mb-8 tracking-tighter">Begin Your <br/><span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Galactic Hunt</span></h2>
+<p class="text-slate-400 text-lg mb-12 max-w-lg mx-auto font-light">
+                    The portal is open. Thousands of gems await discovery. Will you claim the rarest artifacts?
+                </p>
+<div class="flex flex-col items-center">
+<button class="px-16 py-6 bg-white text-black rounded-full font-bold text-lg uppercase tracking-widest hover:bg-indigo-50 hover:scale-105 transition-all shadow-[0_0_40px_rgba(255,255,255,0.3)]">
+                        Play Now
+                    </button>
+<p class="mt-6 text-xs text-slate-500 uppercase tracking-wider">Browser &amp; VR Compatible</p>
+</div>
+</div>
+</div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[800px] h-[400px] bg-indigo-600/20 rounded-full blur-[120px] -z-10"></div>
+</section>
+</main>
+<footer class="bg-black pt-20 pb-10 border-t border-white/5 relative z-10">
+<div class="max-w-7xl mx-auto px-8">
+<div class="grid md:grid-cols-4 gap-16 mb-20">
+<div class="col-span-1 md:col-span-2">
+<div class="flex items-center gap-3 mb-8">
+<div class="size-6 text-primary">
+<svg class="w-full h-full" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M24 4L6 14V34L24 44L42 34V14L24 4Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+<path d="M24 14L32 24L24 34L16 24L24 14Z" fill="currentColor" fill-opacity="0.5"></path>
+</svg>
+</div>
+<span class="font-display text-lg font-bold tracking-tight text-white uppercase">Mustaverse</span>
+</div>
+<p class="text-slate-500 max-w-sm mb-10 leading-relaxed font-light text-sm">
+                    Pioneering the intersection of high-fidelity gaming and decentralized finance.
+                </p>
+<div class="flex gap-6">
+<a class="text-slate-600 hover:text-white transition-colors" href="#"><span class="material-symbols-outlined text-xl">alternate_email</span></a>
+<a class="text-slate-600 hover:text-white transition-colors" href="#"><span class="material-symbols-outlined text-xl">code</span></a>
+<a class="text-slate-600 hover:text-white transition-colors" href="#"><span class="material-symbols-outlined text-xl">chat</span></a>
+</div>
+</div>
+<div>
+<h4 class="text-white text-[10px] font-bold uppercase tracking-widest mb-8">Aurayale</h4>
+<ul class="space-y-4">
+<li><a class="text-slate-500 hover:text-primary transition-colors text-sm font-light" href="#">Game Guide</a></li>
+<li><a class="text-slate-500 hover:text-primary transition-colors text-sm font-light" href="#">Marketplace</a></li>
+<li><a class="text-slate-500 hover:text-primary transition-colors text-sm font-light" href="#">Leaderboard</a></li>
+<li><a class="text-slate-500 hover:text-primary transition-colors text-sm font-light" href="#">Patch Notes</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-white text-[10px] font-bold uppercase tracking-widest mb-8">Legal</h4>
+<ul class="space-y-4">
+<li><a class="text-slate-500 hover:text-primary transition-colors text-sm font-light" href="#">Privacy Policy</a></li>
+<li><a class="text-slate-500 hover:text-primary transition-colors text-sm font-light" href="#">Terms of Service</a></li>
+<li><a class="text-slate-500 hover:text-primary transition-colors text-sm font-light" href="#">Tokenomics</a></li>
+</ul>
+</div>
+</div>
+<div class="border-t border-white/5 pt-10 flex flex-col md:flex-row justify-between items-center gap-6">
+<p class="text-slate-700 text-[10px] uppercase tracking-widest font-bold">© 2026 Mustaverse Studio.</p>
+<div class="flex gap-8">
+<span class="text-[10px] text-slate-800 font-bold uppercase tracking-[0.3em]">Status: Operational</span>
+</div>
+</div>
+</div>
+</footer>
+</body></html>
