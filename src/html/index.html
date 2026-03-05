@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Mustaverse Studio | Advanced XR Solutions</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#6366f1",
+                        secondary: "#4338ca",
+                        "background-dark": "#0a0a0c",
+                        "surface-dark": "rgba(255, 255, 255, 0.03)",
+                        "glass-border": "rgba(255, 255, 255, 0.08)"
+                    },
+                    fontFamily: {
+                        display: ["Plus Jakarta Sans", "sans-serif"],
+                        body: ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.5rem",
+                        lg: "1rem",
+                        xl: "1.5rem",
+                        full: "9999px"
+                    }
+                }
+            }
+        };
+    </script>
+    <style type="text/tailwindcss">
+        @layer base {
+        body {
+            @apply bg-background-dark text-slate-300;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(30, 27, 75, 0.3) 0, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(17, 24, 39, 0.3) 0, transparent 50%);
+        }
+    }
+    .glass-panel {
+        @apply backdrop-blur-xl bg-white/[0.02] border border-white/[0.08] shadow-[0_8px_32px_0_rgba(0,0,0,0.37)];
+    }
+    .glass-card {
+        @apply backdrop-blur-md bg-white/[0.01] border border-white/[0.05] hover:border-white/[0.15] transition-all duration-500;
+    }
+    .text-gradient {
+        @apply bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-slate-500;
+    }
+    .glow-border {
+        position: relative;
+    }
+    .glow-border::after {
+        content: '';
+        position: absolute;
+        inset: -1px;
+        background: linear-gradient(to bottom right, rgba(255,255,255,0.1), transparent, rgba(255,255,255,0.05));
+        z-index: -1;
+        border-radius: inherit;
+    }
+    .nav-link {
+        @apply text-sm font-medium text-slate-400 hover:text-white transition-colors relative;
+    }
+    .nav-link-active {
+        @apply text-sm font-medium text-white transition-colors relative;
+    }
+    .nav-link-active::after {
+        content: '';
+        @apply absolute -bottom-2 left-0 w-full h-px bg-primary;
+    }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0a0a0c; }
+    ::-webkit-scrollbar-thumb { background: #222; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #6366f1; }
+</style>
+</head>
+
+<body class="font-body antialiased min-h-screen flex flex-col">
+    <!-- ===== NAVBAR ===== -->
+    <header class="sticky top-0 z-50 w-full glass-panel border-b border-white/5 h-20 flex items-center">
+        <div class="w-full max-w-[1400px] mx-auto px-8">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-16">
+                    <a class="flex items-center gap-3 group" href="index.html">
+                        <div class="">
+                            <img src="images/Logo.svg" alt="" style="width: 150px;">
+                        </div>
+                    </a>
+                    <nav class="hidden md:flex items-center gap-10">
+                        <a class="nav-link-active" href="index.html">Home</a>
+                        <a class="nav-link" href="aurayale.html">Aurayale</a>
+                        <a class="nav-link" href="contact.html">Contact</a>
+                    </nav>
+                </div>
+                <div class="flex items-center">
+                    <button
+                        class="hidden md:flex items-center justify-center px-6 py-2.5 text-xs font-bold uppercase tracking-widest bg-gradient-to-r from-primary to-secondary text-white rounded-lg hover:brightness-110 transition-all shadow-lg shadow-primary/25">
+                        Login
+                    </button>
+                    <button id="mobile-menu-btn"
+                        class="md:hidden p-2 text-slate-400 hover:text-white transition-colors">
+                        <span class="material-symbols-outlined text-2xl">menu</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== MOBILE MENU ===== -->
+    <div id="mobile-menu" class="fixed inset-0 z-[60] hidden">
+        <div id="mobile-menu-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+        <div
+            class="absolute top-0 right-0 w-full max-w-sm h-full bg-background-dark/95 backdrop-blur-2xl border-l border-white/5 shadow-2xl transform transition-transform duration-300 flex flex-col">
+            <div class="flex items-center justify-between p-6 border-b border-white/5">
+                <a href="index.html">
+                    <img src="images/Logo.svg" alt="" style="width: 120px;">
+                </a>
+                <button id="mobile-menu-close" class="p-2 text-slate-400 hover:text-white transition-colors">
+                    <span class="material-symbols-outlined text-2xl">close</span>
+                </button>
+            </div>
+            <nav class="flex flex-col gap-2 p-6 flex-grow">
+                <a class="flex items-center gap-4 px-4 py-4 rounded-xl text-white bg-primary/10 border border-primary/20"
+                    href="index.html">
+                    <span class="material-symbols-outlined text-xl text-primary">home</span>
+                    <span class="text-sm font-semibold uppercase tracking-widest">Home</span>
+                </a>
+                <a class="flex items-center gap-4 px-4 py-4 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all"
+                    href="aurayale.html">
+                    <span class="material-symbols-outlined text-xl">diamond</span>
+                    <span class="text-sm font-semibold uppercase tracking-widest">Aurayale</span>
+                </a>
+                <a class="flex items-center gap-4 px-4 py-4 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all"
+                    href="contact.html">
+                    <span class="material-symbols-outlined text-xl">mail</span>
+                    <span class="text-sm font-semibold uppercase tracking-widest">Contact</span>
+                </a>
+            </nav>
+            <div class="p-6 border-t border-white/5">
+                <button
+                    class="w-full px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white font-bold text-xs uppercase tracking-widest rounded-xl hover:brightness-110 transition-all shadow-lg shadow-primary/20">
+                    Login
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const btn = document.getElementById('mobile-menu-btn');
+            const menu = document.getElementById('mobile-menu');
+            const closeBtn = document.getElementById('mobile-menu-close');
+            const backdrop = document.getElementById('mobile-menu-backdrop');
+            if (!btn || !menu) return;
+            function open() { menu.classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
+            function close() { menu.classList.add('hidden'); document.body.style.overflow = ''; }
+            btn.addEventListener('click', open);
+            if (closeBtn) closeBtn.addEventListener('click', close);
+            if (backdrop) backdrop.addEventListener('click', close);
+        })();
+    </script>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="flex-grow">
+        <!-- Hero -->
+        <section class="relative overflow-hidden pt-32 pb-40">
+            <div class="absolute inset-0 z-0">
+                <div
+                    class="absolute top-[-10%] right-[-10%] w-[800px] h-[800px] bg-primary/10 rounded-full blur-[120px]">
+                </div>
+                <div
+                    class="absolute bottom-[-10%] left-[-10%] w-[800px] h-[800px] bg-indigo-900/10 rounded-full blur-[120px]">
+                </div>
+            </div>
+            <div class="relative z-10 max-w-7xl mx-auto px-6 text-center">
+                <div
+                    class="inline-flex items-center gap-3 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-12">
+                    <span class="relative flex h-2 w-2">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                    </span>
+                    <span class="text-[10px] font-bold text-slate-300 tracking-[0.2em] uppercase">Forging Future
+                        Realities</span>
+                </div>
+                <h1
+                    class="font-display text-6xl md:text-8xl lg:text-9xl font-extrabold tracking-tighter text-white mb-8 leading-[0.95] text-gradient">
+                    Architecture of <br><span
+                        class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-primary to-purple-400">Virtual
+                        Worlds</span>
+                </h1>
+                <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-12 leading-relaxed font-light">
+                    Redefining digital engagement through high-fidelity XR engineering and sovereign Web3
+                    infrastructure.
+                </p>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
+                    <button
+                        class="w-full sm:w-auto px-10 py-5 bg-white text-black hover:bg-slate-200 rounded-xl font-bold text-lg transition-all shadow-2xl shadow-white/5">
+                        Launch Experience
+                    </button>
+                    <button
+                        class="w-full sm:w-auto px-10 py-5 glass-panel text-white hover:bg-white/5 rounded-xl font-bold text-lg transition-all">
+                        View Dossier
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Philosophy -->
+        <section class="py-32 relative">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="grid lg:grid-cols-2 gap-24 items-center">
+                    <div class="relative z-10">
+                        <span class="text-primary font-bold tracking-widest text-xs uppercase mb-4 block">Our
+                            Philosophy</span>
+                        <h2 class="font-display text-4xl md:text-6xl font-bold text-white mb-8 tracking-tight">Crafting
+                            the <br>Invisible Layer</h2>
+                        <div class="w-12 h-1 bg-gradient-to-r from-primary to-transparent mb-10"></div>
+                        <p class="text-slate-300 text-lg leading-relaxed mb-8 font-light">
+                            Mustaverse Studio functions at the intersection of spatial computing and decentralized
+                            systems. We architect immersive ecosystems where physical and digital boundaries dissolve.
+                        </p>
+                        <div class="grid grid-cols-2 gap-12 mt-12">
+                            <div class="glass-card p-6 rounded-2xl">
+                                <h3 class="text-4xl font-display font-bold text-white mb-1">50+</h3>
+                                <p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Deployments
+                                </p>
+                            </div>
+                            <div class="glass-card p-6 rounded-2xl">
+                                <h3 class="text-4xl font-display font-bold text-white mb-1">12</h3>
+                                <p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Innovations
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <div class="aspect-square rounded-[2rem] overflow-hidden glass-panel p-4 relative">
+                            <div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent z-10"></div>
+                            <img alt="Advanced conceptual 3D render"
+                                class="w-full h-full object-cover rounded-2xl opacity-60 grayscale hover:grayscale-0 transition-all duration-1000"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuARaEX6v6-TyAUU8ND66RT4iQI-SmhT-ouUkoISE2adJHTi4mn_K4k-RZ6LUOIvVyAb75Ps2TJrevuztLlD35HdTYxWxZ3kWlvkanTSw00JJ6taEoO5-CLiMLoXT85nTFsUbo5GYUMNTPM8Sq60tVXQ8Tsf9sf2QJvYsFrtkKs_25wV2mHF-dilRzogWt7P6lhfM9TMX8p4WxRcPlMcklpqIkUSuhSpR-lX_tDEMfA5AICLRKIEf2PgCrUQEJiYnKNjNRTmetiz5r8">
+                        </div>
+                        <div
+                            class="absolute -bottom-8 -left-8 glass-panel p-8 rounded-2xl shadow-2xl max-w-[280px] z-20">
+                            <div class="flex items-center gap-4 mb-4">
+                                <span class="material-symbols-outlined text-primary text-4xl">model_training</span>
+                                <h4 class="text-white font-bold text-sm tracking-tight">Economic Synthesis</h4>
+                            </div>
+                            <p class="text-[11px] text-slate-400 leading-relaxed uppercase tracking-wider">Algorithmic
+                                incentive structures integrated into spatial environments.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Core Competencies -->
+        <section class="py-32 bg-white/[0.01]">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="text-center mb-20">
+                    <h2 class="font-display text-4xl font-bold text-white mb-4 tracking-tight">Core Competencies</h2>
+                    <p class="text-slate-400 max-w-xl mx-auto font-light">A multidisciplinary approach to the
+                        decentralized spatial web.</p>
+                </div>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="glass-card p-10 rounded-3xl group">
+                        <div
+                            class="w-14 h-14 glass-panel rounded-2xl flex items-center justify-center text-primary mb-8 group-hover:bg-primary group-hover:text-white transition-all duration-500">
+                            <span class="material-symbols-outlined text-3xl">view_in_ar</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-4 font-display">Spatial XR</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed font-light">
+                            Advanced AR/VR experiences leveraging high-fidelity rendering for industrial simulations and
+                            luxury retail showrooms.
+                        </p>
+                    </div>
+                    <div class="glass-card p-10 rounded-3xl group">
+                        <div
+                            class="w-14 h-14 glass-panel rounded-2xl flex items-center justify-center text-primary mb-8 group-hover:bg-primary group-hover:text-white transition-all duration-500">
+                            <span class="material-symbols-outlined text-3xl">hub</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-4 font-display">Web3 Infrastructure</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed font-light">
+                            Secure smart contract architecture and sovereign asset ownership layers for the next
+                            generation of digital commerce.
+                        </p>
+                    </div>
+                    <div class="glass-card p-10 rounded-3xl group">
+                        <div
+                            class="w-14 h-14 glass-panel rounded-2xl flex items-center justify-center text-primary mb-8 group-hover:bg-primary group-hover:text-white transition-all duration-500">
+                            <span class="material-symbols-outlined text-3xl">auto_awesome</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-4 font-display">Real-time Engine</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed font-light">
+                            Harnessing the power of Unreal Engine 5 to create hyper-realistic environments with dynamic
+                            lighting and physics.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Active Ventures -->
+        <section class="py-32">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+                    <div>
+                        <h2 class="font-display text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">Active
+                            Ventures</h2>
+                        <p class="text-slate-400 font-light">Internal R&amp;D products currently in early-access phase.
+                        </p>
+                    </div>
+                    <a class="text-xs font-bold uppercase tracking-[0.2em] text-primary hover:text-white flex items-center gap-2 transition-all"
+                        href="#">
+                        Registry <span class="material-symbols-outlined text-sm">north_east</span>
+                    </a>
+                </div>
+                <div class="grid lg:grid-cols-2 gap-10">
+                    <div class="group relative rounded-[2.5rem] overflow-hidden glass-panel">
+                        <div class="aspect-video overflow-hidden">
+                            <img alt="Aurayale conceptual environment"
+                                class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-50 grayscale hover:grayscale-0"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_viMyrSUcfQ4m1tG3yncESAA6e2ym1MEnHMxggFRDiHMUnO7zDovSF9eQ5dgfBmuyYte0vqgTWYxhljps_gr_OzNh_PMD9T55NH0CmpLTbCpKV5nPqWeiRLMUn7Hrw-krQs4cgpPRT76sG2y_Q-3-RI3krH57UyKwW5LZJhOjfxUHbuAGSztxqij830f2Qd-OzXgrD5R8ZeIvBkRj8j87iR6J9HKH9OGB8cDLtw1jo39NDPLV0uPf_XCSGRxdwy2BM7Y9xwpej9E">
+                        </div>
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-background-dark via-background-dark/40 to-transparent flex flex-col justify-end p-12">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-4xl font-display font-bold text-white">Aurayale</h3>
+                                <span
+                                    class="px-4 py-1.5 glass-panel text-[10px] text-white rounded-full font-bold uppercase tracking-widest">Sovereign
+                                    MMORPG</span>
+                            </div>
+                            <p class="text-slate-300 text-base mb-8 font-light max-w-md">An expansive fantasy realm
+                                utilizing ZK-proofs for secure in-game asset ownership and decentralized governance.</p>
+                            <a href="aurayale.html"
+                                class="w-fit px-8 py-3 bg-white text-black font-bold text-xs uppercase tracking-widest rounded-lg hover:bg-slate-200 transition-colors">
+                                Initialize Alpha
+                            </a>
+                        </div>
+                    </div>
+                    <div class="group relative rounded-[2.5rem] overflow-hidden glass-panel">
+                        <div class="aspect-video overflow-hidden">
+                            <img alt="DEAL conceptual environment"
+                                class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-50 grayscale hover:grayscale-0"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpvpxiOjtGJzz3qG46nPjvLP7pUOcR3wUEhffbSJF20GLabzpEmKGetNi0Fkiz9i-a0ZMtmuAgvX-a0LhW3X8Ash0mVOu3ll7X_JpeDdmPl82AW0hRgxj2JQSgNFd-IwxmQJft5O9k6MzSudTCqUKgKb9t83-fIM0sSHSIA1nYsyT4LMw81Y64Va8sJ-rGLGct7rDxlVl54ecqdiN7VD4iZLNlyv9Ze8uxEP3pYNRfFLdDxDa10OrX_f7b7onk-KCrmf3MmI08K4o">
+                        </div>
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-background-dark via-background-dark/40 to-transparent flex flex-col justify-end p-12">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-4xl font-display font-bold text-white">DEAL</h3>
+                                <span
+                                    class="px-4 py-1.5 glass-panel text-[10px] text-white rounded-full font-bold uppercase tracking-widest">Protocol
+                                    Layer</span>
+                            </div>
+                            <p class="text-slate-300 text-base mb-8 font-light max-w-md">A strategic card-based risk
+                                engine designed for cross-platform competitive play and financial abstraction.</p>
+                            <button
+                                class="w-fit px-8 py-3 bg-white text-black font-bold text-xs uppercase tracking-widest rounded-lg hover:bg-slate-200 transition-colors">
+                                Request Access
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- The Collective -->
+        <section class="py-32">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="text-center mb-20">
+                    <h2 class="font-display text-4xl font-bold text-white mb-4 tracking-tight">The Collective</h2>
+                    <p class="text-slate-400 font-light">Architects of the next digital frontier.</p>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                    <div class="group">
+                        <div class="aspect-[3/4] rounded-2xl overflow-hidden mb-6 glass-panel relative">
+                            <img alt="Founder Portrait"
+                                class="w-full h-full object-cover grayscale opacity-60 group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-700"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZ6F_olKzLs6FlzBLmzsP_i9LOv2awBiVIT8GuK_WMWvTFIFo7JTxsm0tmWIicMfoyXpz107VrkuA72YviFrXPaf7m4YPFGuEu6lm_t3WqUC_C7zeiELk3bJeelZ4-uorpQGZUy6H9ARd91VVnYp22cnW0kG4A2O_d2Stca_01agTpSjz-hd9YQikSz-FULeuZHqY33HH17u5SSQTN_a9wF-YHvAVooBkVfiJw-pXZeV9Dmst_6wyiNPHS2RwtY5ZiV3RYMKY9iPg">
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-background-dark/80 to-transparent opacity-0 group-hover:opacity-100 transition-all">
+                            </div>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">Kevin</h3>
+                        <p class="text-primary text-[10px] font-bold uppercase tracking-widest mt-1">Founding Director
+                        </p>
+                    </div>
+                    <div class="group">
+                        <div class="aspect-[3/4] rounded-2xl overflow-hidden mb-6 glass-panel relative">
+                            <img alt="CTO Portrait"
+                                class="w-full h-full object-cover grayscale opacity-60 group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-700"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_VfAl-GHbCCpPgqBcvW_HawDRMBS0jKoZ-iTcbytUUJ57Sbee4K7_RNbIlIISSC-p9V6QSSb_jYvcbyatq7gZUsdLxQEPpTOdMUcoYsUqT6gJ1_36TZ7wa---zsplZ8TG41vFPCsDmdH2sR9RujuInk0LVFuxMGOmNgPrmpnU_r-_90ofM00tL4RKzKz1NR-ykhVj6LtGXBCcWeZRRC8Uz6mMO-RrelLHYfJe2SmM3lZHQ8D7zAbjGkrHmPGxhnKmawE_jAn6vMo">
+                        </div>
+                        <h3 class="text-lg font-bold text-white">Wallce</h3>
+                        <p class="text-primary text-[10px] font-bold uppercase tracking-widest mt-1">Chief Architect</p>
+                    </div>
+                    <div class="group">
+                        <div class="aspect-[3/4] rounded-2xl overflow-hidden mb-6 glass-panel relative">
+                            <img alt="Lead Designer Portrait"
+                                class="w-full h-full object-cover grayscale opacity-60 group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-700"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBb_yUtLdtJYhqouYPeGcQxmkaKNPtflntTruQGPBJzjNnt6IBESs11qUKMjNwtplWgfNjs4gn3tLOjUu-NTsirU7uh8l3RNj8Jqda0zih0DdpCkpIlT97r033D7h_1RCNC1FOV_8isxaed4DQVecQgrFGWOyAPidAI6RXwgzmzwjHfg5NllyJm7Ii9wrtj0PNX9MxGMsGykkdp8dbDkSTnyP7rF85iuCj8wS2FZbwN4p_P0MoxZdaSgG71D42WSLwISvuBHmxXliY">
+                        </div>
+                        <h3 class="text-lg font-bold text-white">Marcus Thorne</h3>
+                        <p class="text-primary text-[10px] font-bold uppercase tracking-widest mt-1">Spatial Design Lead
+                        </p>
+                    </div>
+                    <div class="group">
+                        <div class="aspect-[3/4] rounded-2xl overflow-hidden mb-6 glass-panel relative">
+                            <img alt="Art Director Portrait"
+                                class="w-full h-full object-cover grayscale opacity-60 group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-700"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYY5-rxQJwm6dMFAUqmAA5_0CqQY6x-xiD2ubji8ToXhfjx3N0PJRBjNa-0iYd3PIvNNnPojgktp4ZuMTPeTTe6TKGawBmdW9LH756e44X0V6_6tFhLf9IiZMQ3j3FWOLjauj33UHrCUWSJEsMnR7OKkXNCtvz7puqkOzeHRd8Jc22nRqdLyrLnqxAcjLEL6m24ajfUDJemBIiL_1lDeX12zb83fmXCMHaZKBKNtksVd46NwlfmOHW9yAGFpt9hhoAjrkXe9Dfrf0">
+                        </div>
+                        <h3 class="text-lg font-bold text-white">Elena Rodriguez</h3>
+                        <p class="text-primary text-[10px] font-bold uppercase tracking-widest mt-1">Visual Director</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Global Network -->
+        <section class="py-24 border-t border-white/5 bg-white/[0.01]">
+            <div class="max-w-7xl mx-auto px-6">
+                <h3 class="text-center text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em] mb-16">Global
+                    Network</h3>
+                <div class="flex flex-wrap justify-center gap-x-16 gap-y-12">
+                    <div
+                        class="flex items-center gap-3 text-slate-400 grayscale hover:grayscale-0 hover:text-white transition-all cursor-pointer">
+                        <span class="material-symbols-outlined text-3xl">token</span>
+                        <span class="font-display font-bold text-lg tracking-tighter">POLYCHAIN</span>
+                    </div>
+                    <div
+                        class="flex items-center gap-3 text-slate-400 grayscale hover:grayscale-0 hover:text-white transition-all cursor-pointer">
+                        <span class="material-symbols-outlined text-3xl">deployed_code</span>
+                        <span class="font-display font-bold text-lg tracking-tighter">UNITY</span>
+                    </div>
+                    <div
+                        class="flex items-center gap-3 text-slate-400 grayscale hover:grayscale-0 hover:text-white transition-all cursor-pointer">
+                        <span class="material-symbols-outlined text-3xl">view_in_ar</span>
+                        <span class="font-display font-bold text-lg tracking-tighter">UNREAL</span>
+                    </div>
+                    <div
+                        class="flex items-center gap-3 text-slate-400 grayscale hover:grayscale-0 hover:text-white transition-all cursor-pointer">
+                        <span class="material-symbols-outlined text-3xl">account_balance_wallet</span>
+                        <span class="font-display font-bold text-lg tracking-tighter">METAMASK</span>
+                    </div>
+                    <div
+                        class="flex items-center gap-3 text-slate-400 grayscale hover:grayscale-0 hover:text-white transition-all cursor-pointer">
+                        <span class="material-symbols-outlined text-3xl">language</span>
+                        <span class="font-display font-bold text-lg tracking-tighter">WEB3</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="py-32 relative overflow-hidden">
+            <div
+                class="absolute inset-0 bg-gradient-to-br from-indigo-900/40 via-background-dark to-background-dark z-0">
+            </div>
+            <div class="max-w-5xl mx-auto px-6 text-center relative z-10 glass-panel py-24 rounded-[3rem]">
+                <h2 class="font-display text-4xl md:text-6xl font-extrabold text-white mb-8 tracking-tighter">Let's
+                    Define the <br>New Standard</h2>
+                <p class="text-slate-400 text-lg mb-12 max-w-2xl mx-auto font-light leading-relaxed">
+                    Our team is ready to transform your vision into a production-grade digital reality.
+                </p>
+                <a href="contact.html"
+                    class="inline-block bg-primary text-white px-12 py-5 rounded-xl font-bold text-lg hover:bg-indigo-500 transition-all shadow-[0_20px_50px_rgba(99,102,241,0.3)]">
+                    Start Consultation
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="bg-background-dark pt-24 pb-12 border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-8">
+            <div class="grid md:grid-cols-4 gap-16 mb-20">
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center gap-3 mb-8">
+                        <a class="flex items-center gap-3 group" href="index.html">
+                            <div class="">
+                                <img src="images/Logo.svg" alt="" style="width: 150px;">
+                            </div>
+                        </a>
+                    </div>
+                    <p class="text-slate-500 max-w-sm mb-10 leading-relaxed font-light">
+                        An advanced development lab specializing in high-fidelity XR environments and sovereign
+                        decentralized systems.
+                    </p>
+                    <div class="flex gap-8">
+                        <a class="text-slate-500 hover:text-white transition-colors" href="#"><span
+                                class="material-symbols-outlined text-xl">alternate_email</span></a>
+                        <a class="text-slate-500 hover:text-white transition-colors" href="#"><span
+                                class="material-symbols-outlined text-xl">code</span></a>
+                        <a class="text-slate-500 hover:text-white transition-colors" href="#"><span
+                                class="material-symbols-outlined text-xl">terminal</span></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-white text-xs font-bold uppercase tracking-widest mb-8">Studio</h4>
+                    <ul class="space-y-4">
+                        <li><a class="text-slate-500 hover:text-white transition-colors text-sm font-light"
+                                href="#">Active Projects</a></li>
+                        <li><a class="text-slate-500 hover:text-white transition-colors text-sm font-light"
+                                href="#">Ecosystem</a></li>
+                        <li><a class="text-slate-500 hover:text-white transition-colors text-sm font-light"
+                                href="#">Laboratory</a></li>
+                        <li><a class="text-slate-500 hover:text-white transition-colors text-sm font-light"
+                                href="#">Press Kit</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white text-xs font-bold uppercase tracking-widest mb-8">Compliance</h4>
+                    <ul class="space-y-4">
+                        <li><a class="text-slate-500 hover:text-white transition-colors text-sm font-light"
+                                href="#">Data Sovereignty</a></li>
+                        <li><a class="text-slate-500 hover:text-white transition-colors text-sm font-light"
+                                href="#">Terms of Access</a></li>
+                        <li><a class="text-slate-500 hover:text-white transition-colors text-sm font-light"
+                                href="#">Nodes</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-white/5 pt-12 flex flex-col md:flex-row justify-between items-center gap-6">
+                <p class="text-slate-600 text-[10px] uppercase tracking-widest font-bold">© 2026 Mustaverse Studio. All
+                    rights reserved.</p>
+                <div class="flex gap-8">
+                    <span class="text-[10px] text-slate-700 font-bold uppercase tracking-[0.3em]">SECURE_NODE:
+                        0xFF2109</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

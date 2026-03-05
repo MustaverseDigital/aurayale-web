@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Aurayale | Mustaverse Studio</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#6366f1",
+                        secondary: "#4338ca",
+                        "background-dark": "#0a0a0c",
+                        "surface-dark": "rgba(255, 255, 255, 0.03)",
+                        "glass-border": "rgba(255, 255, 255, 0.08)"
+                    },
+                    fontFamily: {
+                        display: ["Plus Jakarta Sans", "sans-serif"],
+                        body: ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.5rem",
+                        lg: "1rem",
+                        xl: "1.5rem",
+                        full: "9999px"
+                    }
+                }
+            }
+        };
+    </script>
+    <style type="text/tailwindcss">
+        @layer base {
+        body {
+            @apply bg-background-dark text-slate-300;
+        }
+    }
+    .glass-panel {
+        @apply backdrop-blur-xl bg-white/[0.02] border border-white/[0.08] shadow-[0_8px_32px_0_rgba(0,0,0,0.37)];
+    }
+    .glass-card {
+        @apply backdrop-blur-md bg-white/[0.01] border border-white/[0.05] hover:border-white/[0.15] transition-all duration-500;
+    }
+    .glass-card-deep {
+        @apply backdrop-blur-2xl bg-background-dark/80 border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.8)];
+    }
+    .text-gradient {
+        @apply bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-slate-500;
+    }
+    .glow-border {
+        position: relative;
+    }
+    .glow-border::after {
+        content: '';
+        position: absolute;
+        inset: -1px;
+        background: linear-gradient(to bottom right, rgba(255,255,255,0.1), transparent, rgba(255,255,255,0.05));
+        z-index: -1;
+        border-radius: inherit;
+    }
+    .nav-link {
+        @apply text-sm font-medium text-slate-400 hover:text-white transition-colors relative;
+    }
+    .nav-link-active {
+        @apply text-sm font-medium text-white transition-colors relative;
+    }
+    .nav-link-active::after {
+        content: '';
+        @apply absolute -bottom-2 left-0 w-full h-px bg-primary;
+    }
+    .accent-badge {
+        @apply inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-[10px] font-bold text-primary tracking-[0.2em] uppercase;
+    }
+    .status-active {
+        @apply flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border;
+        background: rgba(99, 102, 241, 0.1);
+        border-color: rgba(99, 102, 241, 0.3);
+        color: #6366f1;
+    }
+    .status-dot {
+        @apply w-1.5 h-1.5 rounded-full animate-pulse;
+        background: #6366f1;
+        box-shadow: 0 0 8px #6366f1;
+    }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0a0a0c; }
+    ::-webkit-scrollbar-thumb { background: #222; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #6366f1; }
+</style>
+</head>
+
+<body class="font-body antialiased min-h-screen flex flex-col">
+    <!-- ===== FIXED VIDEO BACKGROUND ===== -->
+    <div id="video-bg" class="fixed inset-0 z-0 overflow-hidden">
+        <video id="bg-video" class="w-full h-full object-cover" style="opacity: 0.4;" autoplay muted loop playsinline>
+            <source src="images/banner.mp4" type="video/mp4">
+        </video>
+        <!-- Dark overlay that increases with scroll -->
+        <div id="video-overlay" class="absolute inset-0 bg-background-dark" style="opacity: 0.4;"></div>
+        <!-- Subtle gradient overlay -->
+        <div class="absolute inset-0 bg-gradient-to-b from-background-dark/30 via-transparent to-background-dark/60">
+        </div>
+    </div>
+
+    <!-- ===== NAVBAR ===== -->
+    <header class="sticky top-0 z-50 w-full glass-panel border-b border-white/5 h-20 flex items-center">
+        <div class="w-full max-w-[1400px] mx-auto px-8">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-16">
+                    <a class="flex items-center gap-3 group" href="index.html">
+                        <div class="">
+                            <img src="images/Logo.svg" alt="" style="width: 150px;">
+                        </div>
+                    </a>
+                    <nav class="hidden md:flex items-center gap-10">
+                        <a class="nav-link" href="index.html">Home</a>
+                        <a class="nav-link-active" href="aurayale.html">Aurayale</a>
+                        <a class="nav-link" href="contact.html">Contact</a>
+                    </nav>
+                </div>
+                <div class="flex items-center gap-6">
+                    <button
+                        class="hidden md:flex items-center justify-center px-6 py-2.5 text-xs font-bold uppercase tracking-widest bg-gradient-to-r from-primary to-secondary text-white rounded-lg hover:brightness-110 transition-all shadow-lg shadow-primary/25">
+                        Login
+                    </button>
+                    <button id="mobile-menu-btn"
+                        class="md:hidden p-2 text-slate-400 hover:text-white transition-colors">
+                        <span class="material-symbols-outlined text-2xl">menu</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== MOBILE MENU ===== -->
+    <div id="mobile-menu" class="fixed inset-0 z-[60] hidden">
+        <!-- Backdrop -->
+        <div id="mobile-menu-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+        <!-- Panel -->
+        <div
+            class="absolute top-0 right-0 w-full max-w-sm h-full bg-background-dark/95 backdrop-blur-2xl border-l border-white/5 shadow-2xl transform transition-transform duration-300 flex flex-col">
+            <!-- Close button -->
+            <div class="flex items-center justify-between p-6 border-b border-white/5">
+                <a href="index.html">
+                    <img src="images/Logo.svg" alt="" style="width: 120px;">
+                </a>
+                <button id="mobile-menu-close" class="p-2 text-slate-400 hover:text-white transition-colors">
+                    <span class="material-symbols-outlined text-2xl">close</span>
+                </button>
+            </div>
+            <!-- Nav Links -->
+            <nav class="flex flex-col gap-2 p-6 flex-grow">
+                <a class="flex items-center gap-4 px-4 py-4 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all"
+                    href="index.html">
+                    <span class="material-symbols-outlined text-xl">home</span>
+                    <span class="text-sm font-semibold uppercase tracking-widest">Home</span>
+                </a>
+                <a class="flex items-center gap-4 px-4 py-4 rounded-xl text-white bg-primary/10 border border-primary/20"
+                    href="aurayale.html">
+                    <span class="material-symbols-outlined text-xl text-primary">diamond</span>
+                    <span class="text-sm font-semibold uppercase tracking-widest">Aurayale</span>
+                </a>
+                <a class="flex items-center gap-4 px-4 py-4 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all"
+                    href="contact.html">
+                    <span class="material-symbols-outlined text-xl">mail</span>
+                    <span class="text-sm font-semibold uppercase tracking-widest">Contact</span>
+                </a>
+            </nav>
+            <!-- Bottom CTA -->
+            <div class="p-6 border-t border-white/5">
+                <button
+                    class="w-full px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white font-bold text-xs uppercase tracking-widest rounded-xl hover:brightness-110 transition-all shadow-lg shadow-primary/20">
+                    Login
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const btn = document.getElementById('mobile-menu-btn');
+            const menu = document.getElementById('mobile-menu');
+            const closeBtn = document.getElementById('mobile-menu-close');
+            const backdrop = document.getElementById('mobile-menu-backdrop');
+            if (!btn || !menu) return;
+            function open() { menu.classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
+            function close() { menu.classList.add('hidden'); document.body.style.overflow = ''; }
+            btn.addEventListener('click', open);
+            if (closeBtn) closeBtn.addEventListener('click', close);
+            if (backdrop) backdrop.addEventListener('click', close);
+        })();
+    </script>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="flex-grow relative z-10">
+
+        <!-- Hero Section (from Aurayale) -->
+        <section class="relative min-h-[85vh] flex items-center justify-center overflow-hidden pt-20">
+            <div class="absolute inset-0 z-0">
+                <!-- Glow Orbs -->
+                <div
+                    class="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/15 rounded-full blur-[120px] mix-blend-screen">
+                </div>
+                <div class="absolute bottom-0 right-0 w-[800px] h-[600px] bg-primary/10 rounded-full blur-[100px]">
+                </div>
+            </div>
+            <div class="relative z-10 max-w-7xl mx-auto px-6 text-center">
+                <div
+                    class="inline-flex items-center gap-3 px-6 py-2 rounded-full border border-primary/30 bg-primary/5 backdrop-blur-md mb-12 shadow-[0_0_20px_rgba(99,102,241,0.1)]">
+                    <span class="relative flex h-2 w-2">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                    </span>
+                    <span class="text-[10px] font-bold text-indigo-300 tracking-[0.3em] uppercase">Season 1: Genesis
+                        Mint Live</span>
+                </div>
+                <h1
+                    class="font-display text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-white mb-8 leading-[1.1] drop-shadow-2xl">
+                    Rule the Multiverse<br>
+                    <span class="text-gradient">One Gem at a Time.</span>
+                </h1>
+                <div class="flex flex-wrap items-center justify-between mb-16 ">
+                    <div class="flex flex-wrap  gap-14">
+                        <div class="relative">
+                            <div class="text-3xl font-bold text-slate-100 font-display">24,792</div>
+                            <div class="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-2">Games
+                                Played</div>
+                        </div>
+                        <div class="relative">
+                            <div class="text-3xl font-bold text-slate-100 font-display">2,499,347</div>
+                            <div class="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-2">In Agents
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <div class="text-3xl font-bold text-slate-100 font-display flex items-center gap-2">
+                                24.7M
+                            </div>
+                            <div class="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-2">Total Prize
+                                Pool</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
+                    <button
+                        class="group w-full sm:w-auto px-12 py-4 bg-gradient-to-r from-primary to-secondary hover:brightness-110 text-white rounded-full font-bold text-sm uppercase tracking-widest transition-all shadow-[0_0_30px_rgba(99,102,241,0.4)] hover:shadow-[0_0_50px_rgba(99,102,241,0.6)] flex items-center justify-center gap-2">
+                        Start Adventure <span
+                            class="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                    </button>
+                    <button
+                        class="w-full sm:w-auto px-12 py-4 glass-panel border-white/20 text-white hover:bg-white/5 rounded-full font-bold text-sm uppercase tracking-widest transition-all backdrop-blur-md">
+                        Watch Trailer
+                    </button>
+                </div>
+
+
+
+            </div>
+            <div class="absolute bottom-12 left-1/2 -translate-x-1/2 animate-bounce opacity-50">
+                <span class="material-symbols-outlined text-primary text-3xl">keyboard_arrow_down</span>
+            </div>
+        </section>
+
+        <!-- Stats Dashboard (from Aurayale2) -->
+        <section class="py-32">
+            <div class="max-w-7xl mx-auto px-6">
+
+
+                <!-- HOT Games Header -->
+                <div class="flex items-center justify-between mb-10">
+                    <div class="flex items-center space-x-4">
+                        <div
+                            class="p-2.5 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-lg shadow-primary/20">
+                            <span class="text-white material-symbols-outlined block">local_fire_department</span>
+                        </div>
+                        <h2 class="text-3xl font-bold text-white tracking-tight font-display">HOT Games</h2>
+                    </div>
+                    <a class="text-slate-400 text-sm hover:text-white flex items-center transition-all font-semibold group"
+                        href="#">
+                        Explore Library <span
+                            class="material-symbols-outlined text-lg ml-2 transform group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                    </a>
+                </div>
+
+                <!-- Game Cards (from Aurayale2) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Card 1: Live -->
+                    <div
+                        class="glass-panel rounded-2xl p-7 hover:border-primary/50 transition-all duration-500 hover:scale-[1.02] group cursor-pointer relative overflow-hidden">
+                        <div
+                            class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary opacity-30 group-hover:opacity-100 transition-opacity">
+                        </div>
+                        <div class="flex justify-between items-start mb-6">
+                            <h3
+                                class="font-bold text-xl text-slate-100 group-hover:text-white transition-colors leading-tight">
+                                2001th MoltyRoyale Championship</h3>
+                            <span class="status-active">
+                                <span class="status-dot"></span> Live
+                            </span>
+                        </div>
+                        <div class="flex items-center space-x-6 text-sm mb-10">
+                            <div class="flex items-center gap-2 text-slate-400 group-hover:text-slate-300">
+                                <span class="text-primary material-symbols-outlined text-xl">emoji_events</span>
+                                <span class="font-bold">6</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-slate-400 group-hover:text-slate-300">
+                                <span class="text-primary material-symbols-outlined text-xl">group</span>
+                                <span class="font-bold">7/12</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-slate-400 group-hover:text-slate-300">
+                                <span class="text-rose-500/80 material-symbols-outlined text-xl">favorite</span>
+                                <span class="font-bold">112</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center pt-6 border-t border-white/5">
+                            <div class="flex gap-2">
+                                <span
+                                    class="bg-primary/10 text-primary border border-primary/20 text-[9px] px-2.5 py-1 rounded font-black uppercase tracking-[0.15em]">Hot</span>
+                                <span
+                                    class="bg-indigo-300/10 text-indigo-300 border border-indigo-300/20 text-[9px] px-2.5 py-1 rounded font-black uppercase tracking-[0.15em]">Mining</span>
+                            </div>
+                            <button
+                                class="bg-primary/10 border border-primary/30 text-primary text-xs font-bold py-2.5 px-6 rounded-xl transition-all uppercase tracking-wider hover:bg-primary/20 hover:border-primary">
+                                Enter Room
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Card 2: Ended -->
+                    <div
+                        class="glass-panel rounded-2xl p-7 hover:border-slate-500/40 transition-all duration-500 group cursor-pointer relative overflow-hidden opacity-80 hover:opacity-100">
+                        <div
+                            class="absolute top-0 left-0 w-full h-1 bg-slate-500/20 group-hover:opacity-100 transition-opacity">
+                        </div>
+                        <div class="flex justify-between items-start mb-6">
+                            <h3 class="font-bold text-xl text-slate-100 transition-colors leading-tight">Weekly Speed
+                                Run Event</h3>
+                            <span
+                                class="bg-black/40 text-slate-500 border border-white/5 text-xs px-3 py-1 rounded-full font-bold">Ended</span>
+                        </div>
+                        <div class="flex items-center space-x-6 text-sm mb-10">
+                            <div class="flex items-center gap-2 text-slate-400">
+                                <span class="text-primary/50 material-symbols-outlined text-xl">emoji_events</span>
+                                <span class="font-bold">1,200</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-slate-400">
+                                <span class="text-primary/50 material-symbols-outlined text-xl">group</span>
+                                <span class="font-bold">50/50</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-slate-400">
+                                <span class="text-rose-500/40 material-symbols-outlined text-xl">favorite</span>
+                                <span class="font-bold">89</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center pt-6 border-t border-white/5">
+                            <div class="flex gap-2">
+                                <span
+                                    class="bg-white/5 text-slate-500 border border-white/10 text-[9px] px-2.5 py-1 rounded font-black uppercase tracking-[0.15em]">Speedrun</span>
+                            </div>
+                            <button
+                                class="bg-white/5 text-slate-500 text-xs font-bold py-2.5 px-6 rounded-xl border border-white/5 cursor-not-allowed uppercase tracking-wider">
+                                Closed
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Card 3: Full -->
+                    <div
+                        class="glass-panel rounded-2xl p-7 hover:border-primary/50 transition-all duration-500 hover:scale-[1.02] group cursor-pointer relative overflow-hidden">
+                        <div
+                            class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-400 to-primary opacity-30 group-hover:opacity-100 transition-opacity">
+                        </div>
+                        <div class="flex justify-between items-start mb-6">
+                            <h3
+                                class="font-bold text-xl text-slate-100 group-hover:text-white transition-colors leading-tight">
+                                Beginner's Arena</h3>
+                            <span
+                                class="bg-primary/10 text-primary border border-primary/30 text-xs px-3 py-1 rounded-full font-bold">Full</span>
+                        </div>
+                        <div class="flex items-center space-x-6 text-sm mb-10">
+                            <div class="flex items-center gap-2 text-slate-400 group-hover:text-slate-300">
+                                <span class="text-primary material-symbols-outlined text-xl">emoji_events</span>
+                                <span class="font-bold">100</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-slate-400 group-hover:text-slate-300">
+                                <span class="text-primary material-symbols-outlined text-xl">group</span>
+                                <span class="font-bold">20/20</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-slate-400 group-hover:text-slate-300">
+                                <span class="text-rose-500/80 material-symbols-outlined text-xl">favorite</span>
+                                <span class="font-bold">45</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center pt-6 border-t border-white/5">
+                            <div class="flex gap-2">
+                                <span
+                                    class="bg-primary/10 text-primary border border-primary/20 text-[9px] px-2.5 py-1 rounded font-black uppercase tracking-[0.15em]">Novice</span>
+                                <span
+                                    class="bg-indigo-300/10 text-indigo-300 border border-indigo-300/20 text-[9px] px-2.5 py-1 rounded font-black uppercase tracking-[0.15em]">Ranked</span>
+                            </div>
+                            <button
+                                class="bg-gradient-to-r from-primary to-secondary text-white text-xs font-bold py-2.5 px-6 rounded-xl transition-all shadow-lg shadow-primary/20 uppercase tracking-wider hover:brightness-110">
+                                Spectate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Worldview Section (from Aurayale) -->
+        <section class="py-32 relative">
+            <div
+                class="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary/5 to-transparent pointer-events-none">
+            </div>
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="grid lg:grid-cols-2 gap-20 items-center">
+                    <div class="relative z-10 order-2 lg:order-1">
+                        <div class="relative group">
+                            <div
+                                class="aspect-[4/3] rounded-[2rem] glass-card-deep p-2 relative overflow-visible transform rotate-[-2deg] hover:rotate-0 transition-transform duration-700">
+                                <div
+                                    class="absolute -top-12 -right-12 w-32 h-32 bg-primary/20 rounded-full blur-[40px] z-0">
+                                </div>
+                                <div class="relative h-full w-full rounded-[1.5rem] overflow-hidden">
+                                    <img alt="Primo Planet 3D Render"
+                                        class="w-full h-full object-cover opacity-90 hover:scale-105 transition-transform duration-1000"
+                                        src="images/banner_02.jpg">
+                                    <div
+                                        class="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent opacity-60">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative z-10 order-1 lg:order-2">
+                        <span
+                            class="text-primary font-bold tracking-[0.2em] text-xs uppercase mb-6 block flex items-center gap-2">
+                            <span class="w-8 h-px bg-primary"></span> Worldview
+                        </span>
+                        <h2
+                            class="font-display text-4xl md:text-5xl font-bold text-white mb-8 tracking-tight leading-tight">
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-slate-200">
+                                Aura Gem</span> Universe
+                        </h2>
+                        <p class="text-slate-400 text-lg leading-relaxed mb-10 font-light max-w-lg">
+                            Across the arcane infinity universe, galaxies conceal gems holding cosmic secrets. These
+                            gems grant immense power in battle, making them highly sought-after treasures.
+                        </p>
+                        <div class="flex gap-4">
+                            <div class="glass-card px-6 py-4 rounded-xl text-center">
+                                <h4 class="text-2xl font-bold text-primary font-display">5</h4>
+                                <p class="text-[10px] uppercase tracking-wider text-slate-500 mt-1">Planetary Zones</p>
+                            </div>
+                            <div class="glass-card px-6 py-4 rounded-xl text-center">
+                                <h4 class="text-2xl font-bold text-primary font-display">∞</h4>
+                                <p class="text-[10px] uppercase tracking-wider text-slate-500 mt-1">Possibilities</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gem Cuts Section (from Aurayale) -->
+        <section class="py-32 relative bg-white/[0.01]">
+            <div
+                class="absolute inset-0 bg-[linear-gradient(rgba(99,102,241,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(99,102,241,0.02)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]">
+            </div>
+            <div class="max-w-7xl mx-auto px-6 relative z-10">
+                <div class="text-center mb-6">
+                    <h2 class="font-display text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">Light
+                        Strategic Fun</h2>
+                    <p class="text-slate-400 max-w-xl mx-auto font-light">Master the art of gem cutting. Different cuts
+                        yield different powers in the Aurayale economy.</p>
+                </div>
+                <style>
+                    @keyframes cardFloat1 {
+
+                        0%,
+                        100% {
+                            transform: translateY(0);
+                        }
+
+                        50% {
+                            transform: translateY(-12px);
+                        }
+                    }
+
+                    @keyframes cardFloat2 {
+
+                        0%,
+                        100% {
+                            transform: translateY(0);
+                        }
+
+                        50% {
+                            transform: translateY(-10px);
+                        }
+                    }
+
+                    @keyframes cardFloat3 {
+
+                        0%,
+                        100% {
+                            transform: translateY(0);
+                        }
+
+                        50% {
+                            transform: translateY(-14px);
+                        }
+                    }
+
+                    @keyframes cardFloat4 {
+
+                        0%,
+                        100% {
+                            transform: translateY(0);
+                        }
+
+                        50% {
+                            transform: translateY(-11px);
+                        }
+                    }
+
+                    .card-float-1 {
+                        animation: cardFloat1 3.5s ease-in-out 0s infinite;
+                    }
+
+                    .card-float-2 {
+                        animation: cardFloat2 4.0s ease-in-out 0.8s infinite;
+                    }
+
+                    .card-float-3 {
+                        animation: cardFloat3 3.8s ease-in-out 1.6s infinite;
+                    }
+
+                    .card-float-4 {
+                        animation: cardFloat4 4.2s ease-in-out 2.4s infinite;
+                    }
+
+                    .fan-card {
+                        transition: filter 0.5s;
+                    }
+
+                    .fan-card:hover {
+                        filter: brightness(1.15);
+                    }
+                </style>
+                <div class="flex justify-center items-end py-16 overflow-visible">
+                    <div class="relative flex items-end justify-center w-full max-w-[700px] mx-auto"
+                        style="height: 300px;">
+                        <!-- Card 1 (leftmost) — outer: fan position, inner: float -->
+                        <div class="absolute left-1/2 bottom-0"
+                            style="transform: translateX(-50%) translateX(calc(-28vw + 40px)) rotate(-15deg); transform-origin: bottom center; z-index: 1;">
+                            <div class="card-float-1 cursor-pointer">
+                                <img src="images/card_01.png" alt="Card 01"
+                                    class="fan-card w-[140px] sm:w-[170px] md:w-[220px] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
+                            </div>
+                        </div>
+                        <!-- Card 2 -->
+                        <div class="absolute left-1/2 bottom-0"
+                            style="transform: translateX(-50%) translateX(calc(-10vw + 10px)) rotate(-5deg); transform-origin: bottom center; z-index: 2;">
+                            <div class="card-float-2 cursor-pointer">
+                                <img src="images/card_02.png" alt="Card 02"
+                                    class="fan-card w-[140px] sm:w-[170px] md:w-[220px] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
+                            </div>
+                        </div>
+                        <!-- Card 3 -->
+                        <div class="absolute left-1/2 bottom-0"
+                            style="transform: translateX(-50%) translateX(calc(10vw - 10px)) rotate(5deg); transform-origin: bottom center; z-index: 3;">
+                            <div class="card-float-3 cursor-pointer">
+                                <img src="images/card_03.png" alt="Card 03"
+                                    class="fan-card w-[140px] sm:w-[170px] md:w-[220px] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
+                            </div>
+                        </div>
+                        <!-- Card 4 (rightmost) -->
+                        <div class="absolute left-1/2 bottom-0"
+                            style="transform: translateX(-50%) translateX(calc(28vw - 40px)) rotate(15deg); transform-origin: bottom center; z-index: 4;">
+                            <div class="card-float-4 cursor-pointer">
+                                <img src="images/card_04.png" alt="Card 04"
+                                    class="fan-card w-[140px] sm:w-[170px] md:w-[220px] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SwUp System (from Aurayale) -->
+        <section class="py-32 relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-background-dark z-0"></div>
+            <div class="max-w-7xl mx-auto px-6 relative z-10">
+                <div class="glass-panel rounded-[3rem] p-12 md:p-20 border border-white/10 relative overflow-hidden">
+                    <div
+                        class="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3">
+                    </div>
+                    <div class="grid lg:grid-cols-2 gap-16 items-center">
+                        <div>
+                            <span class="accent-badge mb-6 inline-flex">SwUp System V1.0</span>
+                            <h2 class="font-display text-4xl md:text-5xl font-bold text-white mb-6">Empowering
+                                <br>Digital Assets
+                            </h2>
+                            <p class="text-slate-400 text-lg leading-relaxed mb-8 font-light">
+                                Built on the robust ERC-1155 standard, Aurayale assets are more than just collectibles.
+                                We integrate Chainlink VRF for provably fair drop rates, ensuring true scarcity and
+                                value.
+                            </p>
+                            <ul class="space-y-6">
+                                <li class="flex items-start gap-4">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 shrink-0 mt-1">
+                                        <span class="material-symbols-outlined text-sm text-primary">check</span>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-white font-bold text-sm">ERC-1155 Multi-Token Standard</h4>
+                                        <p class="text-slate-500 text-xs mt-1">Gas-efficient batch transfers and mixed
+                                            asset types.</p>
+                                    </div>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 shrink-0 mt-1">
+                                        <span
+                                            class="material-symbols-outlined text-sm text-primary">verified_user</span>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-white font-bold text-sm">Chainlink VRF Integration</h4>
+                                        <p class="text-slate-500 text-xs mt-1">Verifiable randomness for all gem
+                                            generation events.</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="relative">
+                            <img src="images/banner_03.png" alt="SwUp System"
+                                class="w-full h-auto rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.4)]">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Awards (from Aurayale) -->
+        <section class="py-24 bg-white/[0.01] border-y border-white/5">
+            <div class="max-w-7xl mx-auto px-6 text-center">
+                <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em] mb-12">Recognized By Industry
+                    Leaders</h3>
+                <div class="flex flex-wrap justify-center items-center gap-16 md:gap-24 opacity-80">
+                    <div class="flex flex-col items-center gap-2 group cursor-default">
+                        <span
+                            class="material-symbols-outlined text-4xl text-primary/40 group-hover:text-primary transition-colors">diamond</span>
+                        <span
+                            class="font-display font-bold text-xl tracking-wide text-slate-400 group-hover:text-white transition-colors">ETHGlobal</span>
+                        <span class="text-[9px] uppercase tracking-widest text-primary/60">Finalist 2024</span>
+                    </div>
+                    <div class="w-px h-12 bg-white/10 hidden md:block"></div>
+                    <div class="flex flex-col items-center gap-2 group cursor-default">
+                        <span
+                            class="material-symbols-outlined text-4xl text-primary/40 group-hover:text-primary transition-colors">rocket_launch</span>
+                        <span
+                            class="font-display font-bold text-xl tracking-wide text-slate-400 group-hover:text-white transition-colors">BYBIT
+                            <span class="font-light">Unleashed</span></span>
+                        <span class="text-[9px] uppercase tracking-widest text-primary/60">Grant Recipient</span>
+                    </div>
+                    <div class="w-px h-12 bg-white/10 hidden md:block"></div>
+                    <div class="flex flex-col items-center gap-2 group cursor-default">
+                        <span
+                            class="material-symbols-outlined text-4xl text-primary/40 group-hover:text-primary transition-colors">hexagon</span>
+                        <span
+                            class="font-display font-bold text-xl tracking-wide text-slate-400 group-hover:text-white transition-colors">POLYGON</span>
+                        <span class="text-[9px] uppercase tracking-widest text-primary/60">Ecosystem Partner</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+
+        <!-- CTA (from Aurayale) -->
+        <section class="py-32 relative">
+            <div class="max-w-4xl mx-auto px-6 text-center relative z-10">
+                <div
+                    class="glass-panel py-20 px-8 rounded-[3rem] border border-white/10 shadow-[0_0_100px_rgba(99,102,241,0.15)] bg-gradient-to-b from-white/[0.02] to-transparent">
+                    <h2 class="font-display text-5xl md:text-7xl font-bold text-white mb-8 tracking-tighter">Begin Your
+                        <br><span class="text-gradient">Galactic Hunt</span>
+                    </h2>
+                    <p class="text-slate-400 text-lg mb-12 max-w-lg mx-auto font-light">
+                        The portal is open. Thousands of gems await discovery. Will you claim the rarest artifacts?
+                    </p>
+                    <div class="flex flex-col items-center">
+                        <button
+                            class="px-16 py-6 bg-gradient-to-r from-primary to-secondary text-white rounded-full font-bold text-lg uppercase tracking-widest hover:brightness-110 hover:scale-105 transition-all shadow-[0_0_40px_rgba(99,102,241,0.3)]">
+                            Play Now
+                        </button>
+                        <p class="mt-6 text-xs text-slate-500 uppercase tracking-wider">Browser &amp; VR Compatible</p>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[800px] h-[400px] bg-primary/10 rounded-full blur-[120px] -z-10">
+            </div>
+        </section>
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="relative z-10 bg-background-dark pt-24 pb-12 border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-8">
+            <div class="grid md:grid-cols-4 gap-16 mb-20">
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center gap-3 mb-8">
+                        <a class="flex items-center gap-3 group" href="index.html">
+                            <div class="">
+                                <img src="images/Logo.svg" alt="" style="width: 150px;">
+                            </div>
+                        </a>
+                    </div>
+                    <p class="text-slate-500 max-w-sm mb-10 leading-relaxed font-light">
+                        Pioneering the intersection of high-fidelity gaming and decentralized finance.
+                    </p>
+                    <div class="flex gap-8">
+                        <a class="text-slate-500 hover:text-white transition-colors" href="#"><span
+                                class="material-symbols-outlined text-xl">alternate_email</span></a>
+                        <a class="text-slate-500 hover:text-white transition-colors" href="#"><span
+                                class="material-symbols-outlined text-xl">code</span></a>
+                        <a class="text-slate-500 hover:text-white transition-colors" href="#"><span
+                                class="material-symbols-outlined text-xl">terminal</span></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-white text-xs font-bold uppercase tracking-widest mb-8">Aurayale</h4>
+                    <ul class="space-y-4">
+                        <li><a class="text-slate-500 hover:text-white transition-colors text-sm font-light"
+                                href="#">Game Guide</a></li>
+                        <li><a class="text-slate-500 hover:text-white transition-colors text-sm font-light"
+                                href="#">Marketplace</a></li>
+                        <li><a class="text-slate-500 hover:text-white transition-colors text-sm font-light"
+                                href="#">Leaderboard</a></li>
+                        <li><a class="text-slate-500 hover:text-white transition-colors text-sm font-light"
+                                href="#">Patch Notes</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white text-xs font-bold uppercase tracking-widest mb-8">Legal</h4>
+                    <ul class="space-y-4">
+                        <li><a class="text-slate-500 hover:text-white transition-colors text-sm font-light"
+                                href="#">Privacy Policy</a></li>
+                        <li><a class="text-slate-500 hover:text-white transition-colors text-sm font-light"
+                                href="#">Terms of Service</a></li>
+                        <li><a class="text-slate-500 hover:text-white transition-colors text-sm font-light"
+                                href="#">Tokenomics</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-white/5 pt-12 flex flex-col md:flex-row justify-between items-center gap-6">
+                <p class="text-slate-600 text-[10px] uppercase tracking-widest font-bold">© 2026 Mustaverse Studio. All
+                    rights reserved.</p>
+                <div class="flex gap-8">
+                    <span class="text-[10px] text-slate-700 font-bold uppercase tracking-[0.3em]">Status:
+                        Operational</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== SCROLL-BASED VIDEO OPACITY & BLUR ===== -->
+    <script>
+        (function () {
+            const video = document.getElementById('bg-video');
+            const overlay = document.getElementById('video-overlay');
+            const heroSection = document.querySelector('section');
+            if (!video || !overlay || !heroSection) return;
+
+            const heroHeight = heroSection.offsetHeight;
+
+            function onScroll() {
+                const scrollY = window.scrollY;
+                const progress = Math.min(scrollY / heroHeight, 1);
+
+                // Ease out curve for smoother transition
+                const eased = progress * progress;
+
+                const videoOpacity = 0.7 - (eased * 0.3);
+                const overlayOpacity = 0.3 + (eased * 0.45);
+                const blurAmount = eased * 20; // 0px → 20px blur
+
+                video.style.opacity = videoOpacity;
+                video.style.filter = `blur(${blurAmount}px)`;
+                overlay.style.opacity = overlayOpacity;
+            }
+
+            window.addEventListener('scroll', onScroll, { passive: true });
+            onScroll(); // Initial call
+        })();
+    </script>
+
+</body>
+
+</html>
