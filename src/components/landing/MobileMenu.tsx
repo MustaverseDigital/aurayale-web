@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { usePrivy } from "@privy-io/react-auth";
+import { useLogin } from "../../hooks/useLogin";
 
 type ActivePage = "home" | "aurayale" | "contact";
 
@@ -23,7 +23,7 @@ export function MobileMenu({
   activePage: ActivePage;
   onClose: () => void;
 }) {
-  const { login } = usePrivy();
+  const { login, logout, authenticated, ready } = useLogin();
 
   if (!isOpen) return null;
 
@@ -61,15 +61,27 @@ export function MobileMenu({
           ))}
         </nav>
         <div className="p-6 border-t border-white/5">
-          <button
-            onClick={() => {
-              login();
-              onClose();
-            }}
-            className="w-full px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white font-bold text-xs uppercase tracking-widest rounded-xl hover:brightness-110 transition-all shadow-lg shadow-primary/20"
-          >
-            Login
-          </button>
+          {ready && authenticated ? (
+            <button
+              onClick={() => {
+                logout();
+                onClose();
+              }}
+              className="w-full px-6 py-3 border border-white/20 text-white/70 font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-white/5 transition-all"
+            >
+              Logout
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                login();
+                onClose();
+              }}
+              className="w-full px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white font-bold text-xs uppercase tracking-widest rounded-xl hover:brightness-110 transition-all shadow-lg shadow-primary/20"
+            >
+              Login
+            </button>
+          )}
         </div>
       </div>
     </div>

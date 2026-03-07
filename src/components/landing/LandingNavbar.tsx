@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { usePrivy } from "@privy-io/react-auth";
+import { useLogin } from "../../hooks/useLogin";
 
 type ActivePage = "home" | "aurayale" | "contact";
 
@@ -12,7 +12,7 @@ export function LandingNavbar({
   onOpenMobileMenu: () => void;
 }) {
   const router = useRouter();
-  const { login, logout, authenticated, ready } = usePrivy();
+  const { login, logout, authenticated, ready } = useLogin();
 
   const navItems: { label: string; href: string; key: ActivePage }[] = [
     { label: "Home", href: "/landing", key: "home" },
