@@ -1,14 +1,34 @@
 import { useEffect, useRef, useCallback, useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/router";
 import { LandingNavbar } from "../components/landing/LandingNavbar";
 import { MobileMenu } from "../components/landing/MobileMenu";
 import { LandingFooter } from "../components/landing/LandingFooter";
+import { useLogin } from "../hooks/useLogin";
 
 export default function AurayalePage() {
+  const router = useRouter();
+  const { login, authenticated, ready } = useLogin({ redirectTo: null, autoProcess: false });
+  const pendingAdventureRef = useRef(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (pendingAdventureRef.current && ready && authenticated) {
+      pendingAdventureRef.current = false;
+      router.push("/platform");
+    }
+  }, [ready, authenticated, router]);
+
+  const handleStartAdventure = () => {
+    if (ready && authenticated) {
+      router.push("/platform");
+    } else {
+      pendingAdventureRef.current = true;
+      login();
+    }
+  };
 
   const handleScroll = useCallback(() => {
     const video = videoRef.current;
@@ -90,13 +110,13 @@ export default function AurayalePage() {
               </div>
             </div>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-              <Link
-                href="/login"
+              <button
+                onClick={handleStartAdventure}
                 className="group w-full sm:w-auto px-12 py-4 bg-gradient-to-r from-primary to-secondary hover:brightness-110 text-white rounded-full font-bold text-sm uppercase tracking-widest transition-all shadow-[0_0_30px_rgba(99,102,241,0.4)] hover:shadow-[0_0_50px_rgba(99,102,241,0.6)] flex items-center justify-center gap-2"
               >
                 Start Adventure
                 <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
-              </Link>
+              </button>
               <button className="w-full sm:w-auto px-12 py-4 glass-panel border-white/20 text-white hover:bg-white/5 rounded-full font-bold text-sm uppercase tracking-widest transition-all backdrop-blur-md">
                 Watch Trailer
               </button>
@@ -405,12 +425,12 @@ export default function AurayalePage() {
                 The portal is open. Thousands of gems await discovery. Will you claim the rarest artifacts?
               </p>
               <div className="flex flex-col items-center">
-                <Link
-                  href="/login"
+                <button
+                  onClick={handleStartAdventure}
                   className="px-16 py-6 bg-gradient-to-r from-primary to-secondary text-white rounded-full font-bold text-lg uppercase tracking-widest hover:brightness-110 hover:scale-105 transition-all shadow-[0_0_40px_rgba(99,102,241,0.3)]"
                 >
                   Play Now
-                </Link>
+                </button>
                 <p className="mt-6 text-xs text-slate-500 uppercase tracking-wider">Browser &amp; VR Compatible</p>
               </div>
             </div>

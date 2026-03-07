@@ -5,7 +5,7 @@ import { useUser } from "../context/UserContext";
 import { getUserDeck, getUserGems, loginWithFarcasterByPrivy } from "../api/auraServer";
 
 interface UseLoginOptions {
-  redirectTo?: string;
+  redirectTo?: string | null;
   autoProcess?: boolean;
 }
 
@@ -88,7 +88,9 @@ export function useLogin(options: UseLoginOptions = {}) {
         });
       }
 
-      router.push(redirectTo);
+      if (redirectTo) {
+        router.push(redirectTo);
+      }
     } catch (e: any) {
       console.error("Login error:", e);
       setError(e.message || "登入失敗");
