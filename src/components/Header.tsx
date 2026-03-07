@@ -50,10 +50,10 @@ export function Header() {
   };
 
   return (
-    <header className="bg-[#D9D9D9]/5 border-b border-[#898cd2]/30 backdrop-blur-sm">
-      <div className="flex items-center justify-between p-3 max-w-md mx-auto">
-        <div className="text-2xl font-bold text-white">
-          <img src="/img/Logo_s.svg" alt="" />
+    <header className="bg-[#D9D9D9]/5 border-b border-[#898cd2]/30 backdrop-blur-sm w-full">
+      <div className="flex items-center justify-between p-3 w-full px-3 sm:px-4">
+        <div className="text-2xl font-bold text-white shrink-0">
+          <img src="/img/Logo_s.svg" alt="" className="h-8" />
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -62,7 +62,7 @@ export function Header() {
             disabled={isLoggingOut}
             aria-label="登出"
           >
-            <LogOut className="w-6 h-6 text-white" />
+            <LogOut className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </button>
         </div>
       </div>

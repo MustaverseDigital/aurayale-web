@@ -154,12 +154,13 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bgImg text-white flex flex-col">
+    <div className="min-h-screen bgImg text-white flex flex-col overflow-x-hidden">
       {/* Unity-matched viewport container */}
       <div
-        className="fixed inset-0 z-0 flex flex-col items-center justify-center bg-black"
+        className="fixed inset-0 z-0 flex flex-col items-center justify-center bg-black overflow-x-hidden"
         style={{
           width: `${canvasWidth}px`,
+          maxWidth: "100vw",
           height: viewportHeight,
           left: "50%",
           transform: "translateX(-50%)",
@@ -167,50 +168,54 @@ export default function ProfilePage() {
         }}
       >
         {/* Header*/}
-        <header className="py-2 px-4 border-b border-[#898cd2]/30 backdrop-blur-sm fixed top-0 z-10 flex justify-between items-center w-full" style={{ width: `${canvasWidth}px`, left: "50%", transform: "translateX(-50%)" }}>
-          <h1 className="text-lg text-gray-400 ">Profile</h1>
+        <header
+          className="py-2 px-3 sm:px-4 border-b border-[#898cd2]/30 backdrop-blur-sm fixed top-0 z-10 flex justify-between items-center"
+          style={{ width: `${canvasWidth}px`, maxWidth: "100vw", left: "50%", transform: "translateX(-50%)" }}
+        >
+          <h1 className="text-base sm:text-lg text-gray-400">Profile</h1>
 
           <button className="btn-square p-3 rounded-xl hover:bg-white/10 transition-colors text-xs" aria-label="Lot Out" onClick={() => {
             setUser(null);
             router.push("/login");
           }}>
-            <LogOut />
+            <LogOut className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
         </header>
 
-        <div className="container flex-1 flex flex-col p-4 pt-20 pb-24 mx-auto w-full overflow-y-auto" style={{ width: `${canvasWidth}px` }}>
-        <main className="flex-1 flex flex-col space-y-6">
+        <div
+          className="container flex-1 flex flex-col p-3 sm:p-4 pt-16 sm:pt-20 pb-20 sm:pb-24 mx-auto w-full overflow-y-auto overflow-x-hidden"
+          style={{ width: `${canvasWidth}px`, maxWidth: "100vw" }}
+        >
+        <main className="flex-1 flex flex-col space-y-4 sm:space-y-6">
           {/* Profile Card */}
-          <div className="profile-card  px-4 py-8 flex flex-col space-y-4 relative">
+          <div className="profile-card px-3 sm:px-4 py-5 sm:py-8 flex flex-col space-y-3 sm:space-y-4 relative overflow-hidden">
             {/* User Info Section */}
-            <div className="flex items-center space-x-4">
-              {/* Icon */}
-              <div className="w-16 h-16 bg-avatar rounded-xl flex items-center justify-center  flex-shrink-0"></div>
-              {/* User Info */}
-              <div>
-                <h2 className="text-2xl font-bold">
-                  <div className="mb-2">
-                    <span className="font-semibold">UserName</span>{" "}
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-avatar rounded-xl flex items-center justify-center flex-shrink-0"></div>
+              <div className="min-w-0">
+                <h2 className="text-xl sm:text-2xl font-bold">
+                  <div className="mb-1 sm:mb-2">
+                    <span className="font-semibold truncate block">UserName</span>
                   </div>
                 </h2>
-                <p className="text-sm text-white">ID: {user?.userId}</p>
+                <p className="text-xs sm:text-sm text-white truncate">ID: {user?.userId}</p>
               </div>
             </div>
 
             {/* Wallet Info */}
-            <div className="pt-4">
-              <p className="text-white text-sm mb-3">Aurayale Gem Wallet</p>
-              <div className="flex justify-between items-center">
+            <div className="pt-3 sm:pt-4">
+              <p className="text-white text-xs sm:text-sm mb-2 sm:mb-3">Aurayale Gem Wallet</p>
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0">
                 {/* Left side: Address/Status */}
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 min-w-0">
                   {user?.walletAddress ? (
                     <>
-                      <p className="font-mono text-lg">
+                      <p className="font-mono text-sm sm:text-lg truncate">
                         {user.walletAddress.slice(0, 6)}...
                         {user.walletAddress.slice(-4)}
                       </p>
                       <button
-                        className="p-1 rounded-full hover:bg-white/10 transition-colors"
+                        className="p-1 rounded-full hover:bg-white/10 transition-colors shrink-0"
                         onClick={() =>
                           navigator.clipboard.writeText(user.walletAddress!)
                         }
@@ -218,7 +223,7 @@ export default function ProfilePage() {
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5 text-yellow-200"
+                          className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-200"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -233,13 +238,13 @@ export default function ProfilePage() {
                       </button>
                     </>
                   ) : (
-                    <span className="text-gray py-1 px-3 rounded-xl bg-gray-600/90">Not bound</span>
+                    <span className="text-gray py-1 px-3 rounded-xl bg-gray-600/90 text-xs sm:text-sm">Not bound</span>
                   )}
                 </div>
                 {/* Right side: Button */}
                 {user?.walletAddress ? (
                   <button
-                    className="btn-red text-white font-semibold py-2 px-3 rounded-xl text-sm"
+                    className="btn-red text-white font-semibold py-1.5 sm:py-2 px-3 rounded-xl text-xs sm:text-sm shrink-0 self-start sm:self-auto"
                     onClick={handleUnbindWallet}
                     disabled={bindLoading}
                   >
@@ -247,7 +252,7 @@ export default function ProfilePage() {
                   </button>
                 ) : (
                   <button
-                    className="btn-main text-white font-semibold py-2 px-3 rounded-xl text-sm"
+                    className="btn-main text-white font-semibold py-1.5 sm:py-2 px-3 rounded-xl text-xs sm:text-sm shrink-0 self-start sm:self-auto"
                     onClick={handleBindWallet}
                     disabled={bindLoading}
                   >
@@ -256,21 +261,21 @@ export default function ProfilePage() {
                 )}
               </div>
               {bindError && (
-                <div className="mt-4 bg-black/30 px-4 py-1  rounded-xl text-red-400 text-center">{bindError}</div>
+                <div className="mt-3 sm:mt-4 bg-black/30 px-3 sm:px-4 py-1 rounded-xl text-red-400 text-center text-xs sm:text-sm break-words">{bindError}</div>
               )}
               {bindSuccess && (
-                <div className="mt-4 bg-black/30 px-4 py-1  rounded-xl text-green-300 text-center">{bindSuccess}</div>
+                <div className="mt-3 sm:mt-4 bg-black/30 px-3 sm:px-4 py-1 rounded-xl text-green-300 text-center text-xs sm:text-sm">{bindSuccess}</div>
               )}
             </div>
 
           </div>
 
           {/* Current Deck */}
-          <div className="flex-1 flex flex-col space-y-4 bg-[#898cd2]/30  p-4 rounded-lg  inset-shadow-sm inset-shadow-[#ffffff]/10">
+          <div className="flex-1 flex flex-col space-y-3 sm:space-y-4 bg-[#898cd2]/30 p-3 sm:p-4 rounded-lg inset-shadow-sm inset-shadow-[#ffffff]/10">
             <div className="flex justify-between items-center">
-              <h3 className="text-xl">Current Deck</h3>
+              <h3 className="text-lg sm:text-xl">Current Deck</h3>
               <button
-                className="btn-primary text-shadow-lg text-white rounded-xl px-4 py-2 font-semibold bg-transparent hover:bg-blue-900/20 transition text-sm"
+                className="btn-primary text-shadow-lg text-white rounded-xl px-3 sm:px-4 py-1.5 sm:py-2 font-semibold bg-transparent hover:bg-blue-900/20 transition text-xs sm:text-sm"
                 onClick={() => router.push("/deck")}
               >
                 Edit Deck
@@ -279,25 +284,23 @@ export default function ProfilePage() {
 
             {/* Cards Grid */}
             <div id="cards-grid" className="flex-1 flex flex-col justify-center">
-              {/* 決定顯示卡槽數量（與原本 + 的數量一致） */}
               {(() => {
                 const totalSlots = 10;
                 const shownDeck = (deck || []).slice(0, totalSlots);
                 return (
-                  <div className="grid grid-cols-5 sm:grid-cols-5 gap-3">
+                  <div className="grid grid-cols-5 gap-1.5 sm:gap-3">
                     {Array.from({ length: totalSlots }).map((_, i) => {
                       const cardId = shownDeck[i];
                       if (deckLoading) {
-                        // 載入中仍顯示占位
                         return (
-                          <div key={i} className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-2xl">
+                          <div key={i} className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-xl sm:text-2xl">
                             …
                           </div>
                         );
                       }
                       if (cardId !== undefined) {
                         return (
-                          <div key={i} className="aspect-[3/4] flex items-center justify-center bg-gray-800 rounded-lg shadow ">
+                          <div key={i} className="aspect-[3/4] flex items-center justify-center bg-gray-800 rounded-lg shadow">
                             <img
                               src={getCardImagePath(cardId)}
                               alt={`Card ${cardId}`}
@@ -307,7 +310,7 @@ export default function ProfilePage() {
                         );
                       }
                       return (
-                        <div key={i} className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
+                        <div key={i} className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-2xl sm:text-4xl">
                           +
                         </div>
                       );
@@ -317,16 +320,16 @@ export default function ProfilePage() {
               })()}
 
               {deckError && (
-                <div className="text-red-400 mt-2">{deckError}</div>
+                <div className="text-red-400 mt-2 text-xs sm:text-sm">{deckError}</div>
               )}
             </div>
           </div>
           
-          {/* Play Button Section - Always visible at bottom */}
-          <div className="flex-shrink-0 text-center py-4 play-button-section">
-            <p className="mb-4">Are you ready to play?</p>
+          {/* Play Button Section */}
+          <div className="flex-shrink-0 text-center py-3 sm:py-4 play-button-section">
+            <p className="mb-3 sm:mb-4 text-sm sm:text-base">Are you ready to play?</p>
             <button
-                className="btn btn-battle text-shadow-lg rounded-xl px-8 py-2 text-xl disabled:opacity-50 disabled:cursor-not-allowed transition bg-opacity-90 hover:bg-opacity-100 inline-flex items-center justify-center h-15 w-58 whitespace-nowrap"
+                className="btn btn-battle text-shadow-lg rounded-xl px-6 sm:px-8 py-2 text-lg sm:text-xl disabled:opacity-50 disabled:cursor-not-allowed transition bg-opacity-90 hover:bg-opacity-100 inline-flex items-center justify-center h-12 sm:h-15 w-48 sm:w-58 whitespace-nowrap"
                 onClick={() => {
                   localStorage.setItem("battleDeck", JSON.stringify(deck));
                   router.push("/battle");
@@ -337,23 +340,6 @@ export default function ProfilePage() {
                 Play
               </button>
           </div>
-
-          {/* Action Buttons Section
-          <div className="fixed bottom-0 left-0 right-0 w-full p-4 backdrop-blur-md shadow-lg btnSection min-h-[72px] ">
-            <div className="flex items-center justify-center gap-3">
-              <button
-                className="btn btn-battle text-shadow-lg rounded-xl px-8 py-2 text-xl disabled:opacity-50 disabled:cursor-not-allowed transition bg-opacity-90 hover:bg-opacity-100 inline-flex items-center justify-center h-15 w-58 whitespace-nowrap"
-                onClick={() => {
-                  localStorage.setItem("battleDeck", JSON.stringify(deck));
-                  router.push("/battle");
-                }}
-                disabled={deck.length !== 10 || deckLoading}
-                title={deck.length === 10 ? "前往戰鬥" : "需要 10 張卡片的牌組"}
-              >
-                Battle
-              </button>
-            </div>
-          </div> */}
 
         </main>
       </div>

@@ -306,45 +306,46 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-        <div className="bg-[#3B2F36] backdrop-blur-sm border-2 border-[#3B3541]/50 rounded-xl max-w-md w-full shadow-2xl">
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-2 sm:p-4 z-50">
+        <div className="bg-[#3B2F36] backdrop-blur-sm border-2 border-[#3B3541]/50 rounded-xl max-w-md w-full shadow-2xl max-h-[90vh] overflow-y-auto">
           {/* Header */}
-          <div className="border-b border-[#877B8A]/30 p-4 flex justify-between items-center relative">
-            <h2 className="text-xl font-bold text-white text-center flex-1">CREATE</h2>
+          <div className="border-b border-[#877B8A]/30 p-3 sm:p-4 flex justify-between items-center relative">
+            <h2 className="text-lg sm:text-xl font-bold text-white text-center flex-1">CREATE</h2>
             <button
               onClick={onClose}
-              className="absolute right-4 top-4 text-white hover:text-gray-300 transition-colors"
+              className="absolute right-3 sm:right-4 top-3 sm:top-4 text-white hover:text-gray-300 transition-colors"
             >
-              <X size={24} />
+              <X size={20} className="sm:hidden" />
+              <X size={24} className="hidden sm:block" />
             </button>
 
             {/* Diamond separator */}
             <div className="absolute left-1/2 bottom-0 transform -translate-x-1/2 translate-y-1/2">
-              <div className="w-4 h-4 bg-[#877B8A] transform rotate-45" />
+              <div className="w-3 h-3 sm:w-4 sm:h-4 bg-[#877B8A] transform rotate-45" />
             </div>
           </div>
 
           {/* Main Content */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Trade Selection Area */}
-            <div className="flex items-center gap-4 bg-exchage p-6">
+            <div className="flex items-center gap-2 sm:gap-4 bg-exchage p-3 sm:p-6">
               {/* You Give */}
-              <div className="flex-1">
-                <div className="text-sm text-gray-300 mb-3 text-center">You Give</div>
-                <div className="border-2 border-[#806745] rounded-xl p-2 min-h-45 flex items-center justify-center bg-[#3C2C32]">
+              <div className="flex-1 min-w-0">
+                <div className="text-xs sm:text-sm text-gray-300 mb-2 sm:mb-3 text-center">You Give</div>
+                <div className="border-2 border-[#806745] rounded-xl p-1.5 sm:p-2 min-h-36 sm:min-h-45 flex items-center justify-center bg-[#3C2C32]">
                   {youGiveCard ? (
                     <div className="text-center">
                       <img
                         src={youGiveCard.image}
                         alt={youGiveCard.name}
-                        className="w-20 object-cover rounded mx-auto mb-2"
+                        className="w-16 sm:w-20 object-cover rounded mx-auto mb-1 sm:mb-2"
                       />
-                      <p className="text-xs text-white">{youGiveCard.name}</p>
+                      <p className="text-[10px] sm:text-xs text-white truncate">{youGiveCard.name}</p>
                     </div>
                   ) : (
                     <button
                       onClick={() => handleChooseClick("give")}
-                      className="bg-[#877B8A] text-white px-4 py-2 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity"
+                      className="bg-[#877B8A] text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold hover:opacity-90 transition-opacity"
                     >
                       Choose
                     </button>
@@ -353,16 +354,16 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
               </div>
 
               {/* Exchange Arrow */}
-              <div className="flex-shrink-0">
-                <div className="text-gray-400 text-2xl">
-                  <img src="/img/icon_Exchange.png" alt="" />
+              <div className="flex-shrink-0 px-1">
+                <div className="text-gray-400">
+                  <img src="/img/icon_Exchange.png" alt="" className="w-8 sm:w-auto" />
                 </div>
               </div>
 
               {/* You Get */}
-              <div className="flex-1">
-                <div className="text-sm text-gray-300 mb-3  text-center">You Get</div>
-                <div className="border-2 border-[#806745] rounded-xl p-2 min-h-45 flex flex-col items-center justify-center gap-2 bg-[#3C2C32]">
+              <div className="flex-1 min-w-0">
+                <div className="text-xs sm:text-sm text-gray-300 mb-2 sm:mb-3 text-center">You Get</div>
+                <div className="border-2 border-[#806745] rounded-xl p-1.5 sm:p-2 min-h-36 sm:min-h-45 flex flex-col items-center justify-center gap-1.5 sm:gap-2 bg-[#3C2C32]">
                   {youGetCards.length > 0 ? (
                     <>
                       <div className="grid grid-cols-2 gap-1 w-full">
@@ -371,7 +372,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
                             <img
                               src={card.image}
                               alt={card.name}
-                              className="w-20"
+                              className="w-14 sm:w-20"
                             />
                           </div>
                         ))}
@@ -379,7 +380,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
                       <button
                         onClick={() => handleChooseClick("get")}
                         disabled={!youGiveCard}
-                        className="bg-[#877B8A] text-white px-4 py-2 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="bg-[#877B8A] text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
                         title={!youGiveCard ? "Please select a card to give first" : ""}
                       >
                         Choose
@@ -389,7 +390,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
                     <button
                       onClick={() => handleChooseClick("get")}
                       disabled={!youGiveCard}
-                      className="bg-[#877B8A] text-white px-4 py-2 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="bg-[#877B8A] text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
                       title={!youGiveCard ? "Please select a card to give first" : ""}
                     >
                       Choose
@@ -400,7 +401,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
             </div>
 
             {/* Info Text */}
-            <div className="space-y-3 text-sm text-gray-300 px-6">
+            <div className="space-y-2 sm:space-y-3 text-xs sm:text-sm text-gray-300 px-3 sm:px-6">
               <p>The card will be locked until the transaction is completed or you manually cancel it.</p>
               <p>
                 Upon completion of the transaction, the card you receive will have an{" "}
@@ -410,21 +411,21 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
 
             {/* Error Message */}
             {error && (
-              <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3 text-sm text-red-300">
+              <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-2 sm:p-3 text-xs sm:text-sm text-red-300 mx-3 sm:mx-6">
                 {error}
               </div>
             )}
 
             {/* Post Button */}
-            <div className="flex justify-center mb-6">
+            <div className="flex justify-center mb-4 sm:mb-6 px-3">
               <button
                 onClick={handlePost}
                 disabled={isProcessing}
-                className="bg-[#713DE9] text-white px-12 py-2 rounded-full font-bold text-lg border-2 border-[#877B8A]/50 hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="bg-[#713DE9] text-white px-8 sm:px-12 py-2 rounded-full font-bold text-base sm:text-lg border-2 border-[#877B8A]/50 hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {isProcessing ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
                     {isConfirming ? "Confirming..." : "Processing..."}
                   </>
                 ) : (
