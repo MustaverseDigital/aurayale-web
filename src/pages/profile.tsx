@@ -176,7 +176,7 @@ export default function ProfilePage() {
 
           <button className="btn-square p-3 rounded-xl hover:bg-white/10 transition-colors text-xs" aria-label="Lot Out" onClick={() => {
             setUser(null);
-            router.push("/login");
+            router.push("/aurayale");
           }}>
             <LogOut className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>

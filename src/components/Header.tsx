@@ -44,7 +44,7 @@ export function Header() {
     } finally {
       // 無論如何都要清除 context 並跳轉
       setUser(null);
-      router.push("/");
+      router.push("/aurayale");
       setIsLoggingOut(false);
     }
   };

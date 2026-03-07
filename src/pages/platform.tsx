@@ -197,12 +197,12 @@ export default function PlatformPage() {
     if (ready && authenticated && privyUser && !user?.token) {
       // 如果有 Farcaster 登入但沒有 token，重定向到登入頁面處理
       if (privyUser.farcaster) {
-        router.push("/login");
+        router.push("/aurayale");
         return;
       }
       // 對於非 Farcaster 登入，也重定向到登入頁面
       // 因為我們需要有效的 AuraServer token
-      router.push("/login");
+      router.push("/aurayale");
     }
   }, [ready, authenticated, privyUser, user, router]);
 
@@ -212,7 +212,7 @@ export default function PlatformPage() {
     if (!router.isReady || !ready) return
 
     if (!authenticated && !user?.token) {
-      router.push("/login")
+      router.push("/aurayale")
     }
   }, [authenticated, user, router, router.isReady, ready])
 
