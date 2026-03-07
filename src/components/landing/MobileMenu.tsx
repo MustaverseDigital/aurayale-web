@@ -23,7 +23,7 @@ export function MobileMenu({
   activePage: ActivePage;
   onClose: () => void;
 }) {
-  const { login, logout, authenticated, ready } = useLogin();
+  const { login, logout, authenticated, ready } = useLogin({ autoProcess: false });
 
   if (!isOpen) return null;
 

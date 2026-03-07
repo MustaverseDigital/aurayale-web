@@ -12,7 +12,7 @@ export function LandingNavbar({
   onOpenMobileMenu: () => void;
 }) {
   const router = useRouter();
-  const { login, logout, authenticated, ready } = useLogin();
+  const { login, logout, authenticated, ready } = useLogin({ autoProcess: false });
 
   const navItems: { label: string; href: string; key: ActivePage }[] = [
     { label: "Home", href: "/landing", key: "home" },
