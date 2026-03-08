@@ -73,7 +73,7 @@ export interface LoginResponse {
  */
 export interface GoogleLoginRequest {
   idToken: string;
-  chain_id?: string; // 選填，預設為 "bsc-testnet"
+  chain_id?: string; // 選填，預設為 "avax-fuji-testnet"
 }
 
 /**
