@@ -92,7 +92,7 @@ export function useLogin(options: UseLoginOptions = {}) {
           userId: response.userId,
           chainId: response.chainId,
           name: response.name,
-          walletAddress: response.walletAddress,
+          walletAddress: response.walletAddress || undefined,
           deck,
           gems,
           loginType: "google",
