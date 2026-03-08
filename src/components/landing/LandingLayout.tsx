@@ -3,7 +3,7 @@ import { LandingNavbar } from "./LandingNavbar";
 import { MobileMenu } from "./MobileMenu";
 import { LandingFooter } from "./LandingFooter";
 
-type ActivePage = "home" | "aurayale" | "contact";
+type ActivePage = "aurayale" | "contact";
 type FooterVariant = "default" | "aurayale" | "contact";
 
 export function LandingLayout({

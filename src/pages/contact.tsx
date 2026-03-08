@@ -1,4 +1,5 @@
 import { LandingLayout } from "../components/landing/LandingLayout";
+import { Mail, Twitter, Youtube, MessageCircle } from "lucide-react";
 
 export default function ContactPage() {
   return (
@@ -18,7 +19,7 @@ export default function ContactPage() {
                 <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
                   Let&apos;s build the{" "}
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-primary to-purple-400">
-                    Metaverse
+                    Future Gaming
                   </span>{" "}
                   together.
                 </h1>
@@ -84,42 +85,47 @@ export default function ContactPage() {
 
               {/* Social Links Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                <a className="col-span-2 sm:col-span-1 social-card" href="#">
-                  <div className="size-10 rounded-xl bg-[#43E660]/10 flex items-center justify-center mb-3">
-                    <span className="material-symbols-outlined text-[#43E660]">link</span>
-                  </div>
-                  <span className="text-white font-medium text-sm">Linktree</span>
-                  <span className="text-xs text-slate-500 mt-1">Quick Links</span>
-                </a>
-                <a className="social-card" href="#">
-                  <div className="size-10 rounded-xl bg-[#5865F2]/10 flex items-center justify-center mb-3">
-                    <span className="material-symbols-outlined text-[#5865F2]">forum</span>
-                  </div>
-                  <span className="text-white font-medium text-sm">Discord</span>
-                </a>
-                <a className="social-card" href="#">
+                <a
+                  className="social-card"
+                  href="https://x.com/MustaverseLab"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <div className="size-10 rounded-xl bg-white/10 flex items-center justify-center mb-3">
-                    <span className="material-symbols-outlined text-white">close</span>
+                    <Twitter className="w-5 h-5 text-white" />
                   </div>
                   <span className="text-white font-medium text-sm">X</span>
                 </a>
-                <a className="social-card" href="#">
-                  <div className="size-10 rounded-xl bg-[#E1306C]/10 flex items-center justify-center mb-3">
-                    <span className="material-symbols-outlined text-[#E1306C]">photo_camera</span>
+                <a
+                  className="social-card"
+                  href="https://discord.gg/xjNWXdYzFB"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <div className="size-10 rounded-xl bg-[#5865F2]/10 flex items-center justify-center mb-3">
+                    <MessageCircle className="w-5 h-5 text-[#5865F2]" />
                   </div>
-                  <span className="text-white font-medium text-sm">Instagram</span>
+                  <span className="text-white font-medium text-sm">Discord</span>
                 </a>
-                <a className="social-card" href="#">
-                  <div className="size-10 rounded-xl bg-[#1877F2]/10 flex items-center justify-center mb-3">
-                    <span className="material-symbols-outlined text-[#1877F2]">public</span>
+                <a
+                  className="social-card"
+                  href="https://youtu.be/UFAOxXTXFuo"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <div className="size-10 rounded-xl bg-[#FF0000]/10 flex items-center justify-center mb-3">
+                    <Youtube className="w-5 h-5 text-[#FF0000]" />
                   </div>
-                  <span className="text-white font-medium text-sm">Facebook</span>
+                  <span className="text-white font-medium text-sm">YouTube</span>
                 </a>
-                <a className="social-card" href="#">
+                <a
+                  className="social-card"
+                  href="mailto:mustaverse.studio@gmail.com"
+                >
                   <div className="size-10 rounded-xl bg-white/10 flex items-center justify-center mb-3">
-                    <span className="material-symbols-outlined text-white">alternate_email</span>
+                    <Mail className="w-5 h-5 text-white" />
                   </div>
-                  <span className="text-white font-medium text-sm">Threads</span>
+                  <span className="text-white font-medium text-sm">Email</span>
                 </a>
               </div>
             </div>

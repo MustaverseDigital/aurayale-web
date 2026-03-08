@@ -9,7 +9,7 @@ const navItems: {
   key: ActivePage;
   icon: string;
 }[] = [
-  { label: "Home", href: "/landing", key: "home", icon: "home" },
+  // { label: "Home", href: "/landing", key: "home", icon: "home" },
   { label: "Aurayale", href: "/aurayale", key: "aurayale", icon: "diamond" },
   { label: "Contact", href: "/contact", key: "contact", icon: "mail" },
 ];

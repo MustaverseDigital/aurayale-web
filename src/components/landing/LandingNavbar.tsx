@@ -15,7 +15,7 @@ export function LandingNavbar({
   const { login, logout, authenticated, ready } = useLogin({ redirectTo: null, autoProcess: true });
 
   const navItems: { label: string; href: string; key: ActivePage }[] = [
-    { label: "Home", href: "/landing", key: "home" },
+    // { label: "Home", href: "/landing", key: "home" },
     { label: "Aurayale", href: "/aurayale", key: "aurayale" },
     { label: "Contact", href: "/contact", key: "contact" },
   ];

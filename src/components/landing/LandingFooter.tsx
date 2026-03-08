@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Mail, Twitter, Youtube, MessageCircle } from "lucide-react";
 
 type FooterVariant = "default" | "aurayale" | "contact";
 
@@ -19,14 +20,39 @@ export function LandingFooter({ variant = "default" }: { variant?: FooterVariant
                 : "An advanced development lab specializing in high-fidelity XR environments and sovereign decentralized systems."}
             </p>
             <div className="flex gap-8">
-              <a className="text-slate-500 hover:text-white transition-colors" href="#">
-                <span className="material-symbols-outlined text-xl">alternate_email</span>
+              <a
+                className="text-slate-500 hover:text-white transition-colors"
+                href="https://x.com/MustaverseLab"
+                aria-label="X"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Twitter className="w-5 h-5" />
               </a>
-              <a className="text-slate-500 hover:text-white transition-colors" href="#">
-                <span className="material-symbols-outlined text-xl">code</span>
+              <a
+                className="text-slate-500 hover:text-white transition-colors"
+                href="https://discord.gg/xjNWXdYzFB"
+                aria-label="Discord"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <MessageCircle className="w-5 h-5" />
               </a>
-              <a className="text-slate-500 hover:text-white transition-colors" href="#">
-                <span className="material-symbols-outlined text-xl">terminal</span>
+              <a
+                className="text-slate-500 hover:text-white transition-colors"
+                href="https://youtu.be/UFAOxXTXFuo"
+                aria-label="YouTube"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Youtube className="w-5 h-5" />
+              </a>
+              <a
+                className="text-slate-500 hover:text-white transition-colors"
+                href="mailto:mustaverse.studio@gmail.com"
+                aria-label="Email"
+              >
+                <Mail className="w-5 h-5" />
               </a>
             </div>
           </div>

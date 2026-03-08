@@ -23,15 +23,15 @@ export default function LandingPage() {
           <h1 className="font-display text-6xl md:text-8xl lg:text-9xl font-extrabold tracking-tighter text-white mb-8 leading-[0.95] text-gradient-landing">
             Architecture of <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-primary to-purple-400">
-              Virtual Worlds
+              Next Gaming
             </span>
           </h1>
           <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-12 leading-relaxed font-light">
-            Redefining digital engagement through high-fidelity XR engineering and sovereign Web3 infrastructure.
+            Redefining digital engagement through sovereign Web3 and high-fidelity Card Gaming.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
             <button className="w-full sm:w-auto px-10 py-5 bg-white text-black hover:bg-slate-200 rounded-xl font-bold text-lg transition-all shadow-2xl shadow-white/5">
-              Launch Experience
+              Future Card Gaming
             </button>
             <button className="w-full sm:w-auto px-10 py-5 glass-panel text-white hover:bg-white/5 rounded-xl font-bold text-lg transition-all">
               View Dossier

@@ -92,7 +92,7 @@ export default function AurayalePage() {
               </span>
             </div>
             <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-white mb-8 leading-[1.1] drop-shadow-2xl">
-              Rule the Multiverse<br />
+              Rule the Universe<br />
               <span className="text-gradient-landing">One Gem at a Time.</span>
             </h1>
             <div className="flex flex-wrap items-center justify-between mb-16">
@@ -395,7 +395,7 @@ export default function AurayalePage() {
               {[
                 { icon: "diamond", name: "ETHGlobal", sub: "Finalist 2024" },
                 { icon: "rocket_launch", name: "BYBIT", nameSuffix: "Unleashed", sub: "Grant Recipient" },
-                { icon: "hexagon", name: "POLYGON", sub: "Ecosystem Partner" },
+                { icon: "hexagon", name: "Avalanche", sub: "AVAX Ecosystem" },
               ].map((award, i) => (
                 <div key={award.name} className="flex flex-col items-center gap-2 group cursor-default">
                   {i > 0 && <div className="w-px h-12 bg-white/10 hidden md:block absolute -ml-[calc(50%+3rem)]" />}
