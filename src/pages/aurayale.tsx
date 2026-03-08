@@ -144,12 +144,46 @@ export default function AurayalePage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {/* Card 3: Full */}
+              <div className="glass-panel rounded-2xl p-7 hover:border-primary/50 transition-all duration-500 hover:scale-[1.02] group cursor-pointer relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-400 to-primary opacity-30 group-hover:opacity-100 transition-opacity" />
+                <div className="flex justify-between items-start mb-6">
+                  <h3 className="font-bold text-xl text-slate-100 group-hover:text-white transition-colors leading-tight">
+                    Beginner&apos;s Arena
+                  </h3>
+                  <span className="bg-primary/10 text-primary border border-primary/30 text-xs px-3 py-1 rounded-full font-bold">Full</span>
+                </div>
+                <div className="flex items-center space-x-6 text-sm mb-10">
+                  <div className="flex items-center gap-2 text-slate-400 group-hover:text-slate-300">
+                    <span className="text-primary material-symbols-outlined text-xl">emoji_events</span>
+                    <span className="font-bold">100</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-400 group-hover:text-slate-300">
+                    <span className="text-primary material-symbols-outlined text-xl">group</span>
+                    <span className="font-bold">20/20</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-400 group-hover:text-slate-300">
+                    <span className="text-rose-500/80 material-symbols-outlined text-xl">favorite</span>
+                    <span className="font-bold">45</span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center pt-6 border-t border-white/5">
+                  <div className="flex gap-2">
+                    <span className="bg-primary/10 text-primary border border-primary/20 text-[9px] px-2.5 py-1 rounded font-black uppercase tracking-[0.15em]">Novice</span>
+                    <span className="bg-indigo-300/10 text-indigo-300 border border-indigo-300/20 text-[9px] px-2.5 py-1 rounded font-black uppercase tracking-[0.15em]">Ranked</span>
+                  </div>
+                  <button className="bg-gradient-to-r from-primary to-secondary text-white text-xs font-bold py-2.5 px-6 rounded-xl transition-all shadow-lg shadow-primary/20 uppercase tracking-wider hover:brightness-110">
+                    Spectate
+                  </button>
+                </div>
+              </div>
+
               {/* Card 1: Live */}
               <div className="glass-panel rounded-2xl p-7 hover:border-primary/50 transition-all duration-500 hover:scale-[1.02] group cursor-pointer relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary opacity-30 group-hover:opacity-100 transition-opacity" />
                 <div className="flex justify-between items-start mb-6">
                   <h3 className="font-bold text-xl text-slate-100 group-hover:text-white transition-colors leading-tight">
-                    2001th MoltyRoyale Championship
+                    Aurayale Season 1 Championship
                   </h3>
                   <span className="status-active">
                     <span className="status-dot" /> Live
@@ -207,40 +241,6 @@ export default function AurayalePage() {
                   </div>
                   <button className="bg-white/5 text-slate-500 text-xs font-bold py-2.5 px-6 rounded-xl border border-white/5 cursor-not-allowed uppercase tracking-wider">
                     Closed
-                  </button>
-                </div>
-              </div>
-
-              {/* Card 3: Full */}
-              <div className="glass-panel rounded-2xl p-7 hover:border-primary/50 transition-all duration-500 hover:scale-[1.02] group cursor-pointer relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-400 to-primary opacity-30 group-hover:opacity-100 transition-opacity" />
-                <div className="flex justify-between items-start mb-6">
-                  <h3 className="font-bold text-xl text-slate-100 group-hover:text-white transition-colors leading-tight">
-                    Beginner&apos;s Arena
-                  </h3>
-                  <span className="bg-primary/10 text-primary border border-primary/30 text-xs px-3 py-1 rounded-full font-bold">Full</span>
-                </div>
-                <div className="flex items-center space-x-6 text-sm mb-10">
-                  <div className="flex items-center gap-2 text-slate-400 group-hover:text-slate-300">
-                    <span className="text-primary material-symbols-outlined text-xl">emoji_events</span>
-                    <span className="font-bold">100</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-slate-400 group-hover:text-slate-300">
-                    <span className="text-primary material-symbols-outlined text-xl">group</span>
-                    <span className="font-bold">20/20</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-slate-400 group-hover:text-slate-300">
-                    <span className="text-rose-500/80 material-symbols-outlined text-xl">favorite</span>
-                    <span className="font-bold">45</span>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center pt-6 border-t border-white/5">
-                  <div className="flex gap-2">
-                    <span className="bg-primary/10 text-primary border border-primary/20 text-[9px] px-2.5 py-1 rounded font-black uppercase tracking-[0.15em]">Novice</span>
-                    <span className="bg-indigo-300/10 text-indigo-300 border border-indigo-300/20 text-[9px] px-2.5 py-1 rounded font-black uppercase tracking-[0.15em]">Ranked</span>
-                  </div>
-                  <button className="bg-gradient-to-r from-primary to-secondary text-white text-xs font-bold py-2.5 px-6 rounded-xl transition-all shadow-lg shadow-primary/20 uppercase tracking-wider hover:brightness-110">
-                    Spectate
                   </button>
                 </div>
               </div>
