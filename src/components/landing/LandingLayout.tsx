@@ -3,7 +3,7 @@ import { LandingNavbar } from "./LandingNavbar";
 import { MobileMenu } from "./MobileMenu";
 import { LandingFooter } from "./LandingFooter";
 
-type ActivePage = "aurayale" | "contact";
+type ActivePage = "home" | "aurayale" | "contact";
 type FooterVariant = "default" | "aurayale" | "contact";
 
 export function LandingLayout({
@@ -26,7 +26,16 @@ export function LandingLayout({
         onClose={() => setMobileMenuOpen(false)}
       />
       <main className="flex-grow">{children}</main>
-      <LandingFooter variant={footerVariant ?? (activePage === "aurayale" ? "aurayale" : activePage === "contact" ? "contact" : "default")} />
+      <LandingFooter
+        variant={
+          footerVariant ??
+          (activePage === "aurayale"
+            ? "aurayale"
+            : activePage === "contact"
+            ? "contact"
+            : "default")
+        }
+      />
     </div>
   );
 }
