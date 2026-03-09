@@ -197,12 +197,12 @@ export default function PlatformPage() {
     if (ready && authenticated && privyUser && !user?.token) {
       // 如果有 Farcaster 登入但沒有 token，重定向到登入頁面處理
       if (privyUser.farcaster) {
-        router.push("/login");
+        router.push("/aurayale");
         return;
       }
       // 對於非 Farcaster 登入，也重定向到登入頁面
       // 因為我們需要有效的 AuraServer token
-      router.push("/login");
+      router.push("/aurayale");
     }
   }, [ready, authenticated, privyUser, user, router]);
 
@@ -212,7 +212,7 @@ export default function PlatformPage() {
     if (!router.isReady || !ready) return
 
     if (!authenticated && !user?.token) {
-      router.push("/login")
+      router.push("/aurayale")
     }
   }, [authenticated, user, router, router.isReady, ready])
 
@@ -225,12 +225,13 @@ export default function PlatformPage() {
   }
 
   return (
-    <div className="min-h-screen bgImg text-white flex flex-col">
+    <div className="min-h-screen bgImg text-white flex flex-col overflow-x-hidden">
       {/* Unity-matched viewport container */}
       <div
-        className="fixed inset-0 z-0 flex flex-col items-center justify-center bgImg"
+        className="fixed inset-0 z-0 flex flex-col items-center justify-center bgImg overflow-x-hidden"
         style={{
           width: `${canvasWidth}px`,
+          maxWidth: "100vw",
           height: viewportHeight,
           left: "50%",
           transform: "translateX(-50%)",
@@ -239,18 +240,18 @@ export default function PlatformPage() {
       >
         {/* Header */}
         <div
-          className="fixed top-0 z-10 w-full"
-          style={{ width: `${canvasWidth}px`, left: "50%", transform: "translateX(-50%)" }}
+          className="fixed top-0 z-10"
+          style={{ width: `${canvasWidth}px`, maxWidth: "100vw", left: "50%", transform: "translateX(-50%)" }}
         >
           <Header />
         </div>
 
         {/* Main Content */}
         <div
-          className="flex-1 flex flex-col overflow-y-auto w-full pt-16 pb-4"
-          style={{ width: `${canvasWidth}px` }}
+          className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden w-full pt-16 pb-4"
+          style={{ width: `${canvasWidth}px`, maxWidth: "100vw" }}
         >
-          <div className="flex-1 flex flex-col px-4">
+          <div className="flex-1 flex flex-col px-3 sm:px-4">
             {/* Wallet Info */}
             <WalletInfo />
 
@@ -260,16 +261,16 @@ export default function PlatformPage() {
             {activeTab === "games" && (
               <div className="mt-4 space-y-3 pb-4 tab-content" id="tab-games">
                 <div className="mb-4 space-y-3 bg-cover relative">
-                  <img className="rounded-[20px] shadow-lg" src="/img/banner_Aurayale.jpg" alt="" />
-                  <div className="bg-[#ffc100] absolute top-[0px] left-[0px] text-sm p-1 rounded-tl-[20px] rounded-br-[20px] min-w-[80px] text-center">HOT</div>
+                  <img className="rounded-[20px] shadow-lg w-full" src="/img/banner_Aurayale.jpg" alt="" />
+                  <div className="bg-[#ffc100] absolute top-[0px] left-[0px] text-xs sm:text-sm p-1 rounded-tl-[20px] rounded-br-[20px] min-w-[60px] sm:min-w-[80px] text-center">HOT</div>
                   <button
-                    className="bg-[#713DE9] text-white px-3 py-1 rounded text-sm font-semibold hover:opacity-70 transition absolute bottom-[0px] right-[0px] -translate-1/2 "
+                    className="bg-[#713DE9] text-white px-2 sm:px-3 py-1 rounded text-xs sm:text-sm font-semibold hover:opacity-70 transition absolute bottom-[0px] right-[0px] -translate-1/2"
                     onClick={handleEditClick}
                   >
                     Edit
                   </button>
                   <button
-                    className="btn btn-battle text-shadow-lg rounded-xl px-8 py-2 text-xl disabled:opacity-50 disabled:cursor-not-allowed transition bg-opacity-90 hover:bg-opacity-100 inline-flex items-center justify-center h-10 w-28 whitespace-nowrap absolute -translate-1/2 bottom-[0px] left-[50%] "
+                    className="btn btn-battle text-shadow-lg rounded-xl px-4 sm:px-8 py-2 text-base sm:text-xl disabled:opacity-50 disabled:cursor-not-allowed transition bg-opacity-90 hover:bg-opacity-100 inline-flex items-center justify-center h-10 w-24 sm:w-28 whitespace-nowrap absolute -translate-1/2 bottom-[0px] left-[50%]"
                     onClick={() => {
                       localStorage.setItem("battleDeck", JSON.stringify(deck));
                       router.push("/battle");
@@ -314,7 +315,6 @@ export default function PlatformPage() {
                         )
                       })
                       .map((trade, index) => {
-                        // 在 history tab 中，只有 tradable 狀態的訂單才能點擊
                         const isClickable = activeTab === "market" || (activeTab === "history" && trade.status === "tradable")
 
                         return (

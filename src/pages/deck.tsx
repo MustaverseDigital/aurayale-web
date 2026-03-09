@@ -27,7 +27,7 @@ export default function DeckPage() {
 
   useEffect(() => {
     if (!user?.token) {
-      router.replace("/login");
+      router.replace("/aurayale");
       return;
     }
     setLoading(true);
