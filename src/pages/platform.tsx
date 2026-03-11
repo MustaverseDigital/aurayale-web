@@ -79,12 +79,6 @@ export default function PlatformPage() {
       return
     }
 
-    // 只在 market tab 時才需要等待 gems 載入
-    if (activeTab === "market" && gems.length === 0) {
-      setTradesLoading(false)
-      return
-    }
-
     // 將 tokenId 轉換為 gem metadata 的輔助函數
     const getGemMetadata = (tokenId: number): { name: string; image: string } => {
       const gem = gems.find((g) => g.id === tokenId)
@@ -169,12 +163,12 @@ export default function PlatformPage() {
         setTradesLoading(false)
       }
     } else if (activeTab === "market") {
-      // 對於 market tab：需要等待 gems 載入完成
-      if (gems.length > 0) {
+      // 對於 market tab：等待用戶資料載入完成即可（gems 可能為空）
+      if (!deckLoading) {
         fetchTrades()
       }
     }
-  }, [activeTab, walletAddress, gems, fetchTrades])
+  }, [activeTab, walletAddress, gems, deckLoading, fetchTrades])
 
   const handleTradeCardClick = (tradeData: any) => {
     setSelectedTrade(tradeData)

@@ -3,8 +3,6 @@ import type {
   RegisterResponse,
   LoginRequest,
   LoginResponse,
-  GoogleLoginRequest,
-  GoogleLoginResponse,
   FarcasterLoginRequest,
   FarcasterLoginResponse,
   BindWalletRequestRequest,
@@ -144,33 +142,13 @@ export async function editGemDeck(
   return (data as UpdateGemDeckResponse).deck;
 }
 
-export async function loginWithGoogle(
-  idToken: string,
-  chain_id?: string
-): Promise<GoogleLoginResponse> {
-  const requestBody: GoogleLoginRequest = {
-    idToken,
-    // Default Google (Privy) logins to Avalanche Fuji testnet
-    chain_id: chain_id || 'avax-fuji-testnet',
-  };
-
-  const response = await fetch(`${BASE_URL}/google-login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(requestBody),
-  });
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.error || 'Google login failed');
-  return data;
-}
-
 /**
- * 使用 Privy Access Token 進行 Farcaster 登入（推薦方式）
+ * 使用 Privy Access Token 登入（適用於所有 Privy 登入方式：Google、Farcaster 等）
  * @param privyAccessToken Privy Access Token
  * @param chain_id 鏈 ID，選填，預設為 "soneium-testnet"
- * @returns Farcaster 登入回應
+ * @returns 登入回應
  */
-export async function loginWithFarcasterByPrivy(
+export async function loginWithPrivy(
   privyAccessToken: string,
   chain_id?: string
 ): Promise<FarcasterLoginResponse> {

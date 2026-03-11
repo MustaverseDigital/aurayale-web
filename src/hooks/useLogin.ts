@@ -2,7 +2,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/router";
 import { usePrivy } from "@privy-io/react-auth";
 import { useUser } from "../context/UserContext";
-import { getUserDeck, getUserGems, loginWithFarcasterByPrivy, loginWithGoogle } from "../api/auraServer";
+import { getUserDeck, getUserGems, loginWithPrivy } from "../api/auraServer";
 
 interface UseLoginOptions {
   redirectTo?: string | null;
@@ -53,7 +53,7 @@ export function useLogin(options: UseLoginOptions = {}) {
           throw new Error("無法獲取 Privy access token");
         }
 
-        const response = await loginWithFarcasterByPrivy(privyToken, "soneium-testnet");
+        const response = await loginWithPrivy(privyToken, "soneium-testnet");
 
         const [gems, deck] = await Promise.all([
           getUserGems(response.token),
@@ -73,14 +73,14 @@ export function useLogin(options: UseLoginOptions = {}) {
           farcasterUsername: response.farcasterUsername,
           farcasterPfpUrl: response.farcasterPfpUrl,
         });
-      } else if ((privyUser as any)?.accounts?.some((account: any) => account.type === "google_oauth")) {
+      } else if (privyUser.google || (privyUser as any)?.linkedAccounts?.some((account: any) => account.type === "google_oauth")) {
         // Google login (Avalanche Fuji testnet)
         const privyToken = await getAccessToken();
         if (!privyToken) {
           throw new Error("無法獲取 Privy access token");
         }
 
-        const response = await loginWithGoogle(privyToken, "avax-fuji-testnet");
+        const response = await loginWithPrivy(privyToken, "avax-fuji");
 
         const [gems, deck] = await Promise.all([
           getUserGems(response.token),

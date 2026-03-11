@@ -4,8 +4,7 @@ import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { useUser } from '../context/UserContext';
 import {
   loginWithFarcaster,
-  loginWithFarcasterByPrivy,
-  loginWithGoogle,
+  loginWithPrivy,
   loginWithPassword,
   getUserGems,
   getUserDeck,
@@ -53,7 +52,7 @@ export function useChainSwitch() {
               throw new Error('無法獲取 Privy access token');
             }
 
-            const response = await loginWithFarcasterByPrivy(
+            const response = await loginWithPrivy(
               privyToken,
               targetChain
             );
@@ -121,10 +120,21 @@ export function useChainSwitch() {
         }
 
         case 'google': {
-          // Google 登入需要重新獲取 idToken
-          // 這裡我們需要從 Privy 獲取新的 idToken
-          // 但 Privy 可能不會自動刷新，所以可能需要用戶重新登入
-          throw new Error('Google 登入切換鏈需要重新登入');
+          const privyToken = await getAccessToken();
+          if (!privyToken) {
+            throw new Error('無法獲取 Privy access token');
+          }
+          const response = await loginWithPrivy(privyToken, targetChain);
+          newToken = response.token;
+          newChainId = response.chainId;
+          newUserData = {
+            ...user,
+            token: response.token,
+            chainId: response.chainId,
+            walletAddress: response.walletAddress,
+            name: response.name,
+          };
+          break;
         }
 
         case 'password': {

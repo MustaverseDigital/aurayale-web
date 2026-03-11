@@ -72,8 +72,8 @@ export interface LoginResponse {
  * Google 登入請求
  */
 export interface GoogleLoginRequest {
-  idToken: string;
-  chain_id?: string; // 選填，預設為 "avax-fuji-testnet"
+  privyAccessToken: string;
+  chain_id?: string; // 選填，預設為 "avax-fuji"
 }
 
 /**
