@@ -257,7 +257,7 @@ export default function AurayalePage() {
                 <div className="relative group">
                   <div className="aspect-[4/3] rounded-[2rem] glass-card-deep p-2 relative overflow-visible transform rotate-[-2deg] hover:rotate-0 transition-transform duration-700">
                     <div className="absolute -top-12 -right-12 w-32 h-32 bg-primary/20 rounded-full blur-[40px] z-0" />
-                    <div className="relative h-full w-full rounded-[1.5rem] overflow-hidden">
+                    <div className="relative  w-full rounded-[1.5rem] overflow-hidden">
                       <img
                         alt="Primo Planet 3D Render"
                         className="w-full h-full object-cover opacity-90 hover:scale-105 transition-transform duration-1000"
