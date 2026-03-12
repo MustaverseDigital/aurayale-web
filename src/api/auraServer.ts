@@ -157,7 +157,7 @@ export async function loginWithPrivy(
     chain_id: chain_id || 'soneium-testnet', // 預設為 soneium-testnet
   };
 
-  const response = await fetch(`${BASE_URL}/farcaster-login`, {
+  const response = await fetch(`${BASE_URL}/privy-login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(requestBody),
@@ -191,7 +191,7 @@ export async function loginWithFarcaster(
     chain_id: options?.chain_id || 'soneium-testnet', // 預設為 soneium-testnet
   };
 
-  const response = await fetch(`${BASE_URL}/farcaster-login`, {
+  const response = await fetch(`${BASE_URL}/privy-login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(requestBody),
