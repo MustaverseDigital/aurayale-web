@@ -766,6 +766,194 @@ body {
   filter: brightness(1.15);
 }
 
+/* ========== Page Entrance Animations ========== */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(99, 102, 241, 0.3);
+  }
+}
+
+/* Hero entrance animation classes */
+.hero-enter {
+  opacity: 0;
+  animation-fill-mode: forwards;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-badge {
+  animation: fadeInDown 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+}
+
+.hero-title {
+  animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
+}
+
+.hero-stats {
+  animation: fadeInUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards;
+}
+
+.hero-stat-item {
+  opacity: 0;
+}
+.hero-stat-item:nth-child(1) {
+  animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1.0s forwards;
+}
+.hero-stat-item:nth-child(2) {
+  animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1.15s forwards;
+}
+.hero-stat-item:nth-child(3) {
+  animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1.3s forwards;
+}
+
+.hero-cta {
+  animation: fadeInUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 1.3s forwards;
+}
+
+.hero-cta-shimmer {
+  background-size: 200% auto;
+  animation: shimmer 3s linear 2.5s infinite;
+}
+
+/* Scroll-reveal animations for sections */
+.reveal {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal.from-left {
+  transform: translateX(-60px);
+}
+.reveal.from-left.visible {
+  transform: translateX(0);
+}
+
+.reveal.from-right {
+  transform: translateX(60px);
+}
+.reveal.from-right.visible {
+  transform: translateX(0);
+}
+
+.reveal.scale-up {
+  transform: scale(0.92);
+}
+.reveal.scale-up.visible {
+  transform: scale(1);
+}
+
+/* Stagger children within revealed sections */
+.reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-stagger.visible > *:nth-child(1) { transition-delay: 0s; opacity: 1; transform: translateY(0); }
+.reveal-stagger.visible > *:nth-child(2) { transition-delay: 0.1s; opacity: 1; transform: translateY(0); }
+.reveal-stagger.visible > *:nth-child(3) { transition-delay: 0.2s; opacity: 1; transform: translateY(0); }
+.reveal-stagger.visible > *:nth-child(4) { transition-delay: 0.3s; opacity: 1; transform: translateY(0); }
+.reveal-stagger.visible > *:nth-child(5) { transition-delay: 0.4s; opacity: 1; transform: translateY(0); }
+.reveal-stagger.visible > *:nth-child(6) { transition-delay: 0.5s; opacity: 1; transform: translateY(0); }
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .hero-enter,
+  .hero-badge,
+  .hero-title,
+  .hero-stats,
+  .hero-stat-item,
+  .hero-cta {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+  .reveal {
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .reveal-stagger > * {
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
 .landing-page ::-webkit-scrollbar { width: 8px; }
 .landing-page ::-webkit-scrollbar-track { background: #0a0a0c; }
 .landing-page ::-webkit-scrollbar-thumb { background: #222; border-radius: 4px; }
