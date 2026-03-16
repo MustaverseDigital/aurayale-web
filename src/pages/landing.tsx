@@ -108,13 +108,13 @@ export default function LandingPage() {
 
   const teamMembers = [
     { name: "Kevin", role: "Founder", img: "/images/w1.png" },
-    { name: "Wallce", role: "CTO", img: "/images/w1.png" },
-    { name: "Allen", role: "CMP", img: "/images/w1.png" },
-    { name: "Aron", role: "Dev.", img: "/images/w1.png" },
-    { name: "Owen", role: "Dev.", img: "/images/w1.png" },
-    { name: "Benson", role: "Dev.", img: "/images/w1.png" },
-    { name: "Mao", role: "Art", img: "/images/w1.png" },
-    { name: "Json", role: "TA", img: "/images/w1.png" },
+    { name: "Wallce", role: "CTO", img: "/images/w2.png" },
+    { name: "Allen", role: "CMP", img: "/images/w3.png" },
+    { name: "Aron", role: "Dev.", img: "/images/w4.png" },
+    { name: "Owen", role: "Dev.", img: "/images/w5.png" },
+    { name: "Benson", role: "Dev.", img: "/images/w6.png" },
+    { name: "Mao", role: "Art", img: "/images/w7.png" },
+    { name: "Json", role: "TA", img: "/images/w8.png" },
   ];
 
   return (
