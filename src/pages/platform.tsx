@@ -36,8 +36,8 @@ export default function PlatformPage() {
     fid?: number;
   } | null>(null);
 
-  // 優先使用當前連接的錢包地址，如果沒有則使用綁定的錢包地址
-  const walletAddress = connectedAddress || wallets[0]?.address || user?.walletAddress || null
+  // 優先使用後端認證的地址（與 WalletInfo 顯示一致），避免多錢包時地址不匹配
+  const walletAddress = user?.walletAddress || privyUser?.wallet?.address || connectedAddress || null
 
   const [activeTab, setActiveTab] = useState<"games" | "market" | "history">("games")
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)

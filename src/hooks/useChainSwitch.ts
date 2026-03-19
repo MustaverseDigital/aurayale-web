@@ -173,6 +173,8 @@ export function useChainSwitch() {
         return 'BSC Testnet';
       case 'soneium-testnet':
         return 'Soneium Testnet';
+      case 'avax-fuji':
+        return 'Avalanche Fuji';
       default:
         return chainId || 'Unknown';
     }

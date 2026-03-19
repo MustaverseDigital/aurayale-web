@@ -7,7 +7,7 @@ import { PrivyProvider } from '@privy-io/react-auth';
 import { UserProvider, useUser } from "../context/UserContext";
 import React from 'react';
 
-import { config, soneiumMinato } from '../wagmi';
+import { config, soneiumMinato, avaxFuji } from '../wagmi';
 import { ViewportRequirementsProvider } from "../context/ViewportRequirementsContext";
 
 const client = new QueryClient();
@@ -92,7 +92,7 @@ export default function App({ Component, pageProps }: AppProps) {
           }
         },
         defaultChain: soneiumMinato,
-        supportedChains: [soneiumMinato]
+        supportedChains: [soneiumMinato, avaxFuji]
       }}
     >
       <QueryClientProvider client={client}>

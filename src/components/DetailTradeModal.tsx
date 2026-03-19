@@ -5,8 +5,8 @@ import { useUser } from "../context/UserContext"
 import { getUserGems, GemItem } from "../api/auraServer"
 import { useAcceptTradeOrder } from "../hooks/useTradeOrder"
 import { useWallets, usePrivy } from "@privy-io/react-auth"
-import { soneiumMinato } from '../wagmi';
 import { useAccount, useSwitchChain } from "wagmi"
+import { getChainFromApiChainId, getDefaultChainForLoginType } from '../lib/chainUtils';
 import { getCardImagePath } from "../lib/utils"
 
 interface Card {
@@ -67,7 +67,8 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
     activeWallet = wallets.filter(w => w.walletClientType !== 'coinbase_wallet')[0] || wallets[0];
   }
 
-  const walletAddress = activeWallet?.address || connectedAddress || user?.walletAddress;
+  // 優先使用後端認證的地址（與 WalletInfo 顯示一致），避免多錢包時地址不匹配
+  const walletAddress = user?.walletAddress || activeWallet?.address || connectedAddress;
   const isWalletReady = !!walletAddress;
 
   // Robust parsing of chainId
@@ -202,9 +203,12 @@ export function DetailTradeModal({ isOpen, onClose, tradeData, onSuccess }: Deta
     const orderId = BigInt(tradeData.orderId)
     const selectedTokenId = BigInt(selectedCardId)
 
-    // 檢查並切換到 Soneium Minato
-    if (currentChainId !== soneiumMinato.id) {
-      console.log(`Current chain (${currentChainId}) is not Soneium Minato (${soneiumMinato.id}), hook will attempt switch.`);
+    // 檢查並切換到用戶對應的鏈
+    const targetChain = user?.chainId
+      ? getChainFromApiChainId(user.chainId)
+      : getDefaultChainForLoginType(user?.loginType);
+    if (currentChainId !== targetChain.id) {
+      console.log(`Current chain (${currentChainId}) is not target chain (${targetChain.id}), hook will attempt switch.`);
     }
 
     // 調用智能合約接受訂單

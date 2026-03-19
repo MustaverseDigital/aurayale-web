@@ -8,7 +8,8 @@ import {
   type Address,
   type Abi,
 } from 'viem';
-import { soneiumMinato } from '../wagmi';
+import { useUser } from '../context/UserContext';
+import { getChainFromApiChainId, getDefaultChainForLoginType } from '../lib/chainUtils';
 
 /**
  * 使用 Privy wallet 讀取合約資料
@@ -21,9 +22,15 @@ export function usePrivyReadContract<T = any>(config: {
   enabled?: boolean;
 }) {
   const { wallets } = useWallets();
+  const { user } = useUser();
   const [data, setData] = useState<T | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+
+  // Determine target chain from user context
+  const targetChain = user?.chainId
+    ? getChainFromApiChainId(user.chainId)
+    : getDefaultChainForLoginType(user?.loginType);
 
   // 找到 privy embedded wallet
   const privyWallet = wallets.find((w) => w.walletClientType === 'privy');
@@ -38,9 +45,9 @@ export function usePrivyReadContract<T = any>(config: {
       setIsLoading(true);
       setError(null);
 
-      // 創建 public client（讀取操作不需要 provider）
+      // 創建 public client — 使用用戶對應的鏈
       const publicClient = createPublicClient({
-        chain: soneiumMinato,
+        chain: targetChain,
         transport: http(),
       });
 
@@ -65,6 +72,7 @@ export function usePrivyReadContract<T = any>(config: {
     config.functionName,
     config.args,
     config.enabled,
+    targetChain,
   ]);
 
   useEffect(() => {
@@ -84,11 +92,17 @@ export function usePrivyReadContract<T = any>(config: {
  */
 export function usePrivyWriteContract() {
   const { wallets } = useWallets();
+  const { user } = useUser();
   const [hash, setHash] = useState<`0x${string}` | undefined>(undefined);
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [isConfirming, setIsConfirming] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+
+  // Determine target chain from user context
+  const targetChain = user?.chainId
+    ? getChainFromApiChainId(user.chainId)
+    : getDefaultChainForLoginType(user?.loginType);
 
   // 找到 privy embedded wallet
   const privyWallet = wallets.find((w) => w.walletClientType === 'privy');
@@ -117,9 +131,9 @@ export function usePrivyWriteContract() {
           throw new Error('無法獲取 Privy provider');
         }
 
-        // 創建 wallet client，使用 privy wallet 的 provider
+        // 創建 wallet client，使用 privy wallet 的 provider 和用戶對應的鏈
         const walletClient = createWalletClient({
-          chain: soneiumMinato,
+          chain: targetChain,
           transport: custom(provider),
           account: privyWallet.address as Address,
         });
@@ -138,7 +152,7 @@ export function usePrivyWriteContract() {
 
         // 等待交易確認
         const publicClient = createPublicClient({
-          chain: soneiumMinato,
+          chain: targetChain,
           transport: http(),
         });
 
@@ -159,7 +173,7 @@ export function usePrivyWriteContract() {
         setIsConfirming(false);
       }
     },
-    [privyWallet]
+    [privyWallet, targetChain]
   );
 
   return {

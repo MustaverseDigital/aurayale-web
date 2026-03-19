@@ -12,7 +12,7 @@ export function Header() {
     useChainSwitch();
   const [showChainMenu, setShowChainMenu] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const supportedChains: SupportedChain[] = ["bsc-testnet", "soneium-testnet"];
+  const supportedChains: SupportedChain[] = ["soneium-testnet", "avax-fuji"];
   const { logout } = usePrivy();
   const router = useRouter();
   const { setUser } = useUser();

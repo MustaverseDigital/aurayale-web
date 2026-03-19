@@ -7,27 +7,23 @@ import { useWallets, usePrivy, useSendTransaction } from '@privy-io/react-auth';
 import { GemContract } from '../contracts/abis/index';
 import { getContractAddress } from '../contracts/addresses';
 import { Address, encodeFunctionData, Hash } from 'viem';
-import { soneiumMinato } from '../wagmi';
 import { useState } from 'react';
+import { useUser } from '../context/UserContext';
+import { getChainFromApiChainId, getDefaultChainForLoginType } from '../lib/chainUtils';
 
 // Helper to get the correct wallet client and chain ID
 // Priority: Privy Embedded Wallet (Strict)
+// Uses UserContext to determine the target chain based on login type
 function useActiveWallet() {
   const { chainId: wagmiChainId } = useAccount();
   const { wallets } = useWallets();
   const { user: privyUser, ready } = usePrivy();
+  const { user } = useUser();
 
-  //Debug logs
-  console.log(
-    'Available wallets:',
-    wallets.map((w) => ({
-      type: w.walletClientType,
-      connector: w.connectorType,
-      address: w.address,
-    }))
-  );
-  console.log('Privy User Wallet:', privyUser?.wallet);
-  console.log('Privy ready:', ready);
+  // Determine target chain from user context (API chain string → EVM chain)
+  const targetChain = user?.chainId
+    ? getChainFromApiChainId(user.chainId)
+    : getDefaultChainForLoginType(user?.loginType);
 
   // 1. Strict Priority: Match the specific wallet associated with the Privy User from wallets array
   let activeWallet: any = undefined;
@@ -40,54 +36,43 @@ function useActiveWallet() {
   // 2. Fallback: If no wallet found in wallets array but privyUser.wallet exists,
   // try to find any embedded wallet or use the first available wallet
   if (!activeWallet && wallets.length > 0) {
-    // Try to find embedded wallet first
     activeWallet = wallets.find(
       (w) => w.walletClientType === 'privy' || w.connectorType === 'embedded'
     );
-    // If still no wallet, use the first available wallet
     if (!activeWallet) {
       activeWallet = wallets[0];
     }
   }
 
-  // 3. If wallets array is empty but privyUser.wallet exists, we need to wait or create wallet
-  // For now, we'll return undefined and let the calling code handle it
-  // But we can still use privyUser.wallet.address for address-based operations
-
   // Robust parsing of chainId
   let walletChainId: number | undefined;
   if (activeWallet?.chainId) {
-    // If it's already a number
     if (typeof activeWallet.chainId === 'number') {
       walletChainId = activeWallet.chainId;
-    }
-    // If it's a string, try to parse
-    else if (typeof activeWallet.chainId === 'string') {
+    } else if (typeof activeWallet.chainId === 'string') {
       const chainIdStr = activeWallet.chainId as string;
       if (chainIdStr.includes(':')) {
-        // e.g., "eip155:1946"
         const parts = chainIdStr.split(':');
         walletChainId =
           parts.length > 1 ? parseInt(parts[1]) : parseInt(parts[0]);
       } else {
-        // e.g., "1946"
         walletChainId = parseInt(chainIdStr);
       }
     }
   }
 
-  // Fallback to Wagmi chainId if parsing failed or no active wallet
-  // If neither is available but user is logged in (Privy), default to Soneium Minato (1946) to ensure Read operations work
+  // Use target chain from user context as fallback instead of hardcoded soneiumMinato
   const finalChainId = !isNaN(Number(walletChainId))
     ? Number(walletChainId)
-    : wagmiChainId || (privyUser ? soneiumMinato.id : undefined);
+    : wagmiChainId || (privyUser ? targetChain.id : undefined);
 
   return {
     chainId: finalChainId,
     activeWallet,
     hasWallet: !!activeWallet,
-    privyUserWallet: privyUser?.wallet, // Include privyUser.wallet for fallback
-    ready, // Include ready state
+    privyUserWallet: privyUser?.wallet,
+    ready,
+    targetChain, // The EVM chain this user should be on
   };
 }
 
@@ -118,7 +103,7 @@ export function useTradeOrder(orderId: bigint | undefined) {
 
 // 建立交易訂單
 export function useCreateTradeOrder() {
-  const { chainId, activeWallet, hasWallet, privyUserWallet, ready } =
+  const { chainId, activeWallet, hasWallet, privyUserWallet, ready, targetChain } =
     useActiveWallet();
   const contractAddress = chainId
     ? (getContractAddress(chainId) as Address)
@@ -197,8 +182,8 @@ export function useCreateTradeOrder() {
           ? parseInt(activeWallet.chainId.split(':')[1] || activeWallet.chainId)
           : activeWallet.chainId;
 
-      if (currentChainId !== soneiumMinato.id) {
-        await activeWallet.switchChain(soneiumMinato.id);
+      if (currentChainId !== targetChain.id) {
+        await activeWallet.switchChain(targetChain.id);
       }
 
       // Encode the function call data
@@ -240,9 +225,8 @@ export function useCreateTradeOrder() {
 
 // 接受交易訂單
 export function useAcceptTradeOrder() {
-  const { chainId, activeWallet, hasWallet, privyUserWallet, ready } =
+  const { chainId, activeWallet, hasWallet, privyUserWallet, ready, targetChain } =
     useActiveWallet();
-  console.log('Active ChainId:', chainId);
   const contractAddress = chainId
     ? (getContractAddress(chainId) as Address)
     : undefined;
@@ -316,8 +300,8 @@ export function useAcceptTradeOrder() {
           ? parseInt(activeWallet.chainId.split(':')[1] || activeWallet.chainId)
           : activeWallet.chainId;
 
-      if (currentChainId !== soneiumMinato.id) {
-        await activeWallet.switchChain(soneiumMinato.id);
+      if (currentChainId !== targetChain.id) {
+        await activeWallet.switchChain(targetChain.id);
       }
 
       // Encode the function call data
@@ -359,7 +343,7 @@ export function useAcceptTradeOrder() {
 
 // 取消交易訂單
 export function useCancelTradeOrder() {
-  const { chainId, activeWallet, hasWallet, privyUserWallet, ready } =
+  const { chainId, activeWallet, hasWallet, privyUserWallet, ready, targetChain } =
     useActiveWallet();
   const contractAddress = chainId
     ? (getContractAddress(chainId) as Address)
@@ -434,8 +418,8 @@ export function useCancelTradeOrder() {
           ? parseInt(activeWallet.chainId.split(':')[1] || activeWallet.chainId)
           : activeWallet.chainId;
 
-      if (currentChainId !== soneiumMinato.id) {
-        await activeWallet.switchChain(soneiumMinato.id);
+      if (currentChainId !== targetChain.id) {
+        await activeWallet.switchChain(targetChain.id);
       }
 
       // Encode the function call data

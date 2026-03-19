@@ -5,8 +5,8 @@ import { useUser } from "../context/UserContext"
 import { getUserGems, getUserDeck, getUserTradeOrders, GemItem } from "../api/auraServer"
 import { useCreateTradeOrder } from "../hooks/useTradeOrder"
 import { useWallets, usePrivy } from "@privy-io/react-auth"
-import { soneiumMinato } from '../wagmi';
 import { useAccount, useSwitchChain } from "wagmi"
+import { getChainFromApiChainId, getDefaultChainForLoginType } from '../lib/chainUtils';
 import { getCardImagePath, getCardUpgradeLevel } from "../lib/utils"
 
 interface Card {
@@ -55,7 +55,8 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
     activeWallet = wallets.filter(w => w.walletClientType !== 'coinbase_wallet')[0] || wallets[0];
   }
 
-  const walletAddress = activeWallet?.address || connectedAddress || user?.walletAddress;
+  // 優先使用後端認證的地址（與 WalletInfo 顯示一致），避免多錢包時地址不匹配
+  const walletAddress = user?.walletAddress || activeWallet?.address || connectedAddress;
   const isWalletReady = !!walletAddress;
 
   // Robust parsing of chainId
@@ -291,9 +292,11 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
     // We just need to ensure we are calling it.
 
     // Check chain ID just for UI feedback if needed, but the hook will try to switch
-    if (currentChainId !== soneiumMinato.id) {
-      // Optional: you could show a "Switching chain..." message here or let the hook handle it
-      console.log(`Current chain (${currentChainId}) is not Soneium Minato (${soneiumMinato.id}), hook will attempt switch.`);
+    const targetChain = user?.chainId
+      ? getChainFromApiChainId(user.chainId)
+      : getDefaultChainForLoginType(user?.loginType);
+    if (currentChainId !== targetChain.id) {
+      console.log(`Current chain (${currentChainId}) is not target chain (${targetChain.id}), hook will attempt switch.`);
     }
 
     // 調用智能合約創建訂單
