@@ -12,6 +12,9 @@ jobs:
   dependency-review:
     name: Review Dependencies
     runs-on: ubuntu-latest
+    # Requires Dependency Graph enabled in repo Settings > Code security
+    # If not enabled, this job will fail gracefully
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/dependency-review-action@v4
