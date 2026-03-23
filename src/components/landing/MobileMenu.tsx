@@ -25,12 +25,23 @@ export function MobileMenu({
 }) {
   const { login, logout, authenticated, ready } = useLogin({ redirectTo: null, autoProcess: false });
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-[60]">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="absolute top-0 right-0 w-full max-w-sm h-full bg-background-dark/95 backdrop-blur-2xl border-l border-white/5 shadow-2xl flex flex-col">
+    <div
+      className={`fixed inset-0 z-[60] transition-visibility ${
+        isOpen ? "pointer-events-auto" : "pointer-events-none"
+      }`}
+    >
+      <div
+        className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ease-out ${
+          isOpen ? "opacity-100" : "opacity-0"
+        }`}
+        onClick={onClose}
+      />
+      <div
+        className={`absolute top-0 right-0 w-full max-w-sm h-full bg-background-dark/95 backdrop-blur-2xl border-l border-white/5 shadow-2xl flex flex-col transition-transform duration-300 ease-out ${
+          isOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
         <div className="flex items-center justify-between p-6 border-b border-white/5">
           <Link href="/landing" onClick={onClose}>
             <img src="/images/Logo.svg" alt="" style={{ width: 120 }} />
