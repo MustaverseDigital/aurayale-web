@@ -268,44 +268,44 @@ export default function LandingPage() {
       </section>
 
       {/* Active Ventures / Our Products */}
-      <section className="py-32 relative z-1">
-        <div className="max-w-7xl mx-auto px-6">
+      <section className="py-16 md:py-32 relative z-1">
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
           <Reveal>
-            <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+            <div className="flex flex-col md:flex-row justify-between items-end mb-10 md:mb-16 gap-6 md:gap-8">
               <div>
-                <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
+                <h2 className="font-display text-3xl md:text-5xl font-bold text-white mb-3 md:mb-4 tracking-tight">
                   Our Products
                 </h2>
-                <p className="text-slate-400 font-light">
+                <p className="text-slate-400 font-light text-sm md:text-base">
                   Internal R&amp;D products currently in early-access phase.
                 </p>
               </div>
             </div>
           </Reveal>
-          <div className="grid lg:grid-cols-2 gap-10">
+          <div className="grid lg:grid-cols-2 gap-6 md:gap-10">
             {/* Aurayale Card */}
             <Reveal delay={0} direction="up">
-              <div className="group relative rounded-[2.5rem] overflow-hidden glass-panel">
-                <div className="aspect-video overflow-hidden">
+              <div className="group relative rounded-2xl md:rounded-[2.5rem] overflow-hidden glass-panel">
+                <div className="aspect-[4/3] md:aspect-video overflow-hidden">
                   <img
                     alt="Aurayale conceptual environment"
                     className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-50"
                     src="/images/index_aurayale.jpg"
                   />
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-background-dark via-background-dark/40 to-transparent flex flex-col justify-end p-12">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-4xl font-display font-bold text-white">Aurayale</h3>
-                    <span className="px-4 py-1.5 glass-panel text-[10px] text-white rounded-full font-bold uppercase tracking-widest">
+                <div className="absolute inset-0 bg-gradient-to-t from-background-dark via-background-dark/40 to-transparent flex flex-col justify-end p-6 md:p-12">
+                  <div className="flex items-center justify-between mb-3 md:mb-4">
+                    <h3 className="text-2xl md:text-4xl font-display font-bold text-white">Aurayale</h3>
+                    <span className="px-3 md:px-4 py-1 md:py-1.5 glass-panel text-[10px] text-white rounded-full font-bold uppercase tracking-widest">
                       TCG
                     </span>
                   </div>
-                  <p className="text-slate-300 text-base mb-8 font-light max-w-md">
+                  <p className="text-slate-300 text-sm md:text-base mb-5 md:mb-8 font-light max-w-md">
                     Rule the Multiverse - One Gem at a Time.
                   </p>
                   <Link
                     href="/aurayale"
-                    className="w-fit px-8 py-3 bg-white text-black font-bold text-xs uppercase tracking-widest rounded-lg hover:bg-slate-200 transition-colors"
+                    className="w-fit px-6 md:px-8 py-2.5 md:py-3 bg-white text-black font-bold text-xs uppercase tracking-widest rounded-lg hover:bg-slate-200 transition-colors"
                   >
                     More
                   </Link>
@@ -314,27 +314,27 @@ export default function LandingPage() {
             </Reveal>
             {/* DEAL Card */}
             <Reveal delay={200} direction="up">
-              <div className="group relative rounded-[2.5rem] overflow-hidden glass-panel">
-                <div className="aspect-video overflow-hidden">
+              <div className="group relative rounded-2xl md:rounded-[2.5rem] overflow-hidden glass-panel">
+                <div className="aspect-[4/3] md:aspect-video overflow-hidden">
                   <img
                     alt="DEAL conceptual environment"
                     className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-50"
                     src="/images/index_deal.jpg"
                   />
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-background-dark via-background-dark/40 to-transparent flex flex-col justify-end p-12">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-4xl font-display font-bold text-white">DEAL</h3>
-                    <span className="px-4 py-1.5 glass-panel text-[10px] text-white rounded-full font-bold uppercase tracking-widest">
+                <div className="absolute inset-0 bg-gradient-to-t from-background-dark via-background-dark/40 to-transparent flex flex-col justify-end p-6 md:p-12">
+                  <div className="flex items-center justify-between mb-3 md:mb-4">
+                    <h3 className="text-2xl md:text-4xl font-display font-bold text-white">DEAL</h3>
+                    <span className="px-3 md:px-4 py-1 md:py-1.5 glass-panel text-[10px] text-white rounded-full font-bold uppercase tracking-widest">
                       Toolkit
                     </span>
                   </div>
-                  <p className="text-slate-300 text-base mb-8 font-light max-w-md">
+                  <p className="text-slate-300 text-sm md:text-base mb-5 md:mb-8 font-light max-w-md">
                     The Bridge from Tabletop to Digital.
                   </p>
                   <a
                     href="https://chile109.github.io/DEAL-DOC/"
-                    className="w-fit px-8 py-3 bg-white text-black font-bold text-xs uppercase tracking-widest rounded-lg hover:bg-slate-200 transition-colors"
+                    className="w-fit px-6 md:px-8 py-2.5 md:py-3 bg-white text-black font-bold text-xs uppercase tracking-widest rounded-lg hover:bg-slate-200 transition-colors"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
