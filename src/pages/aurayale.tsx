@@ -5,6 +5,54 @@ import { MobileMenu } from "../components/landing/MobileMenu";
 import { LandingFooter } from "../components/landing/LandingFooter";
 import { useLogin } from "../hooks/useLogin";
 
+// Count-up animation hook
+function useCountUp(
+  target: number,
+  options: { duration?: number; delay?: number; decimals?: number; suffix?: string } = {}
+) {
+  const { duration = 2000, delay = 1000, decimals = 0, suffix = "" } = options;
+  const [display, setDisplay] = useState("0" + suffix);
+  const rafRef = useRef<number>(0);
+
+  useEffect(() => {
+    let start: number | null = null;
+    let delayTimer: ReturnType<typeof setTimeout>;
+
+    const formatNumber = (n: number) => {
+      const fixed = n.toFixed(decimals);
+      const [intPart, decPart] = fixed.split(".");
+      const withCommas = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      return (decPart ? withCommas + "." + decPart : withCommas) + suffix;
+    };
+
+    const step = (timestamp: number) => {
+      if (!start) start = timestamp;
+      const elapsed = timestamp - start;
+      const progress = Math.min(elapsed / duration, 1);
+      // Ease-out cubic for a satisfying deceleration
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = eased * target;
+      setDisplay(formatNumber(current));
+      if (progress < 1) {
+        rafRef.current = requestAnimationFrame(step);
+      } else {
+        setDisplay(formatNumber(target));
+      }
+    };
+
+    delayTimer = setTimeout(() => {
+      rafRef.current = requestAnimationFrame(step);
+    }, delay);
+
+    return () => {
+      clearTimeout(delayTimer);
+      cancelAnimationFrame(rafRef.current);
+    };
+  }, [target, duration, delay, decimals, suffix]);
+
+  return display;
+}
+
 export default function AurayalePage() {
   const router = useRouter();
   const { login, authenticated, ready } = useLogin({ redirectTo: null, autoProcess: false });
@@ -13,6 +61,11 @@ export default function AurayalePage() {
   const overlayRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Count-up stats
+  const gamesPlayed = useCountUp(24792, { delay: 1200, duration: 2000 });
+  const inAgents = useCountUp(2499347, { delay: 1350, duration: 2200 });
+  const prizePool = useCountUp(24.7, { delay: 1500, duration: 2000, decimals: 1, suffix: "M" });
 
   useEffect(() => {
     if (pendingAdventureRef.current && ready && authenticated) {
@@ -52,6 +105,31 @@ export default function AurayalePage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
+  // Scroll-reveal: Intersection Observer for below-the-fold sections
+  useEffect(() => {
+    const reveals = document.querySelectorAll(".reveal");
+    if (!reveals.length) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
+    );
+    reveals.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
+  const heroStats = [
+    { value: gamesPlayed, label: "Games Played" },
+    { value: inAgents, label: "In Agents" },
+    { value: prizePool, label: "Total Prize Pool" },
+  ];
+
   return (
     <div className="landing-page font-body antialiased min-h-screen flex flex-col">
       {/* Fixed Video Background */}
@@ -82,7 +160,7 @@ export default function AurayalePage() {
             <div className="absolute bottom-0 right-0 w-[800px] h-[600px] bg-primary/10 rounded-full blur-[100px]" />
           </div>
           <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
-            <div className="inline-flex items-center gap-3 px-6 py-2 rounded-full border border-primary/30 bg-primary/5 backdrop-blur-md mb-12 shadow-[0_0_20px_rgba(99,102,241,0.1)]">
+            <div className="hero-enter hero-badge inline-flex items-center gap-3 px-6 py-2 rounded-full border border-primary/30 bg-primary/5 backdrop-blur-md mb-12 shadow-[0_0_20px_rgba(99,102,241,0.1)]">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
@@ -91,25 +169,21 @@ export default function AurayalePage() {
                 Season 1: Genesis Mint Live
               </span>
             </div>
-            <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-white mb-8 leading-[1.1] drop-shadow-2xl">
+            <h1 className="hero-enter hero-title font-display text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-white mb-8 leading-[1.1] drop-shadow-2xl">
               Rule the Universe<br />
               <span className="text-gradient-landing">One Gem at a Time.</span>
             </h1>
-            <div className="flex flex-wrap items-center justify-between mb-16">
-              <div className="flex flex-wrap gap-14">
-                {[
-                  { value: "24,792", label: "Games Played" },
-                  { value: "2,499,347", label: "In Agents" },
-                  { value: "24.7M", label: "Total Prize Pool" },
-                ].map((stat) => (
-                  <div key={stat.label} className="relative">
-                    <div className="text-3xl font-bold text-slate-100 font-display">{stat.value}</div>
+            <div className="hero-enter hero-stats flex flex-wrap items-center justify-center mb-16">
+              <div className="flex flex-wrap justify-center gap-14">
+                {heroStats.map((stat) => (
+                  <div key={stat.label} className="hero-stat-item relative">
+                    <div className="text-3xl font-bold text-slate-100 font-display tabular-nums">{stat.value}</div>
                     <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-2">{stat.label}</div>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+            <div className="hero-enter hero-cta flex flex-col sm:flex-row items-center justify-center gap-6">
               <button
                 onClick={handleStartAdventure}
                 className="group w-full sm:w-auto px-12 py-4 bg-gradient-to-r from-primary to-secondary hover:brightness-110 text-white rounded-full font-bold text-sm uppercase tracking-widest transition-all shadow-[0_0_30px_rgba(99,102,241,0.4)] hover:shadow-[0_0_50px_rgba(99,102,241,0.6)] flex items-center justify-center gap-2"
@@ -128,7 +202,7 @@ export default function AurayalePage() {
         </section>
 
         {/* HOT Games */}
-        <section className="py-32">
+        <section className="py-32 reveal">
           <div className="max-w-7xl mx-auto px-6">
             <div className="flex items-center justify-between mb-10">
               <div className="flex items-center space-x-4">
@@ -143,7 +217,7 @@ export default function AurayalePage() {
               </a>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 reveal-stagger reveal">
               {/* Card 3: Full */}
               <div className="glass-panel rounded-2xl p-7 hover:border-primary/50 transition-all duration-500 hover:scale-[1.02] group cursor-pointer relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-400 to-primary opacity-30 group-hover:opacity-100 transition-opacity" />
@@ -249,7 +323,7 @@ export default function AurayalePage() {
         </section>
 
         {/* Worldview */}
-        <section className="py-32 relative">
+        <section className="py-32 relative reveal">
           <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary/5 to-transparent pointer-events-none" />
           <div className="max-w-7xl mx-auto px-6">
             <div className="grid lg:grid-cols-2 gap-20 items-center">
@@ -257,7 +331,7 @@ export default function AurayalePage() {
                 <div className="relative group">
                   <div className="aspect-[4/3] rounded-[2rem] glass-card-deep p-2 relative overflow-visible transform rotate-[-2deg] hover:rotate-0 transition-transform duration-700">
                     <div className="absolute -top-12 -right-12 w-32 h-32 bg-primary/20 rounded-full blur-[40px] z-0" />
-                    <div className="relative h-full w-full rounded-[1.5rem] overflow-hidden">
+                    <div className="relative  w-full rounded-[1.5rem] overflow-hidden">
                       <img
                         alt="Primo Planet 3D Render"
                         className="w-full h-full object-cover opacity-90 hover:scale-105 transition-transform duration-1000"
@@ -298,7 +372,7 @@ export default function AurayalePage() {
         </section>
 
         {/* Gem Cuts */}
-        <section className="py-32 relative bg-white/[0.01]">
+        <section className="py-32 relative bg-white/[0.01] reveal">
           <div className="absolute inset-0 bg-[linear-gradient(rgba(99,102,241,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(99,102,241,0.02)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]" />
           <div className="max-w-7xl mx-auto px-6 relative z-10">
             <div className="text-center mb-6">
@@ -337,7 +411,7 @@ export default function AurayalePage() {
         </section>
 
         {/* SwUp System */}
-        <section className="py-32 relative overflow-hidden">
+        <section className="py-32 relative overflow-hidden reveal">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-background-dark z-0" />
           <div className="max-w-7xl mx-auto px-6 relative z-10">
             <div className="glass-panel rounded-[3rem] p-12 md:p-20 border border-white/10 relative overflow-hidden">
@@ -386,7 +460,7 @@ export default function AurayalePage() {
         </section>
 
         {/* Awards */}
-        <section className="py-24 bg-white/[0.01] border-y border-white/5">
+        <section className="py-24 bg-white/[0.01] border-y border-white/5 reveal">
           <div className="max-w-7xl mx-auto px-6 text-center">
             <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em] mb-12">
               Recognized By Industry Leaders
@@ -414,7 +488,7 @@ export default function AurayalePage() {
         </section>
 
         {/* CTA */}
-        <section className="py-32 relative">
+        <section className="py-32 relative reveal scale-up">
           <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
             <div className="glass-panel py-20 px-8 rounded-[3rem] border border-white/10 shadow-[0_0_100px_rgba(99,102,241,0.15)] bg-gradient-to-b from-white/[0.02] to-transparent">
               <h2 className="font-display text-5xl md:text-7xl font-bold text-white mb-8 tracking-tighter">
