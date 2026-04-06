@@ -33,7 +33,7 @@
     "wagmi": "^2.19.2"
   },
   "devDependencies": {
-    "@types/node": "^24.3.0",
+    "@types/node": "^25.5.0",
     "@types/react": "^19.1.12",
     "eslint": "^9",
     "eslint-config-next": "^15.5.7",
