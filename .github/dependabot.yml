@@ -21,6 +21,9 @@ updates:
         update-types: [version-update:semver-major]
       - dependency-name: react-dom
         update-types: [version-update:semver-major]
+      # eslint-config-next@16 requires flat config, incompatible with .eslintrc.json
+      - dependency-name: eslint-config-next
+        update-types: [version-update:semver-major]
 
   - package-ecosystem: github-actions
     directory: /
