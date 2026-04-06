@@ -18,6 +18,11 @@ export default function Document() {
           rel="stylesheet"
         />
         <title>Aurayale</title>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8888583692821895"
+          crossOrigin="anonymous"
+        />
       </Head>
       <body>
         <Main />
