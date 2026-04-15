@@ -119,6 +119,40 @@ export default function LandingPage() {
 
   return (
     <LandingLayout activePage="home">
+      {/* Ad Test Button */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <button
+          onClick={() => {
+            const w = window as any;
+            if (typeof w.adBreak === 'function') {
+              w.adBreak({
+                type: 'reward',
+                name: 'test-reward',
+                beforeReward: (showAdFn: () => void) => { 
+                  showAdFn();
+                },
+                adViewed: () => {
+                  console.log('[Ad] adViewed - reward earned');
+                  alert('Ad viewed! Reward earned.');
+                },
+                adDismissed: () => {
+                  console.log('[Ad] adDismissed');
+                  alert('Ad dismissed.');
+                },
+                adBreakDone: (placementInfo: any) => {
+                  console.log('[Ad] adBreakDone', placementInfo);
+                },
+              });
+            } else {
+              console.warn('adBreak not available');
+              alert('adBreak function not found on window');
+            }
+          }}
+          className="px-6 py-3 bg-primary text-white font-bold text-sm uppercase tracking-widest rounded-xl hover:bg-indigo-500 transition-all shadow-lg"
+        >
+          Test Ad
+        </button>
+      </div>
       {/* Video Background */}
       <div className="fixed inset-0 z-0 overflow-hidden">
         <video

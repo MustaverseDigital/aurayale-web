@@ -20,8 +20,18 @@ export default function Document() {
         <title>Aurayale</title>
         <script
           async
+          data-adbreak-test="on"
+          data-ad-frequency-hint="30s"
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8888583692821895"
           crossOrigin="anonymous"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.adsbygoogle = window.adsbygoogle || [];
+              var adBreak = adConfig = function(o) {adsbygoogle.push(o);}
+            `,
+          }}
         />
       </Head>
       <body>
