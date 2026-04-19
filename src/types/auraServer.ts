@@ -357,3 +357,54 @@ export interface HealthCheckResponse {
   timestamp: string;
   error?: string;
 }
+
+// ==================== 廣告 / 獎勵相關類型 ====================
+
+/**
+ * 模擬廣告 SSV 回調請求
+ */
+export interface SimulateAdCallbackRequest {
+  reward_item: string;
+  user_id: number;
+  timestamp: number;
+  transaction_id: string;
+}
+
+/**
+ * 模擬廣告 SSV 回調回應
+ */
+export interface SimulateAdCallbackResponse {
+  ok: true;
+  user_id: number;
+  reward_item: string;
+  timestamp: string;
+  transaction_id: string;
+}
+
+/**
+ * 已領取獎勵項目
+ */
+export interface ClaimedReward {
+  source: string;
+  rewardType: string;
+  rewardValue: {
+    amount: number;
+    [key: string]: unknown;
+  };
+}
+
+/**
+ * 體力資訊
+ */
+export interface StaminaInfo {
+  current: number;
+  max: number;
+}
+
+/**
+ * 領取獎勵回應
+ */
+export interface ClaimRewardResponse {
+  claimed: ClaimedReward[];
+  stamina: StaminaInfo;
+}

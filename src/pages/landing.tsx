@@ -3,6 +3,9 @@ import Link from "next/link";
 import { LandingLayout } from "../components/landing/LandingLayout";
 import { WireframeMesh } from "../components/landing/WireframeMesh";
 import { useScrollReveal, useCountUp } from "../hooks/useScrollReveal";
+import { useUser } from "../context/UserContext";
+import { simulateAdCallback, claimReward } from "../api/auraServer";
+import type { ClaimRewardResponse } from "../types/auraServer";
 
 /* ─── Reusable Reveal Wrapper ─── */
 function Reveal({
@@ -58,10 +61,89 @@ function CountUpNumber({
   );
 }
 
+function formatClaimResult(result: ClaimRewardResponse): string {
+  const claimedSummary = result.claimed.length
+    ? result.claimed
+        .map(
+          (c) =>
+            `${c.rewardType} +${c.rewardValue.amount} (${c.source})`
+        )
+        .join("\n")
+    : "No rewards claimed";
+  return `${claimedSummary}\nStamina: ${result.stamina.current}/${result.stamina.max}`;
+}
+
 export default function LandingPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
+  const { user } = useUser();
+
+  const handleClaimReward = async () => {
+    if (!user) {
+      alert("請先登入");
+      return;
+    }
+    try {
+      const result = await claimReward(user.token);
+      alert(`Claim Reward 成功\n${formatClaimResult(result)}`);
+    } catch (err) {
+      console.error("[ClaimReward] failed", err);
+      alert(
+        `Claim Reward 失敗: ${err instanceof Error ? err.message : String(err)}`
+      );
+    }
+  };
+
+  const handleTestAd = () => {
+    if (!user) {
+      alert("請先登入");
+      return;
+    }
+    const w = window as any;
+    if (typeof w.adBreak !== "function") {
+      console.warn("adBreak not available");
+      alert("adBreak function not found on window");
+      return;
+    }
+    w.adBreak({
+      type: "reward",
+      name: "test-reward",
+      beforeReward: (showAdFn: () => void) => {
+        showAdFn();
+      },
+      adViewed: async () => {
+        console.log("[Ad] adViewed - reward earned");
+        try {
+          const payload = {
+            reward_item: "stamina",
+            user_id: user.userId,
+            timestamp: Math.floor(Date.now() / 1000),
+            transaction_id: `sim-${Date.now()}-${Math.random()
+              .toString(36)
+              .slice(2, 8)}`,
+          };
+          await simulateAdCallback(payload);
+          const result = await claimReward(user.token);
+          alert(`Ad viewed! Reward claimed.\n${formatClaimResult(result)}`);
+        } catch (err) {
+          console.error("[Ad] simulate/claim failed", err);
+          alert(
+            `領獎流程失敗: ${
+              err instanceof Error ? err.message : String(err)
+            }`
+          );
+        }
+      },
+      adDismissed: () => {
+        console.log("[Ad] adDismissed");
+        alert("Ad dismissed.");
+      },
+      adBreakDone: (placementInfo: any) => {
+        console.log("[Ad] adBreakDone", placementInfo);
+      },
+    });
+  };
 
   useEffect(() => {
     const video = videoRef.current;
@@ -119,38 +201,19 @@ export default function LandingPage() {
 
   return (
     <LandingLayout activePage="home">
-      {/* Ad Test Button */}
-      <div className="fixed bottom-6 right-6 z-50">
+      {/* Ad Test Buttons */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 items-end">
         <button
-          onClick={() => {
-            const w = window as any;
-            if (typeof w.adBreak === 'function') {
-              w.adBreak({
-                type: 'reward',
-                name: 'test-reward',
-                beforeReward: (showAdFn: () => void) => { 
-                  showAdFn();
-                },
-                adViewed: () => {
-                  console.log('[Ad] adViewed - reward earned');
-                  alert('Ad viewed! Reward earned.');
-                },
-                adDismissed: () => {
-                  console.log('[Ad] adDismissed');
-                  alert('Ad dismissed.');
-                },
-                adBreakDone: (placementInfo: any) => {
-                  console.log('[Ad] adBreakDone', placementInfo);
-                },
-              });
-            } else {
-              console.warn('adBreak not available');
-              alert('adBreak function not found on window');
-            }
-          }}
+          onClick={handleTestAd}
           className="px-6 py-3 bg-primary text-white font-bold text-sm uppercase tracking-widest rounded-xl hover:bg-indigo-500 transition-all shadow-lg"
         >
           Test Ad
+        </button>
+        <button
+          onClick={handleClaimReward}
+          className="px-6 py-3 bg-indigo-900 text-white font-bold text-sm uppercase tracking-widest rounded-xl border border-primary/40 hover:bg-indigo-800 transition-all shadow-lg"
+        >
+          Claim Reward
         </button>
       </div>
       {/* Video Background */}
