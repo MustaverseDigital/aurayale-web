@@ -3,6 +3,7 @@ import { Unity, useUnityContext } from "react-unity-webgl";
 import { useViewportRequirements } from "../context/ViewportRequirementsContext";
 import { useCanvasWidth } from "../hooks/useCanvasWidth";
 import { useRewardAd } from "../hooks/useRewardAd";
+import { useUser } from "../context/UserContext";
 
 export default function BattlePage() {
   const [pendingDeck, setPendingDeck] = useState<string | null>(null);
@@ -13,7 +14,9 @@ export default function BattlePage() {
     codeUrl: "/Build/Build.wasm.unityweb",
   });
 
+  const { user } = useUser();
   const { showRewardAd, claim: claimReward } = useRewardAd({ sendMessage });
+  const sentTokenRef = useRef<string | null>(null);
 
   useEffect(() => {
     const w = window as unknown as {
@@ -50,6 +53,25 @@ export default function BattlePage() {
       setPendingDeck(null);
     }
   }, [isLoaded, pendingDeck, sendMessage]);
+
+  // Unity 載入完成後傳送 JWT token
+  // 僅傳送後端核發的 token，忽略未完成登入流程的 placeholder
+  useEffect(() => {
+    if (!isLoaded) return;
+    const token = user?.token;
+    if (!token || token === "privy-auth-token") return;
+    if (sentTokenRef.current === token) return;
+
+    sendMessage("WebBridge", "SetAuthToken", token);
+    sentTokenRef.current = token;
+  }, [isLoaded, user?.token, sendMessage]);
+
+  // 登出後清除已送出的 token 紀錄，避免下次登入無法重送
+  useEffect(() => {
+    if (!user?.token) {
+      sentTokenRef.current = null;
+    }
+  }, [user?.token]);
 
   // 動態追蹤 devicePixelRatio
   useEffect(() => {
