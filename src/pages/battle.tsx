@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Unity, useUnityContext } from "react-unity-webgl";
 import { useViewportRequirements } from "../context/ViewportRequirementsContext";
 import { useCanvasWidth } from "../hooks/useCanvasWidth";
+import { useRewardAd } from "../hooks/useRewardAd";
 
 export default function BattlePage() {
   const [pendingDeck, setPendingDeck] = useState<string | null>(null);
@@ -11,6 +12,23 @@ export default function BattlePage() {
     frameworkUrl: "/Build/Build.framework.js.unityweb",
     codeUrl: "/Build/Build.wasm.unityweb",
   });
+
+  const { showRewardAd, claim: claimReward } = useRewardAd({ sendMessage });
+
+  useEffect(() => {
+    const w = window as unknown as {
+      showRewardAd?: () => void;
+      claimReward?: () => void;
+    };
+    w.showRewardAd = showRewardAd;
+    w.claimReward = () => {
+      void claimReward();
+    };
+    return () => {
+      if (w.showRewardAd === showRewardAd) delete w.showRewardAd;
+      delete w.claimReward;
+    };
+  }, [showRewardAd, claimReward]);
   // devicePixelRatio 狀態初始化
   const [devicePixelRatio, setDevicePixelRatio] = useState(
     typeof window !== "undefined" ? window.devicePixelRatio : 1
