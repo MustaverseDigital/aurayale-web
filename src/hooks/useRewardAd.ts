@@ -244,40 +244,53 @@ export function useRewardAd(options: UseRewardAdOptions = {}) {
       },
       adViewed: async () => {
         console.log("[useRewardAd] adViewed", { transactionId });
-        try {
-          await simulateAdCallback({
-            reward_item: rewardItem,
-            user_id: user.userId,
-            timestamp: nowEpochSeconds(),
-            transaction_id: transactionId,
-          });
-        } catch (err) {
-          console.error("[useRewardAd] simulate-callback failed", err);
-          emit({
-            status: "error",
-            code: "simulate_failed",
-            transaction_id: transactionId,
-            message: err instanceof Error ? err.message : String(err),
-          });
-          return;
-        }
-        try {
-          const result = await claimReward(user.token);
-          emit({
-            status: "viewed",
-            transaction_id: transactionId,
-            claimed: result.claimed,
-            stamina: result.stamina,
-          });
-        } catch (err) {
-          console.error("[useRewardAd] claim failed", err);
-          emit({
-            status: "error",
-            code: "claim_failed",
-            transaction_id: transactionId,
-            message: err instanceof Error ? err.message : String(err),
-          });
-        }
+        // 暫時跳過 simulate-callback / claim 後端流程，直接通知拿到獎勵
+        // try {
+        //   await simulateAdCallback({
+        //     reward_item: rewardItem,
+        //     user_id: user.userId,
+        //     timestamp: nowEpochSeconds(),
+        //     transaction_id: transactionId,
+        //   });
+        // } catch (err) {
+        //   console.error("[useRewardAd] simulate-callback failed", err);
+        //   emit({
+        //     status: "error",
+        //     code: "simulate_failed",
+        //     transaction_id: transactionId,
+        //     message: err instanceof Error ? err.message : String(err),
+        //   });
+        //   return;
+        // }
+        // try {
+        //   const result = await claimReward(user.token);
+        //   emit({
+        //     status: "viewed",
+        //     transaction_id: transactionId,
+        //     claimed: result.claimed,
+        //     stamina: result.stamina,
+        //   });
+        // } catch (err) {
+        //   console.error("[useRewardAd] claim failed", err);
+        //   emit({
+        //     status: "error",
+        //     code: "claim_failed",
+        //     transaction_id: transactionId,
+        //     message: err instanceof Error ? err.message : String(err),
+        //   });
+        // }
+        emit({
+          status: "viewed",
+          transaction_id: transactionId,
+          claimed: [
+            {
+              source: "ad",
+              rewardType: "stamina",
+              rewardValue: { amount: 1 },
+            },
+          ],
+          stamina: { current: 0, max: 10 },
+        });
       },
       adDismissed: () => {
         console.log("[useRewardAd] adDismissed", { transactionId });

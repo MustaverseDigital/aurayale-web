@@ -3,9 +3,6 @@ import Link from "next/link";
 import { LandingLayout } from "../components/landing/LandingLayout";
 import { WireframeMesh } from "../components/landing/WireframeMesh";
 import { useScrollReveal, useCountUp } from "../hooks/useScrollReveal";
-import { useRewardAd } from "../hooks/useRewardAd";
-import type { RewardAdEventPayload } from "../hooks/useRewardAd";
-import type { ClaimedReward, StaminaInfo } from "../types/auraServer";
 
 /* ─── Reusable Reveal Wrapper ─── */
 function Reveal({
@@ -61,50 +58,10 @@ function CountUpNumber({
   );
 }
 
-function formatClaimResult(claimed: ClaimedReward[], stamina: StaminaInfo): string {
-  const claimedSummary = claimed.length
-    ? claimed
-        .map((c) => `${c.rewardType} +${c.rewardValue.amount} (${c.source})`)
-        .join("\n")
-    : "No rewards claimed";
-  return `${claimedSummary}\nStamina: ${stamina.current}/${stamina.max}`;
-}
-
 export default function LandingPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
-
-  const handleAdResult = (r: RewardAdEventPayload) => {
-    switch (r.status) {
-      case "viewed":
-        if (r.claimed && r.stamina) {
-          alert(
-            `Ad viewed! Reward claimed.\n${formatClaimResult(r.claimed, r.stamina)}`
-          );
-        }
-        break;
-      case "claimed":
-        if (r.claimed && r.stamina) {
-          alert(`Claim Reward 成功\n${formatClaimResult(r.claimed, r.stamina)}`);
-        }
-        break;
-      case "dismissed":
-        alert("Ad dismissed.");
-        break;
-      case "unavailable":
-        alert(r.message ?? "adBreak function not found on window");
-        break;
-      case "error":
-        alert(`領獎流程失敗: ${r.message ?? "unknown error"}`);
-        break;
-      case "done":
-        // adBreakDone 不主動跳訊息，避免與 viewed/dismissed alert 重複
-        break;
-    }
-  };
-
-  const { showRewardAd, claim } = useRewardAd({ onResult: handleAdResult });
 
   useEffect(() => {
     const video = videoRef.current;
@@ -162,21 +119,6 @@ export default function LandingPage() {
 
   return (
     <LandingLayout activePage="home">
-      {/* Ad Test Buttons */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 items-end">
-        <button
-          onClick={() => showRewardAd()}
-          className="px-6 py-3 bg-primary text-white font-bold text-sm uppercase tracking-widest rounded-xl hover:bg-indigo-500 transition-all shadow-lg"
-        >
-          Test Ad
-        </button>
-        <button
-          onClick={() => claim()}
-          className="px-6 py-3 bg-indigo-900 text-white font-bold text-sm uppercase tracking-widest rounded-xl border border-primary/40 hover:bg-indigo-800 transition-all shadow-lg"
-        >
-          Claim Reward
-        </button>
-      </div>
       {/* Video Background */}
       <div className="fixed inset-0 z-0 overflow-hidden">
         <video
