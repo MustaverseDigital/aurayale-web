@@ -20,6 +20,9 @@ import type {
   UserOrdersQueryParams,
   UserOrdersResponse,
   GemItem,
+  SimulateAdCallbackRequest,
+  SimulateAdCallbackResponse,
+  ClaimRewardResponse,
 } from '../types/auraServer';
 
 // 重新導出 GemItem 以保持向後兼容
@@ -294,5 +297,47 @@ export async function getUserTradeOrders(
     }
   }
   const data = await response.json();
+  return data;
+}
+
+/**
+ * 模擬廣告 SSV 回調（測試用，略過驗簽）
+ *
+ * 優先讀取 NEXT_PUBLIC_AD_CALLBACK_SIMULATE_SECRET；有值才帶 Authorization: Bearer <secret>，
+ * 無值時依賴 server 為非 production 模式。
+ */
+export async function simulateAdCallback(
+  payload: SimulateAdCallbackRequest
+): Promise<SimulateAdCallbackResponse> {
+  const secret = process.env.NEXT_PUBLIC_AD_CALLBACK_SIMULATE_SECRET;
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  if (secret) headers.Authorization = `Bearer ${secret}`;
+
+  const response = await fetch(`${BASE_URL}/ad/simulate-callback`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(payload),
+  });
+  const data = await response.json();
+  if (!response.ok)
+    throw new Error(data.error || 'Simulate ad callback failed');
+  return data;
+}
+
+/**
+ * 領取已建立的 PendingReward（需帶登入 JWT）
+ */
+export async function claimReward(jwt: string): Promise<ClaimRewardResponse> {
+  const response = await fetch(`${BASE_URL}/reward/claim`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${jwt}`,
+    },
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'Claim reward failed');
   return data;
 }
