@@ -21,12 +21,12 @@ const DeckComponent: React.FC<DeckComponentProps> = ({
   return (
     <section className="px-4 pb-4 pt-2">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Current Deck</h2>
-        <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
+        <h2 className="text-lg font-black text-[#050505]">Current Deck</h2>
+        <span className="inline-flex items-center rounded-full border border-[#050505] bg-[#050505] px-2.5 py-0.5 text-xs font-bold text-white transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
           {isEditing ? selectedCards.length : currentDeck.length}/10
         </span>
       </div>
-      <div className="grid grid-cols-5 gap-2 pt-8 bg-[#898cd2]/30 p-4 rounded-xl inset-shadow-sm inset-shadow-[#ffffff]/30">
+      <div className="grid grid-cols-5 gap-2 pt-8 bg-white p-4 rounded-xl border border-[#d6d6d6] shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
         {Array.from({ length: 10 }).map((_, index) => {
           const useSelected = isEditing;
           const cardId = useSelected ? selectedCards[index] : currentDeck[index];
@@ -49,7 +49,7 @@ const DeckComponent: React.FC<DeckComponentProps> = ({
                   />
                 </div>
               ) : (
-                <div className="bg-card bg-card-empty aspect-[3/4] flex items-center justify-center text-gray-500 text-4xl">
+                <div className="bg-[#f4f4f1] border border-dashed border-[#bdbdbd] aspect-[3/4] flex items-center justify-center text-[#9a9a9a] text-4xl">
                   +
                 </div>
               )}

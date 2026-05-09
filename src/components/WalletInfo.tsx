@@ -55,26 +55,26 @@ export function WalletInfo() {
   return (
     <div className="rounded-2xl p-3 sm:p-4 mt-4 flex items-center justify-between profile-card overflow-hidden">
       <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-avatar rounded-lg flex items-center justify-center overflow-hidden shrink-0">
+        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[#050505] border border-[#050505] rounded-lg flex items-center justify-center overflow-hidden shrink-0 shadow-[0_5px_14px_rgba(0,0,0,0.16)]">
           {farcasterPfp ? (
             <img src={farcasterPfp} alt={farcasterUsername || "User"} className="w-full h-full object-cover" />
           ) : (
-            <span className="text-xl sm:text-2xl">{farcasterUsername ? farcasterUsername.charAt(0).toUpperCase() : ""}</span>
+            <span className="text-xl sm:text-2xl text-white">{farcasterUsername ? farcasterUsername.charAt(0).toUpperCase() : ""}</span>
           )}
         </div>
         <div className="flex-1 min-w-0">
           {farcasterUsername && (
-            <div className="text-white font-bold text-sm sm:text-lg truncate">@{farcasterUsername} <span className="text-[10px] sm:text-xs text-gray-400 font-normal">(FID: {farcasterFid})</span></div>
+          <div className="text-[#0b0b0b] font-bold text-sm sm:text-lg truncate">@{farcasterUsername} <span className="text-[10px] sm:text-xs text-[#6f6250] font-normal">(FID: {farcasterFid})</span></div>
           )}
-          <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-300">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-[#111]">
             <span className="truncate">{displayAddress}</span>
-            <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4 cursor-pointer hover:text-yellow-200 shrink-0" onClick={handleCopy} />
+            <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4 cursor-pointer hover:text-[#555] shrink-0" onClick={handleCopy} />
           </div>
-          <div className="text-[10px] sm:text-xs text-gray-400 mt-1">{totalCards} cards</div>
+          <div className="text-[10px] sm:text-xs text-[#666] mt-1">{totalCards} cards</div>
         </div>
       </div>
       <div className="text-right shrink-0 ml-2">
-        <div className="w-10 h-14 sm:w-12 sm:h-16 bg-card rounded border-2 border-[#898cd2]/30 mb-2">
+        <div className="w-10 h-14 sm:w-12 sm:h-16 bg-white rounded border border-[#050505] mb-2 shadow-[0_5px_14px_rgba(0,0,0,0.16)]">
           {gems.length > 0 && (
             <img
               src={getCardImagePath(gems[0].id)}

@@ -50,23 +50,22 @@ export function Header() {
   };
 
   return (
-    <header className="bg-[#D9D9D9]/5 border-b border-[#898cd2]/30 backdrop-blur-sm w-full">
+    <header className="bg-[#050505] border-b border-[#050505] w-full">
       <div className="flex items-center justify-between p-3 w-full px-3 sm:px-4">
         <div className="text-2xl font-bold text-white shrink-0">
-          <img src="/img/Logo_s.svg" alt="" className="h-8" />
+          <img src="/img/Logo_s.svg" alt="" className="h-8 brightness-0 invert" />
         </div>
         <div className="flex items-center gap-2">
           <button
-            className="p-2"
+            className="p-2 text-white hover:text-[#d6d6d6] transition-colors"
             onClick={handleLogout}
             disabled={isLoggingOut}
             aria-label="登出"
           >
-            <LogOut className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            <LogOut className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
         </div>
       </div>
     </header>
   );
 }
-

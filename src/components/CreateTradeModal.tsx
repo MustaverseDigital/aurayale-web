@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from "react"
-import { X, Loader2 } from "lucide-react"
+import { X, Loader2, Repeat2 } from "lucide-react"
 import { ChooseCardModal } from "./ChooseCardModal"
 import { useUser } from "../context/UserContext"
 import { getUserGems, getUserDeck, getUserTradeOrders, GemItem } from "../api/auraServer"
@@ -309,33 +309,34 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-2 sm:p-4 z-50">
-        <div className="bg-[#3B2F36] backdrop-blur-sm border-2 border-[#3B3541]/50 rounded-xl max-w-md w-full shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50">
+        <div className="bg-white border border-[#050505] rounded-2xl max-w-md w-full shadow-[0_10px_28px_rgba(0,0,0,0.16)] max-h-[90vh] overflow-y-auto">
           {/* Header */}
-          <div className="border-b border-[#877B8A]/30 p-3 sm:p-4 flex justify-between items-center relative">
-            <h2 className="text-lg sm:text-xl font-bold text-white text-center flex-1">CREATE</h2>
+          <div className="border-b border-[#e8e8e8] p-3 sm:p-4 flex justify-between items-center relative bg-white rounded-t-2xl">
+            <h2 className="text-lg sm:text-xl font-black uppercase tracking-wider text-[#050505] text-center flex-1">CREATE</h2>
             <button
               onClick={onClose}
-              className="absolute right-3 sm:right-4 top-3 sm:top-4 text-white hover:text-gray-300 transition-colors"
+              className="absolute right-3 sm:right-4 top-3 sm:top-4 text-[#050505] hover:text-[#565656] transition-colors"
+              aria-label="Close"
             >
               <X size={20} className="sm:hidden" />
               <X size={24} className="hidden sm:block" />
             </button>
 
             {/* Diamond separator */}
-            <div className="absolute left-1/2 bottom-0 transform -translate-x-1/2 translate-y-1/2">
-              <div className="w-3 h-3 sm:w-4 sm:h-4 bg-[#877B8A] transform rotate-45" />
+            <div className="absolute left-1/2 bottom-0 transform -translate-x-1/2 translate-y-1/2 z-10">
+              <div className="w-3 h-3 sm:w-4 sm:h-4 bg-[#050505] transform rotate-45" />
             </div>
           </div>
 
           {/* Main Content */}
           <div className="space-y-4 sm:space-y-6">
             {/* Trade Selection Area */}
-            <div className="flex items-center gap-2 sm:gap-4 bg-exchage p-3 sm:p-6">
+            <div className="flex items-center gap-2 sm:gap-4 bg-[#f7f7f4] p-3 sm:p-6 border-b border-[#e8e8e8]">
               {/* You Give */}
               <div className="flex-1 min-w-0">
-                <div className="text-xs sm:text-sm text-gray-300 mb-2 sm:mb-3 text-center">You Give</div>
-                <div className="border-2 border-[#806745] rounded-xl p-1.5 sm:p-2 min-h-36 sm:min-h-45 flex items-center justify-center bg-[#3C2C32]">
+                <div className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-[#565656] mb-2 sm:mb-3 text-center">You Give</div>
+                <div className="border border-[#cfcfcf] rounded-xl p-1.5 sm:p-2 min-h-36 sm:min-h-45 flex items-center justify-center bg-white shadow-[0_3px_10px_rgba(0,0,0,0.08)]">
                   {youGiveCard ? (
                     <div className="text-center">
                       <img
@@ -343,12 +344,12 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
                         alt={youGiveCard.name}
                         className="w-16 sm:w-20 object-cover rounded mx-auto mb-1 sm:mb-2"
                       />
-                      <p className="text-[10px] sm:text-xs text-white truncate">{youGiveCard.name}</p>
+                      <p className="text-[10px] sm:text-xs font-bold text-[#333] truncate">{youGiveCard.name}</p>
                     </div>
                   ) : (
                     <button
                       onClick={() => handleChooseClick("give")}
-                      className="bg-[#877B8A] text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold hover:opacity-90 transition-opacity"
+                      className="bg-[#050505] text-white border border-[#050505] px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-white hover:text-[#050505] transition-colors shadow-[0_2px_0_rgba(0,0,0,0.18)]"
                     >
                       Choose
                     </button>
@@ -358,15 +359,15 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
 
               {/* Exchange Arrow */}
               <div className="flex-shrink-0 px-1">
-                <div className="text-gray-400">
-                  <img src="/img/icon_Exchange.png" alt="" className="w-8 sm:w-auto" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-[#cfcfcf] bg-white flex items-center justify-center shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
+                  <Repeat2 className="w-5 h-5 sm:w-6 sm:h-6 text-[#050505]" strokeWidth={2.4} />
                 </div>
               </div>
 
               {/* You Get */}
               <div className="flex-1 min-w-0">
-                <div className="text-xs sm:text-sm text-gray-300 mb-2 sm:mb-3 text-center">You Get</div>
-                <div className="border-2 border-[#806745] rounded-xl p-1.5 sm:p-2 min-h-36 sm:min-h-45 flex flex-col items-center justify-center gap-1.5 sm:gap-2 bg-[#3C2C32]">
+                <div className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-[#565656] mb-2 sm:mb-3 text-center">You Get</div>
+                <div className="border border-[#cfcfcf] rounded-xl p-1.5 sm:p-2 min-h-36 sm:min-h-45 flex flex-col items-center justify-center gap-1.5 sm:gap-2 bg-white shadow-[0_3px_10px_rgba(0,0,0,0.08)]">
                   {youGetCards.length > 0 ? (
                     <>
                       <div className="grid grid-cols-2 gap-1 w-full">
@@ -383,7 +384,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
                       <button
                         onClick={() => handleChooseClick("get")}
                         disabled={!youGiveCard}
-                        className="bg-[#877B8A] text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="bg-[#050505] text-white border border-[#050505] px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-white hover:text-[#050505] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_0_rgba(0,0,0,0.18)]"
                         title={!youGiveCard ? "Please select a card to give first" : ""}
                       >
                         Choose
@@ -393,7 +394,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
                     <button
                       onClick={() => handleChooseClick("get")}
                       disabled={!youGiveCard}
-                      className="bg-[#877B8A] text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="bg-[#050505] text-white border border-[#050505] px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold hover:bg-white hover:text-[#050505] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_0_rgba(0,0,0,0.18)]"
                       title={!youGiveCard ? "Please select a card to give first" : ""}
                     >
                       Choose
@@ -404,17 +405,18 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
             </div>
 
             {/* Info Text */}
-            <div className="space-y-2 sm:space-y-3 text-xs sm:text-sm text-gray-300 px-3 sm:px-6">
+            <div className="space-y-2 sm:space-y-3 text-xs sm:text-sm text-[#565656] px-3 sm:px-6 leading-relaxed">
               <p>The card will be locked until the transaction is completed or you manually cancel it.</p>
               <p>
-                Upon completion of the transaction, the card you receive will have an{" "}
-                <span className="text-[#FFC800]">[X]%</span> chance to upgrade to a higher-tier card!
+                Upon completion of the transaction, the card you receive will have a{" "}
+                <span className="inline-block bg-[#ffc100] text-[#050505] px-1.5 py-0.5 rounded text-[10px] sm:text-xs font-black uppercase tracking-wider align-middle">[X]%</span>{" "}
+                chance to upgrade to a higher-tier card!
               </p>
             </div>
 
             {/* Error Message */}
             {error && (
-              <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-2 sm:p-3 text-xs sm:text-sm text-red-300 mx-3 sm:mx-6">
+              <div className="bg-red-50 border border-red-300 rounded-lg p-2 sm:p-3 text-xs sm:text-sm text-red-700 font-medium mx-3 sm:mx-6">
                 {error}
               </div>
             )}
@@ -424,7 +426,7 @@ export function CreateTradeModal({ isOpen, onClose, onSuccess }: CreateTradeModa
               <button
                 onClick={handlePost}
                 disabled={isProcessing}
-                className="bg-[#713DE9] text-white px-8 sm:px-12 py-2 rounded-full font-bold text-base sm:text-lg border-2 border-[#877B8A]/50 hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="bg-[#050505] text-white px-8 sm:px-12 py-2.5 rounded-xl font-black uppercase tracking-wider text-base sm:text-lg border border-[#050505] hover:bg-white hover:text-[#050505] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-[0_2px_0_rgba(0,0,0,0.18)]"
               >
                 {isProcessing ? (
                   <>

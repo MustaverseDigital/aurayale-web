@@ -219,7 +219,7 @@ export default function PlatformPage() {
   }
 
   return (
-    <div className="min-h-screen bgImg text-white flex flex-col overflow-x-hidden">
+    <div className="min-h-screen bgImg text-[#050505] flex flex-col overflow-x-hidden">
       {/* Unity-matched viewport container */}
       <div
         className="fixed inset-0 z-0 flex flex-col items-center justify-center bgImg overflow-x-hidden"
@@ -258,13 +258,13 @@ export default function PlatformPage() {
                   <img className="rounded-[20px] shadow-lg w-full" src="/img/banner_Aurayale.jpg" alt="" />
                   <div className="bg-[#ffc100] absolute top-[0px] left-[0px] text-xs sm:text-sm p-1 rounded-tl-[20px] rounded-br-[20px] min-w-[60px] sm:min-w-[80px] text-center">HOT</div>
                   <button
-                    className="bg-[#713DE9] text-white px-2 sm:px-3 py-1 rounded text-xs sm:text-sm font-semibold hover:opacity-70 transition absolute bottom-[0px] right-[0px] -translate-1/2"
+                    className="rounded-xl px-4 text-sm font-bold transition inline-flex items-center justify-center h-10 w-20 whitespace-nowrap border bg-white text-[#050505] border-[#d9d9d9] hover:border-[#050505] shadow-[0_2px_0_rgba(0,0,0,0.12)] absolute bottom-3 right-3"
                     onClick={handleEditClick}
                   >
                     Edit
                   </button>
                   <button
-                    className="btn btn-battle text-shadow-lg rounded-xl px-4 sm:px-8 py-2 text-base sm:text-xl disabled:opacity-50 disabled:cursor-not-allowed transition bg-opacity-90 hover:bg-opacity-100 inline-flex items-center justify-center h-10 w-24 sm:w-28 whitespace-nowrap absolute -translate-1/2 bottom-[0px] left-[50%]"
+                    className="rounded-xl px-8 py-2 text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed transition inline-flex items-center justify-center h-10 w-28 whitespace-nowrap bg-white text-[#050505] border border-[#d9d9d9] hover:border-[#050505] shadow-[0_2px_0_rgba(0,0,0,0.12)] absolute -translate-x-1/2 bottom-3 left-1/2"
                     onClick={() => {
                       localStorage.setItem("battleDeck", JSON.stringify(deck));
                       router.push("/battle");

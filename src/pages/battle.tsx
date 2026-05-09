@@ -6,6 +6,8 @@ import { useRewardAd } from "../hooks/useRewardAd";
 import type { RewardAdEventPayload } from "../hooks/useRewardAd";
 import { useUser } from "../context/UserContext";
 import type { ClaimedReward, StaminaInfo } from "../types/auraServer";
+import { FloatingMenuButton } from "../components/FloatingMenuButton";
+import { InfoMenuModal } from "../components/InfoMenuModal";
 
 type RewardToastData = {
   claimed: ClaimedReward[];
@@ -59,6 +61,7 @@ export default function BattlePage() {
 
   const { user } = useUser();
   const [rewardToast, setRewardToast] = useState<RewardToastData | null>(null);
+  const [isInfoMenuOpen, setIsInfoMenuOpen] = useState(false);
 
   const handleAdResult = (r: RewardAdEventPayload) => {
     switch (r.status) {
@@ -191,13 +194,23 @@ export default function BattlePage() {
         <RewardToast data={rewardToast} onClose={() => setRewardToast(null)} />
       )}
       {/* Unity WebGL Overlay：僅在符合條件時渲染 */}
-      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black">
+      <div
+        className="fixed inset-0 z-50 flex flex-col items-center justify-center"
+        style={{
+          backgroundImage: "url('/img/Aurayale_Bg.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundAttachment: "fixed",
+          backgroundColor: "#1a0a2b",
+        }}
+      >
         {!isLoaded && (
           <div className="absolute inset-0 flex flex-col items-center justify-center z-50">
-            <div className="text-white text-2xl font-bold mb-2 flex items-center">
+            <div className="text-white text-2xl font-bold mb-2 flex items-center" style={{ textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
               <span className="ml-2 animate-bounce">Loading Game...</span>
             </div>
-            <div className="text-white text-lg font-mono tracking-widest animate-pulse">
+            <div className="text-white text-lg font-mono tracking-widest animate-pulse" style={{ textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
               {Math.round(loadingProgression * 100)}%
             </div>
           </div>
@@ -222,6 +235,26 @@ export default function BattlePage() {
           devicePixelRatio={devicePixelRatio}
         />
       </div>
+
+      {/* 右下角著作權 */}
+      <div
+        className="fixed bottom-2 right-4 z-[55] text-[10px] sm:text-xs font-bold uppercase tracking-[0.15em] text-white/70 pointer-events-none select-none"
+        style={{ textShadow: "0 1px 3px rgba(0,0,0,0.6)" }}
+      >
+        © 2026 MUSTAVERSE STUDIO. ALL RIGHTS RESERVED.
+      </div>
+
+      {/* 右側可拖曳懸浮選單按鈕(InfoMenuModal 開啟時隱藏避免遮擋) */}
+      <FloatingMenuButton
+        onClick={() => setIsInfoMenuOpen(true)}
+        visible={!isInfoMenuOpen}
+      />
+
+      {/* 資訊選單 */}
+      <InfoMenuModal
+        isOpen={isInfoMenuOpen}
+        onClose={() => setIsInfoMenuOpen(false)}
+      />
     </div>
   );
 } 

@@ -65,13 +65,13 @@ export default function DeckPage() {
     return "";
   };
 
-  if (!user) return <div className="min-h-screen flex items-center justify-center text-white">請先登入</div>;
+  if (!user) return <div className="min-h-screen bgImg flex items-center justify-center text-[#050505]">請先登入</div>;
 
   return (
-    <div className="min-h-screen text-white flex flex-col">
+    <div className="min-h-screen bgImg text-[#050505] flex flex-col">
       {/* Unity-matched viewport container */}
       <div
-        className="fixed inset-0 z-0 flex flex-col items-center justify-center bg-black"
+        className="fixed inset-0 z-0 flex flex-col items-center justify-center bgImg"
         style={{
           width: `${canvasWidth}px`,
           height: viewportHeight,
@@ -81,24 +81,24 @@ export default function DeckPage() {
         }}
       >
         {/* 玩家資訊 header bar */}
-        <header className="py-2 px-4 border-b border-[#898cd2]/30 backdrop-blur-sm fixed top-0 z-10 flex justify-between items-center w-full" style={{ width: `${canvasWidth}px`, left: "50%", transform: "translateX(-50%)" }}>
-          <h1 className="text-lg text-gray-400">Edit Deck</h1>
+        <header className="py-2 px-4 bg-[#050505] border-b border-[#050505] fixed top-0 z-10 flex justify-between items-center w-full" style={{ width: `${canvasWidth}px`, left: "50%", transform: "translateX(-50%)" }}>
+          <h1 className="text-lg font-black text-white">Edit Deck</h1>
 
           <div className="flex items-center gap-3">
-            <Wallet className="w-5 h-5 text-gray-400" />
-            <span className="font-semibold text-white bg-black/30 py-1 px-3 rounded-xl">
+            <Wallet className="w-5 h-5 text-white" />
+            <span className="font-semibold text-white bg-white/10 border border-white/20 py-1 px-3 rounded-xl">
               {username}
               {walletAddress ? (
-                <span className="text-gray-300">(0x...{walletAddress.slice(-5)})</span>
+                <span className="text-gray-300"> (0x...{walletAddress.slice(-5)})</span>
               ) : (
-                <span className="text-gray py-1 px-3 rounded-xl bg-gray-600/90 ">Not bound</span>
+                <span className="text-gray-200 py-1 px-3 rounded-xl bg-white/10">Not bound</span>
               )}
             </span>
           </div>
         </header>
 
         <div className="flex-1 flex flex-col w-full overflow-y-auto" style={{ width: `${canvasWidth}px`, paddingTop: '56px', paddingBottom: '73px' }}>
-          {error && <div className="p-4 bg-red-800 text-red-200">{error}</div>}
+          {error && <div className="p-4 bg-red-50 text-red-700 border border-red-200">{error}</div>}
           <DeckComponent
             currentDeck={currentDeck}
             selectedCards={selectedCards}
@@ -121,24 +121,25 @@ export default function DeckPage() {
           </div>
         </div>
         {/* Bottom action bar: 編輯 / Battle */}
-        <div className="BattleComponent fixed bottom-0 left-0 right-0 p-2 backdrop-blur-md shadow-lg btnSection min-h-[57px]" style={{ width: `${canvasWidth}px`, left: "50%", transform: "translateX(-50%)" }}>
+        <div className="BattleComponent fixed bottom-0 left-0 right-0 p-2 bg-white border-t border-[#d9d9d9] shadow-[0_-8px_24px_rgba(0,0,0,0.08)] min-h-[57px]" style={{ width: `${canvasWidth}px`, left: "50%", transform: "translateX(-50%)" }}>
         {/* 返回個人頁面 */}
         <button
-          className="btn btn-square rounded-xl flex items-center justify-center p-3 absolute left-2 bottom-2 text-sm bg-transparent hover:bg-white/10 transition"
+          className="rounded-xl flex items-center justify-center h-10 w-10 absolute left-2 bottom-2 text-sm bg-white border border-[#d9d9d9] text-[#050505] hover:border-[#050505] transition shadow-[0_2px_0_rgba(0,0,0,0.08)]"
           onClick={() => router.push("/platform")}
           title="返回個人頁面"
         >
-          <CornerDownLeft className="w-6 h-6" />
+          <CornerDownLeft className="w-5 h-5" />
         </button>
 
         <div className="flex items-center justify-center gap-3">
           <button
-            className={`btn rounded-xl text-shadow-sm px-6 py-2 text-white text-sm font-semibold transition inline-flex items-center justify-center h-10 w-28 whitespace-nowrap ${!isEditing
-              ? "btn-primary "
-              : selectedCards.length === 10
-                ? "btn-success "
-                : "btn-warning "
-              } bg-opacity-90 hover:bg-opacity-100 ${saving ? "opacity-70 cursor-not-allowed" : ""}`}
+            className={`rounded-xl px-6 py-2 text-sm font-bold transition inline-flex items-center justify-center h-10 w-28 whitespace-nowrap border ${
+              !isEditing
+                ? "bg-[#050505] text-white border-[#050505] hover:bg-white hover:text-[#050505]"
+                : selectedCards.length === 10
+                  ? "bg-[#050505] text-white border-[#050505] hover:bg-white hover:text-[#050505]"
+                  : "bg-white text-[#050505] border-[#d9d9d9] hover:border-[#050505]"
+              } shadow-[0_2px_0_rgba(0,0,0,0.12)] ${saving ? "opacity-70 cursor-not-allowed" : ""}`}
             onClick={async () => {
               if (!isEditing) {
                 setIsEditing(true);
@@ -182,7 +183,7 @@ export default function DeckPage() {
           </button>
 
           <button
-            className="btn btn-battle text-shadow-lg rounded-xl px-8 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed transition bg-opacity-90 hover:bg-opacity-100 inline-flex items-center justify-center h-10 w-28 whitespace-nowrap"
+            className="rounded-xl px-8 py-2 text-sm font-bold disabled:opacity-40 disabled:cursor-not-allowed transition inline-flex items-center justify-center h-10 w-28 whitespace-nowrap bg-[#050505] text-white border border-[#050505] hover:bg-white hover:text-[#050505] shadow-[0_2px_0_rgba(0,0,0,0.12)]"
             onClick={() => {
               localStorage.setItem("battleDeck", JSON.stringify(currentDeck));
               router.push("/battle");

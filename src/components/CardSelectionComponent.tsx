@@ -25,15 +25,15 @@ const CardSelectionComponent: React.FC<CardSelectionComponentProps> = ({
   return (
     <section className="px-4 pt-0 pb-20 content">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Your Cards</h2>
+        <h2 className="text-lg font-black text-[#050505]">Your Cards</h2>
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center rounded-full  bg-black/30 px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-secondary text-secondary-foreground">
+          <span className="inline-flex items-center rounded-full bg-white border border-[#d6d6d6] px-2.5 py-0.5 text-xs font-bold text-[#050505] transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
             {useSelected ? selectedCards.length : currentDeck.length}/10 Selected
           </span>
         </div>
       </div>
       {gems.length === 0 && (
-        <div className="space-y-4 bg-[#898cd2]/20  p-4 rounded-lg   w-full text-center">No Card</div>
+        <div className="space-y-4 bg-white border border-[#d6d6d6] p-4 rounded-lg w-full text-center text-[#6f6f6f]">No Card</div>
       )}
 
       <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
@@ -44,11 +44,11 @@ const CardSelectionComponent: React.FC<CardSelectionComponentProps> = ({
           return (
             <div
               key={gem.id}
-              className={`rounded-lg bg-card bg-card-block text-card-foreground shadow-sm transition-all duration-200 ${isSelected
-                ? "ring-2 ring-red-500 bg-red-900/10 scale-95"
+              className={`rounded-lg bg-white border border-[#d6d6d6] text-[#050505] shadow-[0_4px_14px_rgba(0,0,0,0.06)] transition-all duration-200 ${isSelected
+                ? "ring-2 ring-[#050505] bg-[#f4f4f1] scale-95"
                 : isInDeck
-                  ? "InDeck"
-                  : "bg-gray-800 hover:bg-gray-700"
+                  ? "border-[#050505]"
+                  : "hover:border-[#050505]"
                 } ${useSelected && selectedCards.length >= 10 && !isSelected
                   ? "opacity-50 cursor-not-allowed"
                   : isEditing
@@ -75,13 +75,13 @@ const CardSelectionComponent: React.FC<CardSelectionComponentProps> = ({
                   className={`aspect-[3/4] bg-card bg-card-1 rounded mb-2 object-contain w-full ${isSelected ? "scale-95" : ""}`}
                 />
                 <div className="space-y-1">
-                  <div className="text-xs text-gray-400">{getCardEffect(gem.id)}</div>
+                  <div className="text-xs text-[#777]">{getCardEffect(gem.id)}</div>
                   {isSelected && (
-                    <div className="absolute top-0 left-0 w-full h-full border-2 border-red-500 rounded-lg"></div>
+                    <div className="absolute top-0 left-0 w-full h-full border-2 border-[#050505] rounded-lg"></div>
                   )}
                   {isInDeck && (
-                    <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center text-green-400 bg-inDeck">
-                      <Check className="w-12 h-12 mb-8 text-shadow-md" />
+                    <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center text-white bg-black/70 rounded-lg">
+                      <Check className="w-12 h-12 mb-8" />
                     </div>
                   )}
                 </div>
