@@ -4,7 +4,6 @@ import { useAccount } from "wagmi"
 import { usePrivy, useWallets } from "@privy-io/react-auth"
 import { useUser } from "../context/UserContext"
 import { useViewportRequirements } from "../context/ViewportRequirementsContext"
-import { useCanvasWidth } from "../hooks/useCanvasWidth"
 import {
   getUserDeck,
   getUserGems,
@@ -28,8 +27,7 @@ export default function PlatformPage() {
   const { user: privyUser, ready, authenticated } = usePrivy()
   const { wallets } = useWallets()
   const router = useRouter()
-  const { viewportHeight, safeAreaInsetBottom } = useViewportRequirements()
-  const canvasWidth = useCanvasWidth(viewportHeight)
+  const { safeAreaInsetBottom } = useViewportRequirements()
 
   const [farcasterUser, setFarcasterUser] = useState<{
     username?: string;
@@ -220,130 +218,117 @@ export default function PlatformPage() {
 
   return (
     <div className="min-h-screen bgImg text-[#050505] flex flex-col overflow-x-hidden">
-      {/* Unity-matched viewport container */}
-      <div
-        className="fixed inset-0 z-0 flex flex-col items-center justify-center bgImg overflow-x-hidden"
+      {/* Header — sticky at top, full viewport width */}
+      <div className="sticky top-0 z-30">
+        <Header />
+      </div>
+
+      {/* Main Content — responsive max-width container */}
+      <main
+        className="flex-1 mx-auto w-full max-w-md sm:max-w-xl md:max-w-2xl lg:max-w-4xl xl:max-w-5xl px-3 sm:px-4 pb-6"
         style={{
-          width: `${canvasWidth}px`,
-          maxWidth: "100vw",
-          height: viewportHeight,
-          left: "50%",
-          transform: "translateX(-50%)",
-          marginBottom: safeAreaInsetBottom > 0 ? `${safeAreaInsetBottom}px` : '0',
+          paddingBottom: safeAreaInsetBottom > 0 ? `${safeAreaInsetBottom + 16}px` : undefined,
         }}
       >
-        {/* Header */}
-        <div
-          className="fixed top-0 z-10"
-          style={{ width: `${canvasWidth}px`, maxWidth: "100vw", left: "50%", transform: "translateX(-50%)" }}
-        >
-          <Header />
-        </div>
+        {/* Wallet Info */}
+        <WalletInfo />
 
-        {/* Main Content */}
-        <div
-          className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden w-full pt-16 pb-4"
-          style={{ width: `${canvasWidth}px`, maxWidth: "100vw" }}
-        >
-          <div className="flex-1 flex flex-col px-3 sm:px-4">
-            {/* Wallet Info */}
-            <WalletInfo />
+        {/* Tab Navigation */}
+        <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
 
-            {/* Tab Navigation */}
-            <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
-            {/* Games Tab Content - 只在 activeTab === "games" 時顯示 */}
-            {activeTab === "games" && (
-              <div className="mt-4 space-y-3 pb-4 tab-content" id="tab-games">
-                <div className="mb-4 space-y-3 bg-cover relative">
-                  <img className="rounded-[20px] shadow-lg w-full" src="/img/banner_Aurayale.jpg" alt="" />
-                  <div className="bg-[#ffc100] absolute top-[0px] left-[0px] text-xs sm:text-sm p-1 rounded-tl-[20px] rounded-br-[20px] min-w-[60px] sm:min-w-[80px] text-center">HOT</div>
-                  <button
-                    className="rounded-xl px-4 text-sm font-bold transition inline-flex items-center justify-center h-10 w-20 whitespace-nowrap border bg-white text-[#050505] border-[#d9d9d9] hover:border-[#050505] shadow-[0_2px_0_rgba(0,0,0,0.12)] absolute bottom-3 right-3"
-                    onClick={handleEditClick}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="rounded-xl px-8 py-2 text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed transition inline-flex items-center justify-center h-10 w-28 whitespace-nowrap bg-white text-[#050505] border border-[#d9d9d9] hover:border-[#050505] shadow-[0_2px_0_rgba(0,0,0,0.12)] absolute -translate-x-1/2 bottom-3 left-1/2"
-                    onClick={() => {
-                      localStorage.setItem("battleDeck", JSON.stringify(deck));
-                      router.push("/battle");
-                    }}
-                  >
-                    Battle
-                  </button>
-
-                </div>
-              </div>
-            )}
-            {/* Market/History Tab Content - 只在 activeTab !== "games" 時顯示 */}
-            {(activeTab === "market" || activeTab === "history") && (
-              <div className="tab-content" id="tab-market">
-                {/* Trade Filters */}
-                <TradeFilters
-                  onAddClick={() => setIsCreateModalOpen(true)}
-                  searchTerm={searchTerm}
-                  onSearchChange={setSearchTerm}
-                />
-                {/* Trade Cards List */}
-                <div className="flex-1 overflow-y-auto mt-4 space-y-3 pb-4">
-                  {tradesLoading ? (
-                    <div className="flex justify-center items-center py-8">
-                      <div className="text-gray-400">Loading trades...</div>
-                    </div>
-                  ) : tradesError ? (
-                    <div className="flex justify-center items-center py-8">
-                      <div className="text-red-400 text-sm">{tradesError}</div>
-                    </div>
-                  ) : trades.length === 0 ? (
-                    <div className="flex justify-center items-center py-8">
-                      <div className="text-gray-400">No trades available</div>
-                    </div>
-                  ) : (
-                    trades
-                      .filter((trade) => {
-                        if (!searchTerm) return true
-                        const searchLower = searchTerm.toLowerCase()
-                        return (
-                          trade.address.toLowerCase().includes(searchLower)
-                        )
-                      })
-                      .map((trade, index) => {
-                        const isClickable = activeTab === "market" || (activeTab === "history" && trade.status === "tradable")
-
-                        return (
-                          <TradeCard
-                            key={trade.orderId || index}
-                            status={trade.status}
-                            youGet={trade.youGet}
-                            youGive={trade.youGive}
-                            tradeId={trade.tradeId}
-                            address={trade.address}
-                            serviceFee={trade.serviceFee}
-                            onClick={isClickable ? () => handleTradeCardClick(trade) : undefined}
-                          />
-                        )
-                      })
-                  )}
-                </div>
-              </div>
-            )}
+        {/* Games Tab Content */}
+        {activeTab === "games" && (
+          <div className="mt-4 space-y-3 pb-4 tab-content" id="tab-games">
+            <div className="mb-4 space-y-3 bg-cover relative max-w-2xl mx-auto">
+              <img className="rounded-[20px] shadow-lg w-full" src="/img/banner_Aurayale.jpg" alt="" />
+              <div className="bg-[#ffc100] absolute top-[0px] left-[0px] text-xs sm:text-sm p-1 rounded-tl-[20px] rounded-br-[20px] min-w-[60px] sm:min-w-[80px] text-center">HOT</div>
+              <button
+                className="rounded-xl px-4 text-sm font-bold transition inline-flex items-center justify-center h-10 w-20 whitespace-nowrap border bg-white text-[#050505] border-[#d9d9d9] hover:border-[#050505] shadow-[0_2px_0_rgba(0,0,0,0.12)] absolute bottom-3 right-3 mb-0"
+                onClick={handleEditClick}
+              >
+                Edit
+              </button>
+              <button
+                className="rounded-xl px-8 py-2 text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed transition inline-flex items-center justify-center h-10 w-28 whitespace-nowrap bg-white text-[#050505] border border-[#d9d9d9] hover:border-[#050505] shadow-[0_2px_0_rgba(0,0,0,0.12)] absolute -translate-x-1/2 bottom-3 left-1/2"
+                onClick={() => {
+                  localStorage.setItem("battleDeck", JSON.stringify(deck));
+                  router.push("/battle");
+                }}
+              >
+                Battle
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Modals */}
-        <CreateTradeModal
-          isOpen={isCreateModalOpen}
-          onClose={() => setIsCreateModalOpen(false)}
-          onSuccess={handleCreateSuccess}
-        />
-        <DetailTradeModal
-          isOpen={isDetailModalOpen}
-          onClose={() => setIsDetailModalOpen(false)}
-          tradeData={selectedTrade}
-          onSuccess={handleAcceptSuccess}
-        />
-      </div>
+        {/* Market/History Tab Content */}
+        {(activeTab === "market" || activeTab === "history") && (
+          <div className="tab-content" id="tab-market">
+            {/* Trade Filters */}
+            <TradeFilters
+              onAddClick={() => setIsCreateModalOpen(true)}
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+            />
+            {/* Trade Cards — 1 col on mobile, 2 cols on lg+ */}
+            <div className="mt-4 pb-4">
+              {tradesLoading ? (
+                <div className="flex justify-center items-center py-8">
+                  <div className="text-gray-400">Loading trades...</div>
+                </div>
+              ) : tradesError ? (
+                <div className="flex justify-center items-center py-8">
+                  <div className="text-red-400 text-sm">{tradesError}</div>
+                </div>
+              ) : trades.length === 0 ? (
+                <div className="flex justify-center items-center py-8">
+                  <div className="text-gray-400">No trades available</div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                  {trades
+                    .filter((trade) => {
+                      if (!searchTerm) return true
+                      const searchLower = searchTerm.toLowerCase()
+                      return (
+                        trade.address.toLowerCase().includes(searchLower)
+                      )
+                    })
+                    .map((trade, index) => {
+                      const isClickable = activeTab === "market" || (activeTab === "history" && trade.status === "tradable")
+
+                      return (
+                        <TradeCard
+                          key={trade.orderId || index}
+                          status={trade.status}
+                          youGet={trade.youGet}
+                          youGive={trade.youGive}
+                          tradeId={trade.tradeId}
+                          address={trade.address}
+                          serviceFee={trade.serviceFee}
+                          onClick={isClickable ? () => handleTradeCardClick(trade) : undefined}
+                        />
+                      )
+                    })}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* Modals */}
+      <CreateTradeModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={handleCreateSuccess}
+      />
+      <DetailTradeModal
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+        tradeData={selectedTrade}
+        onSuccess={handleAcceptSuccess}
+      />
     </div>
   )
 }

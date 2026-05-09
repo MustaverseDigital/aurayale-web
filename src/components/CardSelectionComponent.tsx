@@ -23,9 +23,9 @@ const CardSelectionComponent: React.FC<CardSelectionComponentProps> = ({
 }) => {
   const useSelected = isEditing;
   return (
-    <section className="px-4 pt-0 pb-20 content">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-black text-[#050505]">Your Cards</h2>
+    <section className="px-3 sm:px-4 pt-0 pb-20 content">
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <h2 className="text-base sm:text-lg font-black text-[#050505]">Your Cards</h2>
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center rounded-full bg-white border border-[#d6d6d6] px-2.5 py-0.5 text-xs font-bold text-[#050505] transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
             {useSelected ? selectedCards.length : currentDeck.length}/10 Selected
@@ -36,7 +36,7 @@ const CardSelectionComponent: React.FC<CardSelectionComponentProps> = ({
         <div className="space-y-4 bg-white border border-[#d6d6d6] p-4 rounded-lg w-full text-center text-[#6f6f6f]">No Card</div>
       )}
 
-      <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-2 sm:gap-3">
 
         {gems.map((gem) => {
           const isSelected = useSelected ? selectedCards.includes(gem.id) : false;
