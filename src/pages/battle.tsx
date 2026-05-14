@@ -8,6 +8,7 @@ import { useUser } from "../context/UserContext";
 import type { ClaimedReward, StaminaInfo } from "../types/auraServer";
 import { FloatingMenuButton } from "../components/FloatingMenuButton";
 import { InfoMenuModal } from "../components/InfoMenuModal";
+import { useInfoPanelLayout } from "../hooks/useInfoPanelLayout";
 
 type RewardToastData = {
   claimed: ClaimedReward[];
@@ -61,7 +62,14 @@ export default function BattlePage() {
 
   const { user } = useUser();
   const [rewardToast, setRewardToast] = useState<RewardToastData | null>(null);
+  // 初始值 false 以避免 SSR/Hydration mismatch,掛載後再切換為展開狀態
   const [isInfoMenuOpen, setIsInfoMenuOpen] = useState(false);
+  const infoPanelLayout = useInfoPanelLayout();
+
+  // 預設展開資訊面板(進入 /battle 時)
+  useEffect(() => {
+    setIsInfoMenuOpen(true);
+  }, []);
 
   const handleAdResult = (r: RewardAdEventPayload) => {
     switch (r.status) {
@@ -244,10 +252,21 @@ export default function BattlePage() {
         © 2026 MUSTAVERSE STUDIO. ALL RIGHTS RESERVED.
       </div>
 
-      {/* 右側可拖曳懸浮選單按鈕(InfoMenuModal 開啟時隱藏避免遮擋) */}
+      {/* 桌機版:固定於右側面板中心的 list 按鈕(收合狀態)
+          行動裝置 / 窄螢幕:可拖曳的懸浮按鈕。
+          InfoMenuModal 開啟時隱藏,避免遮擋。 */}
       <FloatingMenuButton
         onClick={() => setIsInfoMenuOpen(true)}
         visible={!isInfoMenuOpen}
+        pinned={
+          infoPanelLayout.isSidePanel
+            ? {
+                left: infoPanelLayout.buttonLeft,
+                top: infoPanelLayout.buttonTop,
+                size: infoPanelLayout.buttonSize,
+              }
+            : undefined
+        }
       />
 
       {/* 資訊選單 */}

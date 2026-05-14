@@ -51,19 +51,22 @@ export function Header() {
 
   return (
     <header className="bg-[#050505] border-b border-[#050505] w-full">
-      <div className="flex items-center justify-between p-3 w-full px-3 sm:px-4">
-        <div className="text-2xl font-bold text-white shrink-0">
-          <img src="/img/Logo_s.svg" alt="" className="h-8 brightness-0 invert" />
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            className="p-2 text-white hover:text-[#d6d6d6] transition-colors"
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-            aria-label="登出"
-          >
-            <LogOut className="w-5 h-5 sm:w-6 sm:h-6" />
-          </button>
+      {/* 內層容器:與 platform 主內容相同的 max-width / padding,讓 Logo 與登出按鈕與底下內容切齊 */}
+      <div className="mx-auto w-full max-w-md sm:max-w-xl md:max-w-2xl lg:max-w-4xl xl:max-w-5xl px-3 sm:px-4">
+        <div className="flex items-center justify-between py-3">
+          <div className="text-2xl font-bold text-white shrink-0">
+            <img src="/img/Logo_s.svg" alt="" className="h-8 brightness-0 invert" />
+          </div>
+          <div className="flex items-center gap-2 -mr-2">
+            <button
+              className="p-2 text-white hover:text-[#d6d6d6] transition-colors"
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              aria-label="登出"
+            >
+              <LogOut className="w-5 h-5 sm:w-6 sm:h-6" />
+            </button>
+          </div>
         </div>
       </div>
     </header>

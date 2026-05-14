@@ -1,4 +1,4 @@
-import { Copy, Wallet, Plus } from "lucide-react"
+import { Copy, Wallet, Plus, User } from "lucide-react"
 import { useUser } from "../context/UserContext"
 import { useEffect, useState } from "react"
 import { getUserGems, GemItem } from "../api/auraServer"
@@ -58,8 +58,10 @@ export function WalletInfo() {
         <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[#050505] border border-[#050505] rounded-lg flex items-center justify-center overflow-hidden shrink-0 shadow-[0_5px_14px_rgba(0,0,0,0.16)]">
           {farcasterPfp ? (
             <img src={farcasterPfp} alt={farcasterUsername || "User"} className="w-full h-full object-cover" />
+          ) : farcasterUsername ? (
+            <span className="text-xl sm:text-2xl text-white">{farcasterUsername.charAt(0).toUpperCase()}</span>
           ) : (
-            <span className="text-xl sm:text-2xl text-white">{farcasterUsername ? farcasterUsername.charAt(0).toUpperCase() : ""}</span>
+            <User className="w-6 h-6 sm:w-8 sm:h-8 text-white" strokeWidth={2} />
           )}
         </div>
         <div className="flex-1 min-w-0">

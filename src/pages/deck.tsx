@@ -67,20 +67,24 @@ export default function DeckPage() {
 
   return (
     <div className="min-h-screen bgImg text-[#050505] flex flex-col overflow-x-hidden">
-      {/* 玩家資訊 header bar — sticky, full viewport width */}
-      <header className="sticky top-0 z-30 py-2 px-3 sm:px-6 bg-[#050505] border-b border-[#050505] flex justify-between items-center w-full">
-        <h1 className="text-base sm:text-lg font-black text-white">Edit Deck</h1>
+      {/* 玩家資訊 header bar — sticky, full viewport width;內層 container 與主內容 max-width 對齊 */}
+      <header className="sticky top-0 z-30 bg-[#050505] border-b border-[#050505] w-full">
+        <div className="mx-auto w-full max-w-md sm:max-w-xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl px-3 sm:px-4">
+          <div className="py-2 flex justify-between items-center">
+            <h1 className="text-base sm:text-lg font-black text-white">Edit Deck</h1>
 
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <Wallet className="w-5 h-5 text-white shrink-0" />
-          <span className="font-semibold text-white bg-white/10 border border-white/20 py-1 px-2 sm:px-3 rounded-xl text-xs sm:text-sm truncate max-w-[60vw] sm:max-w-none">
-            {username}
-            {walletAddress ? (
-              <span className="text-gray-300"> (0x...{walletAddress.slice(-5)})</span>
-            ) : (
-              <span className="text-gray-200 py-1 px-2 sm:px-3 rounded-xl bg-white/10 ml-1">Not bound</span>
-            )}
-          </span>
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <Wallet className="w-5 h-5 text-white shrink-0" />
+              <span className="font-semibold text-white bg-white/10 border border-white/20 py-1 px-2 sm:px-3 rounded-xl text-xs sm:text-sm truncate max-w-[60vw] sm:max-w-none">
+                {username}
+                {walletAddress ? (
+                  <span className="text-gray-300"> (0x...{walletAddress.slice(-5)})</span>
+                ) : (
+                  <span className="text-gray-200 py-1 px-2 sm:px-3 rounded-xl bg-white/10 ml-1">Not bound</span>
+                )}
+              </span>
+            </div>
+          </div>
         </div>
       </header>
 

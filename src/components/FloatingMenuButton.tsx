@@ -5,9 +5,18 @@ interface FloatingMenuButtonProps {
   onClick: () => void
   /** 是否顯示。建議:當有其他 modal 開啟時隱藏避免遮擋 */
   visible?: boolean
+  /**
+   * 桌機版的初始定位提示。
+   * - 提供時:作為「未儲存過位置」時的預設位置,並改用獨立的 localStorage key,
+   *   讓桌機版與行動裝置版的拖曳位置不會互相覆蓋。
+   * - 未提供:預設右側垂直置中。
+   * 不論是否提供,按鈕一律可拖曳。
+   */
+  pinned?: { left: number; top: number; size?: number }
 }
 
 const STORAGE_KEY = "aurayale_floating_menu_position"
+const STORAGE_KEY_PINNED = "aurayale_floating_menu_position_pinned"
 const BUTTON_SIZE = 56
 const EDGE_PADDING = 12
 const DRAG_THRESHOLD = 4 // px,超過才視為拖曳(避免單擊誤判)
@@ -18,28 +27,31 @@ interface Position {
 }
 
 /**
- * 螢幕右側的可自由拖曳懸浮按鈕。
- * 點擊時呼叫 onClick;拖曳超過閾值的點擊會被忽略。
- * 位置會持久化到 localStorage。
+ * 可自由拖曳的懸浮按鈕。點擊時呼叫 onClick;拖曳超過閾值的點擊會被忽略。
+ * 位置會持久化到 localStorage(桌機 / 行動裝置使用不同 key)。
  */
-export function FloatingMenuButton({ onClick, visible = true }: FloatingMenuButtonProps) {
+export function FloatingMenuButton({ onClick, visible = true, pinned }: FloatingMenuButtonProps) {
+  const storageKey = pinned ? STORAGE_KEY_PINNED : STORAGE_KEY
+  const buttonSize = pinned?.size ?? BUTTON_SIZE
+
   const [position, setPosition] = useState<Position | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const didDragRef = useRef(false)
   const dragOffsetRef = useRef<Position>({ x: 0, y: 0 })
   const startPosRef = useRef<Position>({ x: 0, y: 0 })
 
-  // 初始化位置:讀 localStorage 或預設右側垂直置中
+  // 初始化位置:讀 localStorage → pinned(若提供) → 預設右側垂直置中
+  // 只在 mount 時執行一次;之後 pinned 變動不會重置使用者手動拖曳的位置
   useEffect(() => {
     if (typeof window === "undefined") return
 
     const clamp = (p: Position): Position => ({
-      x: Math.min(Math.max(p.x, EDGE_PADDING), window.innerWidth - BUTTON_SIZE - EDGE_PADDING),
-      y: Math.min(Math.max(p.y, EDGE_PADDING), window.innerHeight - BUTTON_SIZE - EDGE_PADDING),
+      x: Math.min(Math.max(p.x, EDGE_PADDING), window.innerWidth - buttonSize - EDGE_PADDING),
+      y: Math.min(Math.max(p.y, EDGE_PADDING), window.innerHeight - buttonSize - EDGE_PADDING),
     })
 
     try {
-      const saved = localStorage.getItem(STORAGE_KEY)
+      const saved = localStorage.getItem(storageKey)
       if (saved) {
         const parsed = JSON.parse(saved) as Position
         if (typeof parsed.x === "number" && typeof parsed.y === "number") {
@@ -51,11 +63,19 @@ export function FloatingMenuButton({ onClick, visible = true }: FloatingMenuButt
       // ignore
     }
 
+    if (pinned) {
+      setPosition(clamp({ x: pinned.left, y: pinned.top }))
+      return
+    }
+
     setPosition(clamp({
-      x: window.innerWidth - BUTTON_SIZE - EDGE_PADDING,
-      y: window.innerHeight / 2 - BUTTON_SIZE / 2,
+      x: window.innerWidth - buttonSize - EDGE_PADDING,
+      y: window.innerHeight / 2 - buttonSize / 2,
     }))
-  }, [])
+    // 故意只依賴 storageKey/buttonSize;pinned 只用於「第一次初始化」的後備值,
+    // 後續拖曳的位置不應因 layout 重算而被覆蓋。
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storageKey, buttonSize])
 
   // 視窗 resize 時把按鈕約束回畫面內
   useEffect(() => {
@@ -64,25 +84,25 @@ export function FloatingMenuButton({ onClick, visible = true }: FloatingMenuButt
       setPosition((p) => {
         if (!p) return p
         return {
-          x: Math.min(Math.max(p.x, EDGE_PADDING), window.innerWidth - BUTTON_SIZE - EDGE_PADDING),
-          y: Math.min(Math.max(p.y, EDGE_PADDING), window.innerHeight - BUTTON_SIZE - EDGE_PADDING),
+          x: Math.min(Math.max(p.x, EDGE_PADDING), window.innerWidth - buttonSize - EDGE_PADDING),
+          y: Math.min(Math.max(p.y, EDGE_PADDING), window.innerHeight - buttonSize - EDGE_PADDING),
         }
       })
     }
     window.addEventListener("resize", onResize)
     return () => window.removeEventListener("resize", onResize)
-  }, [position])
+  }, [position, buttonSize])
 
   // 持久化位置
   useEffect(() => {
     if (position) {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(position))
+        localStorage.setItem(storageKey, JSON.stringify(position))
       } catch {
         // ignore
       }
     }
-  }, [position])
+  }, [position, storageKey])
 
   const handleStart = useCallback(
     (clientX: number, clientY: number) => {
@@ -111,8 +131,8 @@ export function FloatingMenuButton({ onClick, visible = true }: FloatingMenuButt
 
       let x = clientX - dragOffsetRef.current.x
       let y = clientY - dragOffsetRef.current.y
-      x = Math.max(EDGE_PADDING, Math.min(window.innerWidth - BUTTON_SIZE - EDGE_PADDING, x))
-      y = Math.max(EDGE_PADDING, Math.min(window.innerHeight - BUTTON_SIZE - EDGE_PADDING, y))
+      x = Math.max(EDGE_PADDING, Math.min(window.innerWidth - buttonSize - EDGE_PADDING, x))
+      y = Math.max(EDGE_PADDING, Math.min(window.innerHeight - buttonSize - EDGE_PADDING, y))
       setPosition({ x, y })
     }
 
@@ -137,9 +157,10 @@ export function FloatingMenuButton({ onClick, visible = true }: FloatingMenuButt
       document.removeEventListener("touchmove", onTouchMove)
       document.removeEventListener("touchend", onTouchEnd)
     }
-  }, [isDragging])
+  }, [isDragging, buttonSize])
 
-  if (!position || !visible) return null
+  if (!visible) return null
+  if (!position) return null
 
   return (
     <button
@@ -164,12 +185,12 @@ export function FloatingMenuButton({ onClick, visible = true }: FloatingMenuButt
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
-        width: `${BUTTON_SIZE}px`,
-        height: `${BUTTON_SIZE}px`,
+        width: `${buttonSize}px`,
+        height: `${buttonSize}px`,
         cursor: isDragging ? "grabbing" : "grab",
         touchAction: "none",
       }}
-      className={`fixed z-[55] bg-white/25 backdrop-blur-md text-white border border-white/50 rounded-full flex items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.35)] hover:bg-white hover:text-[#050505] hover:border-white transition-colors select-none active:scale-95`}
+      className="fixed z-[55] bg-white/25 backdrop-blur-md text-white border border-white/50 rounded-full flex items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.35)] hover:bg-white hover:text-[#050505] hover:border-white transition-colors select-none active:scale-95"
       aria-label="開啟資訊選單"
     >
       <List className="w-6 h-6 pointer-events-none" strokeWidth={2.4} />

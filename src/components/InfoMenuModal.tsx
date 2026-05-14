@@ -1,6 +1,10 @@
-import { useState, useEffect, type ComponentType } from "react"
-import { X, Gamepad2, BookOpen, Gem, ShoppingBag, ArrowLeft, Sparkles, Zap } from "lucide-react"
+import { useState, useEffect, useRef, type ComponentType } from "react"
+import { useRouter } from "next/router"
+import { X, Gamepad2, BookOpen, Gem, ShoppingBag, ArrowLeft, Zap } from "lucide-react"
 import { getCardImagePath } from "../lib/utils"
+import { useInfoPanelLayout } from "../hooks/useInfoPanelLayout"
+
+const PANEL_EDGE_MARGIN = 8
 
 interface InfoMenuModalProps {
   isOpen: boolean
@@ -77,6 +81,16 @@ const cardMap = new Map(CARD_DATA.map((c) => [c.id, c]))
 export function InfoMenuModal({ isOpen, onClose }: InfoMenuModalProps) {
   const [activeCategory, setActiveCategory] = useState<CategoryId>("gameplay")
   const [selectedCardId, setSelectedCardId] = useState<number | null>(null)
+  const layout = useInfoPanelLayout()
+  const router = useRouter()
+
+  // 桌機版面板的拖曳位置(null = 使用 layout 預設位置)
+  const [userPosition, setUserPosition] = useState<{ left: number; top: number } | null>(null)
+  // 桌機版面板不透明度(10 ~ 100,最低 10 避免找不到面板)
+  const [opacity, setOpacity] = useState(100)
+  // 拖曳狀態
+  const [isDragging, setIsDragging] = useState(false)
+  const dragOffsetRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 })
 
   // 切換 Tab 時自動清掉卡片詳情
   useEffect(() => {
@@ -90,28 +104,160 @@ export function InfoMenuModal({ isOpen, onClose }: InfoMenuModalProps) {
     }
   }, [isOpen])
 
+  // 視窗大小或 layout 尺寸變動時,把使用者拖曳後的位置 clamp 回畫面內
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    if (!layout.isSidePanel) return
+    setUserPosition((p) => {
+      if (!p) return p
+      const maxLeft = Math.max(window.innerWidth - layout.panelWidth - PANEL_EDGE_MARGIN, PANEL_EDGE_MARGIN)
+      const maxTop = Math.max(window.innerHeight - layout.panelHeight - PANEL_EDGE_MARGIN, PANEL_EDGE_MARGIN)
+      const newLeft = Math.min(Math.max(p.left, PANEL_EDGE_MARGIN), maxLeft)
+      const newTop = Math.min(Math.max(p.top, PANEL_EDGE_MARGIN), maxTop)
+      if (newLeft === p.left && newTop === p.top) return p
+      return { left: newLeft, top: newTop }
+    })
+  }, [layout.isSidePanel, layout.panelWidth, layout.panelHeight])
+
+  // 拖曳處理(僅在桌機版啟用)
+  useEffect(() => {
+    if (!isDragging) return
+    if (typeof window === "undefined") return
+
+    const handleMove = (clientX: number, clientY: number) => {
+      const maxLeft = Math.max(window.innerWidth - layout.panelWidth - PANEL_EDGE_MARGIN, PANEL_EDGE_MARGIN)
+      const maxTop = Math.max(window.innerHeight - layout.panelHeight - PANEL_EDGE_MARGIN, PANEL_EDGE_MARGIN)
+      const left = Math.min(
+        Math.max(clientX - dragOffsetRef.current.x, PANEL_EDGE_MARGIN),
+        maxLeft,
+      )
+      const top = Math.min(
+        Math.max(clientY - dragOffsetRef.current.y, PANEL_EDGE_MARGIN),
+        maxTop,
+      )
+      setUserPosition({ left, top })
+    }
+
+    const onMouseMove = (e: MouseEvent) => handleMove(e.clientX, e.clientY)
+    const onMouseUp = () => setIsDragging(false)
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches[0]) {
+        e.preventDefault()
+        handleMove(e.touches[0].clientX, e.touches[0].clientY)
+      }
+    }
+    const onTouchEnd = () => setIsDragging(false)
+
+    document.addEventListener("mousemove", onMouseMove)
+    document.addEventListener("mouseup", onMouseUp)
+    document.addEventListener("touchmove", onTouchMove, { passive: false })
+    document.addEventListener("touchend", onTouchEnd)
+    return () => {
+      document.removeEventListener("mousemove", onMouseMove)
+      document.removeEventListener("mouseup", onMouseUp)
+      document.removeEventListener("touchmove", onTouchMove)
+      document.removeEventListener("touchend", onTouchEnd)
+    }
+  }, [isDragging, layout.panelWidth, layout.panelHeight])
+
+  // 返回前頁:優先使用瀏覽器歷史,若無歷史則 fallback 到平台首頁
+  const handleGoBack = () => {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back()
+      return
+    }
+    router.push("/platform")
+  }
+
   if (!isOpen) return null
 
   const activeLabel = categories.find((c) => c.id === activeCategory)?.label ?? ""
   const selectedCard = selectedCardId ? cardMap.get(selectedCardId) : null
 
-  return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-[75]">
-      {/*
-        固定高度:採 h-[85vh] + max-h(safety),內容區 overflow-y-auto。
-        切 Tab 時整體外殼尺寸不變,只內容捲軸內捲 → 避免畫面跳動。
-      */}
-      <div className="bg-white border border-[#050505] rounded-2xl w-full max-w-3xl shadow-[0_10px_28px_rgba(0,0,0,0.16)] h-[85vh] max-h-[640px] flex flex-col sm:flex-row overflow-hidden">
-        {/* ───── Sidebar ───── */}
-        <aside className="sm:w-52 sm:h-full border-b sm:border-b-0 sm:border-r border-[#e8e8e8] bg-[#f7f7f4] flex flex-col shrink-0">
-          {/* Brand header */}
-          <div className="p-3 sm:p-4 border-b border-[#e8e8e8] bg-white flex items-center gap-2 shrink-0">
-            <Sparkles className="w-4 h-4 text-[#050505]" strokeWidth={2.4} />
-            <h2 className="text-sm sm:text-base font-black uppercase tracking-wider text-[#050505]">Aurayale</h2>
-          </div>
+  const effectiveLeft = userPosition?.left ?? layout.panelLeft
+  const effectiveTop = userPosition?.top ?? layout.panelTop
 
-          {/* Category list */}
-          <nav className="flex sm:flex-col flex-1 p-2 sm:p-3 gap-1 overflow-x-auto sm:overflow-x-hidden sm:overflow-y-auto">
+  const startDragFromHeader = (clientX: number, clientY: number) => {
+    dragOffsetRef.current = {
+      x: clientX - effectiveLeft,
+      y: clientY - effectiveTop,
+    }
+    setIsDragging(true)
+  }
+
+  // ── 桌機版:右側面板(可拖曳、可調整不透明度,避免遮擋中央遊戲) ──
+  if (layout.isSidePanel) {
+    return (
+      <div
+        className="fixed z-[75] pointer-events-none"
+        style={{
+          left: `${effectiveLeft}px`,
+          top: `${effectiveTop}px`,
+          width: `${layout.panelWidth}px`,
+          height: `${layout.panelHeight}px`,
+          opacity: opacity / 100,
+          transition: isDragging ? "none" : "opacity 120ms linear",
+        }}
+      >
+        <div
+          className="bg-white border border-[#050505] rounded-2xl w-full h-full shadow-[0_10px_28px_rgba(0,0,0,0.25)] flex flex-col overflow-hidden pointer-events-auto info-panel-enter"
+        >
+          {/* Header(拖曳把手,標題置中) */}
+          <header
+            onMouseDown={(e) => {
+              // 只在點到 header 本身(非內部按鈕)時觸發拖曳
+              if ((e.target as HTMLElement).closest("button")) return
+              e.preventDefault()
+              startDragFromHeader(e.clientX, e.clientY)
+            }}
+            onTouchStart={(e) => {
+              if ((e.target as HTMLElement).closest("button")) return
+              if (!e.touches[0]) return
+              startDragFromHeader(e.touches[0].clientX, e.touches[0].clientY)
+            }}
+            style={{
+              cursor: isDragging ? "grabbing" : "grab",
+              touchAction: "none",
+              userSelect: "none",
+            }}
+            className="border-b border-[#e8e8e8] p-3 flex justify-center items-center bg-white shrink-0 relative"
+            aria-label="拖曳資訊面板"
+          >
+            {/* 返回圖鑑(僅在卡片詳情時顯示,絕對定位於左側) */}
+            {selectedCard && (
+              <button
+                type="button"
+                onClick={() => setSelectedCardId(null)}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#050505] hover:text-[#565656] transition-colors"
+                aria-label="返回圖鑑"
+              >
+                <ArrowLeft size={18} />
+              </button>
+            )}
+
+            {/* 置中標題 */}
+            <h2 className="text-sm font-black uppercase tracking-wider text-[#050505] truncate text-center px-10">
+              {selectedCard ? selectedCard.name : activeLabel}
+            </h2>
+
+            {/* 收合按鈕(絕對定位於右側) */}
+            <button
+              type="button"
+              onClick={onClose}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#050505] hover:text-[#565656] transition-colors"
+              aria-label="收合資訊選單"
+            >
+              <X size={20} />
+            </button>
+
+            {/* Diamond separator */}
+            <div className="absolute left-1/2 bottom-0 transform -translate-x-1/2 translate-y-1/2 z-10">
+              <div className="w-3 h-3 bg-[#050505] transform rotate-45" />
+            </div>
+          </header>
+
+          {/* Category Tabs(水平排列以節省寬度) */}
+          <nav className="flex gap-1 p-2 border-b border-[#e8e8e8] bg-[#f7f7f4] overflow-x-auto shrink-0">
             {categories.map((cat) => {
               const Icon = cat.icon
               const isActive = activeCategory === cat.id
@@ -120,67 +266,21 @@ export function InfoMenuModal({ isOpen, onClose }: InfoMenuModalProps) {
                   key={cat.id}
                   type="button"
                   onClick={() => setActiveCategory(cat.id)}
-                  className={`shrink-0 sm:shrink flex items-center gap-2 px-3 py-2 rounded-lg text-xs sm:text-sm font-bold transition-colors whitespace-nowrap ${
+                  className={`shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap ${
                     isActive
                       ? "bg-[#050505] text-white shadow-[0_2px_0_rgba(0,0,0,0.18)]"
                       : "text-[#565656] hover:bg-white hover:text-[#050505]"
                   }`}
                 >
-                  <Icon className="w-4 h-4 shrink-0" strokeWidth={2.2} />
+                  <Icon className="w-3.5 h-3.5 shrink-0" strokeWidth={2.2} />
                   <span>{cat.label}</span>
                 </button>
               )
             })}
-
-            {/* 返回前頁 */}
-            <button
-              type="button"
-              onClick={onClose}
-              className="shrink-0 sm:shrink sm:mt-auto flex items-center gap-2 px-3 py-2 rounded-lg text-xs sm:text-sm font-bold text-[#565656] hover:bg-white hover:text-[#050505] transition-colors whitespace-nowrap sm:border-t sm:border-[#e8e8e8] sm:pt-3 sm:mt-3"
-            >
-              <ArrowLeft className="w-4 h-4 shrink-0" strokeWidth={2.2} />
-              <span>返回前頁</span>
-            </button>
           </nav>
-        </aside>
 
-        {/* ───── Content ───── */}
-        <section className="flex-1 flex flex-col overflow-hidden min-w-0">
-          {/* Header */}
-          <header className="border-b border-[#e8e8e8] p-3 sm:p-4 flex justify-between items-center bg-white relative shrink-0">
-            <div className="flex items-center gap-2 min-w-0">
-              {selectedCard && (
-                <button
-                  type="button"
-                  onClick={() => setSelectedCardId(null)}
-                  className="text-[#050505] hover:text-[#565656] transition-colors shrink-0"
-                  aria-label="返回圖鑑"
-                >
-                  <ArrowLeft size={20} />
-                </button>
-              )}
-              <h2 className="text-base sm:text-lg font-black uppercase tracking-wider text-[#050505] truncate">
-                {selectedCard ? selectedCard.name : activeLabel}
-              </h2>
-            </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="text-[#050505] hover:text-[#565656] transition-colors shrink-0"
-              aria-label="Close"
-            >
-              <X size={20} className="sm:hidden" />
-              <X size={24} className="hidden sm:block" />
-            </button>
-
-            {/* Diamond separator */}
-            <div className="absolute left-1/2 bottom-0 transform -translate-x-1/2 translate-y-1/2 z-10">
-              <div className="w-3 h-3 sm:w-4 sm:h-4 bg-[#050505] transform rotate-45" />
-            </div>
-          </header>
-
-          {/* Body — 唯一的捲軸區域 */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-white min-h-0">
+          {/* Body */}
+          <div className="flex-1 overflow-y-auto p-4 bg-white min-h-0">
             {activeCategory === "gameplay" && <GameplayContent />}
             {activeCategory === "encyclopedia" && (
               selectedCard
@@ -190,7 +290,140 @@ export function InfoMenuModal({ isOpen, onClose }: InfoMenuModalProps) {
             {activeCategory === "rarity" && <RarityContent />}
             {activeCategory === "shop" && <ShopContent />}
           </div>
-        </section>
+
+          {/* Footer:返回前頁 + 不透明度調整 */}
+          <footer className="border-t border-[#e8e8e8] p-2 bg-[#f7f7f4] shrink-0 flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={handleGoBack}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-bold text-[#050505] hover:bg-white border border-[#cfcfcf] transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" strokeWidth={2.4} />
+              <span>返回前頁</span>
+            </button>
+
+            {/* 不透明度滑桿 */}
+            <div className="flex items-center gap-2 px-1">
+              <span className="text-[10px] font-black uppercase tracking-wider text-[#565656] shrink-0">
+                不透明度
+              </span>
+              <input
+                type="range"
+                min={10}
+                max={100}
+                step={1}
+                value={opacity}
+                onChange={(e) => setOpacity(Number(e.target.value))}
+                className="flex-1 accent-[#050505] cursor-pointer"
+                aria-label="調整資訊面板不透明度"
+              />
+              <span className="text-[10px] font-black tabular-nums text-[#050505] w-9 text-right">
+                {opacity}%
+              </span>
+            </div>
+          </footer>
+        </div>
+      </div>
+    )
+  }
+
+  // ── 行動裝置 / 窄螢幕:全畫面 Modal ──
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-[75]">
+      {/*
+        固定高度:採 h-[85vh] + max-h(safety),內容區 overflow-y-auto。
+        切 Tab 時整體外殼尺寸不變,只內容捲軸內捲 → 避免畫面跳動。
+        外層改為純 flex-col:頂部一條合併後的 Header,下方為側欄 + 內容(行動裝置直立、平板以上水平)。
+      */}
+      <div className="bg-white border border-[#050505] rounded-2xl w-full max-w-3xl shadow-[0_10px_28px_rgba(0,0,0,0.16)] h-[85vh] max-h-[640px] flex flex-col overflow-hidden">
+        {/* ───── 合併後的頂部 Header(橫跨整個 Modal,標題置中對齊) ───── */}
+        <header className="border-b border-[#e8e8e8] p-3 sm:p-4 flex justify-center items-center bg-white relative shrink-0">
+          {/* 返回圖鑑(僅在卡片詳情時顯示,絕對定位於左側) */}
+          {selectedCard && (
+            <button
+              type="button"
+              onClick={() => setSelectedCardId(null)}
+              className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-[#050505] hover:text-[#565656] transition-colors"
+              aria-label="返回圖鑑"
+            >
+              <ArrowLeft size={20} />
+            </button>
+          )}
+
+          {/* 置中標題 */}
+          <h2 className="text-base sm:text-lg font-black uppercase tracking-wider text-[#050505] truncate text-center px-10 sm:px-12">
+            {selectedCard ? selectedCard.name : activeLabel}
+          </h2>
+
+          {/* 關閉按鈕(絕對定位於右側) */}
+          <button
+            type="button"
+            onClick={onClose}
+            className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-[#050505] hover:text-[#565656] transition-colors"
+            aria-label="Close"
+          >
+            <X size={20} className="sm:hidden" />
+            <X size={24} className="hidden sm:block" />
+          </button>
+
+          {/* Diamond separator */}
+          <div className="absolute left-1/2 bottom-0 transform -translate-x-1/2 translate-y-1/2 z-10">
+            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-[#050505] transform rotate-45" />
+          </div>
+        </header>
+
+        {/* ───── Header 下方:側欄 + 內容(行動裝置直立、平板以上水平) ───── */}
+        <div className="flex flex-col sm:flex-row flex-1 overflow-hidden min-h-0">
+          {/* Sidebar(僅放分類與返回前頁,brand header 已移除) */}
+          <aside className="sm:w-52 sm:h-full border-b sm:border-b-0 sm:border-r border-[#e8e8e8] bg-[#f7f7f4] flex flex-col shrink-0">
+            {/* Category list */}
+            <nav className="flex sm:flex-col flex-1 p-2 sm:p-3 gap-1 overflow-x-auto sm:overflow-x-hidden sm:overflow-y-auto">
+              {categories.map((cat) => {
+                const Icon = cat.icon
+                const isActive = activeCategory === cat.id
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setActiveCategory(cat.id)}
+                    className={`shrink-0 sm:shrink flex items-center gap-2 px-3 py-2 rounded-lg text-xs sm:text-sm font-bold transition-colors whitespace-nowrap ${
+                      isActive
+                        ? "bg-[#050505] text-white shadow-[0_2px_0_rgba(0,0,0,0.18)]"
+                        : "text-[#565656] hover:bg-white hover:text-[#050505]"
+                    }`}
+                  >
+                    <Icon className="w-4 h-4 shrink-0" strokeWidth={2.2} />
+                    <span>{cat.label}</span>
+                  </button>
+                )
+              })}
+
+              {/* 返回前頁 */}
+              <button
+                type="button"
+                onClick={handleGoBack}
+                className="shrink-0 sm:shrink sm:mt-auto flex items-center gap-2 px-3 py-2 rounded-lg text-xs sm:text-sm font-bold text-[#565656] hover:bg-white hover:text-[#050505] transition-colors whitespace-nowrap sm:border-t sm:border-[#e8e8e8] sm:pt-3 sm:mt-3"
+              >
+                <ArrowLeft className="w-4 h-4 shrink-0" strokeWidth={2.2} />
+                <span>返回前頁</span>
+              </button>
+            </nav>
+          </aside>
+
+          {/* Content body(已不再需要第二個 Header) */}
+          <section className="flex-1 flex flex-col overflow-hidden min-w-0">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-white min-h-0">
+              {activeCategory === "gameplay" && <GameplayContent />}
+              {activeCategory === "encyclopedia" && (
+                selectedCard
+                  ? <CardDetail card={selectedCard} />
+                  : <EncyclopediaContent onCardClick={setSelectedCardId} />
+              )}
+              {activeCategory === "rarity" && <RarityContent />}
+              {activeCategory === "shop" && <ShopContent />}
+            </div>
+          </section>
+        </div>
       </div>
     </div>
   )
