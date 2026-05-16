@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, type ComponentType } from "react"
 import { useRouter } from "next/router"
-import { X, Gamepad2, BookOpen, Gem, ShoppingBag, ArrowLeft, Zap } from "lucide-react"
+import { X, Gamepad2, BookOpen, Gem, ShoppingBag, ArrowLeft, Zap, Loader2 } from "lucide-react"
 import { useInfoPanelLayout } from "../hooks/useInfoPanelLayout"
 
 const CARD_IMAGE_BASE = "https://res.cloudinary.com/djpxpezra/image/upload"
@@ -635,6 +635,13 @@ function EncyclopediaContent({ onCardClick }: { onCardClick: (id: number) => voi
 
 function CardDetail({ card }: { card: CardInfo }) {
   const meta = RARITY_META[card.rarity]
+  const [imageLoaded, setImageLoaded] = useState(false)
+
+  // 切換卡片時重置 loading 狀態,避免新圖片載入前顯示舊圖
+  useEffect(() => {
+    setImageLoaded(false)
+  }, [card.id])
+
   return (
     <div className="space-y-5">
       {/* 主視覺區:卡圖 + 名稱/稀有度 */}
@@ -647,16 +654,19 @@ function CardDetail({ card }: { card: CardInfo }) {
         }}
       >
         {/* 卡圖 */}
-        <div
-          className="shrink-0 w-32 sm:w-40 bg-white rounded-xl border border-[#cfcfcf] overflow-hidden shadow-[0_5px_14px_rgba(0,0,0,0.16)]"
-          style={{ boxShadow: `0 5px 18px ${meta.glow}` }}
-        >
+        <div className="relative shrink-0 w-32 sm:w-40 aspect-[1136/1600]">
+          {!imageLoaded && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Loader2 className="w-8 h-8 text-[#565656] animate-spin" strokeWidth={2.2} />
+            </div>
+          )}
           <img
             src={cardImageUrl(card.id, 500)}
             alt={card.name}
             loading="lazy"
             decoding="async"
-            className="w-full object-cover"
+            onLoad={() => setImageLoaded(true)}
+            className={`w-full h-full object-contain transition-opacity duration-200 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
           />
         </div>
 
