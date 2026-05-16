@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react"
+import { useTranslation } from "react-i18next"
 
 interface FloatingMenuButtonProps {
   onClick: () => void
@@ -30,6 +31,7 @@ interface Position {
  * 位置會持久化到 localStorage(桌機 / 行動裝置使用不同 key)。
  */
 export function FloatingMenuButton({ onClick, visible = true, pinned }: FloatingMenuButtonProps) {
+  const { t } = useTranslation()
   const storageKey = pinned ? STORAGE_KEY_PINNED : STORAGE_KEY
   const buttonSize = pinned?.size ?? BUTTON_SIZE
 
@@ -215,7 +217,7 @@ export function FloatingMenuButton({ onClick, visible = true, pinned }: Floating
           : "left 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.15s, color 0.15s, border-color 0.15s",
       }}
       className="fixed z-[55] bg-white/20 backdrop-blur-xl backdrop-saturate-150 border border-white/40 rounded-full flex items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.35)] hover:bg-white hover:border-white select-none active:scale-95"
-      aria-label="開啟資訊選單"
+      aria-label={t("floatingMenu.openAriaLabel")}
     >
       <img
         src="/img/Logo_s.svg"

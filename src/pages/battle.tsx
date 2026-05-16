@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Unity, useUnityContext } from "react-unity-webgl";
+import { useTranslation } from "react-i18next";
 import { useViewportRequirements } from "../context/ViewportRequirementsContext";
 import { useCanvasWidth } from "../hooks/useCanvasWidth";
 import { useRewardAd } from "../hooks/useRewardAd";
@@ -16,9 +17,10 @@ type RewardToastData = {
 };
 
 function RewardToast({ data, onClose }: { data: RewardToastData; onClose: () => void }) {
+  const { t } = useTranslation();
   useEffect(() => {
-    const t = setTimeout(onClose, 4000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(onClose, 4000);
+    return () => clearTimeout(timer);
   }, [onClose]);
 
   return (
@@ -27,7 +29,7 @@ function RewardToast({ data, onClose }: { data: RewardToastData; onClose: () => 
     >
       <div className="flex items-center gap-2 mb-3">
         <span className="text-2xl">🎁</span>
-        <h3 className="font-bold text-base tracking-wide">獎勵已領取</h3>
+        <h3 className="font-bold text-base tracking-wide">{t("battle.rewardToast.title")}</h3>
       </div>
       {data.claimed.length > 0 ? (
         <ul className="space-y-1.5 mb-3">
@@ -39,10 +41,10 @@ function RewardToast({ data, onClose }: { data: RewardToastData; onClose: () => 
           ))}
         </ul>
       ) : (
-        <p className="text-sm text-slate-400 mb-3">無獎勵項目</p>
+        <p className="text-sm text-slate-400 mb-3">{t("battle.rewardToast.empty")}</p>
       )}
       <div className="pt-3 border-t border-white/10 flex justify-between text-sm">
-        <span className="text-slate-400">體力</span>
+        <span className="text-slate-400">{t("battle.rewardToast.stamina")}</span>
         <span className="font-semibold text-white">
           {data.stamina.current} / {data.stamina.max}
         </span>
@@ -52,6 +54,7 @@ function RewardToast({ data, onClose }: { data: RewardToastData; onClose: () => 
 }
 
 export default function BattlePage() {
+  const { t } = useTranslation();
   const [pendingDeck, setPendingDeck] = useState<string | null>(null);
   const { unityProvider, isLoaded, loadingProgression, sendMessage } = useUnityContext({
     loaderUrl: "/Build/Build.loader.js",
@@ -83,7 +86,7 @@ export default function BattlePage() {
         alert(r.message ?? "adBreak function not found on window");
         break;
       case "error":
-        alert(`領獎流程失敗: ${r.message ?? "unknown error"}`);
+        alert(t("battle.rewardClaimFailed", { message: r.message ?? "unknown error" }));
         break;
       case "dismissed":
       case "done":
