@@ -48,6 +48,13 @@ const CARD_IMAGE_URLS: Record<number, string> = {
   40: `${CARD_IMAGE_BASE}/v1777195374/AuraGem_v4/040_00_hnbate.png`,
 }
 
+// 透過 Cloudinary 動態 transformation 取得縮圖：自動轉 WebP/AVIF、自動壓縮畫質、限制寬度
+function cardImageUrl(id: number, width: number): string {
+  const base = CARD_IMAGE_URLS[id]
+  if (!base) return ""
+  return base.replace("/upload/", `/upload/f_auto,q_auto,w_${width},c_limit/`)
+}
+
 const PANEL_EDGE_MARGIN = 8
 
 interface InfoMenuModalProps {
@@ -606,8 +613,10 @@ function EncyclopediaContent({ onCardClick }: { onCardClick: (id: number) => voi
                 {/* 稀有度色條 */}
                 <div className="h-1" style={{ background: meta.color, boxShadow: `0 0 8px ${meta.glow}` }} />
                 <img
-                  src={CARD_IMAGE_URLS[card.id]}
+                  src={cardImageUrl(card.id, 300)}
                   alt={card.name}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full object-cover"
                 />
                 <div className="p-1 text-center bg-white">
@@ -643,8 +652,10 @@ function CardDetail({ card }: { card: CardInfo }) {
           style={{ boxShadow: `0 5px 18px ${meta.glow}` }}
         >
           <img
-            src={CARD_IMAGE_URLS[card.id]}
+            src={cardImageUrl(card.id, 500)}
             alt={card.name}
+            loading="lazy"
+            decoding="async"
             className="w-full object-cover"
           />
         </div>
