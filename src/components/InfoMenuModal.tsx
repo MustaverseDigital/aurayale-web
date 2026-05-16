@@ -1,8 +1,52 @@
 import { useState, useEffect, useRef, type ComponentType } from "react"
 import { useRouter } from "next/router"
 import { X, Gamepad2, BookOpen, Gem, ShoppingBag, ArrowLeft, Zap } from "lucide-react"
-import { getCardImagePath } from "../lib/utils"
 import { useInfoPanelLayout } from "../hooks/useInfoPanelLayout"
+
+const CARD_IMAGE_BASE = "https://res.cloudinary.com/djpxpezra/image/upload"
+
+const CARD_IMAGE_URLS: Record<number, string> = {
+  1:  `${CARD_IMAGE_BASE}/v1777194740/AuraGem_v4/001_00_d4xvfw.png`,
+  2:  `${CARD_IMAGE_BASE}/v1777194746/AuraGem_v4/002_00_qugosq.png`,
+  3:  `${CARD_IMAGE_BASE}/v1777194751/AuraGem_v4/003_00_fdnmsj.png`,
+  4:  `${CARD_IMAGE_BASE}/v1777194757/AuraGem_v4/004_00_ejgpda.png`,
+  5:  `${CARD_IMAGE_BASE}/v1777194768/AuraGem_v4/005_00_hbx3qj.png`,
+  6:  `${CARD_IMAGE_BASE}/v1777194777/AuraGem_v4/006_00_q3gwwt.png`,
+  7:  `${CARD_IMAGE_BASE}/v1777194780/AuraGem_v4/007_00_qldnbi.png`,
+  8:  `${CARD_IMAGE_BASE}/v1777194786/AuraGem_v4/008_00_xica5e.png`,
+  9:  `${CARD_IMAGE_BASE}/v1777194794/AuraGem_v4/009_00_kfovby.png`,
+  10: `${CARD_IMAGE_BASE}/v1777194800/AuraGem_v4/010_00_n7m34e.png`,
+  11: `${CARD_IMAGE_BASE}/v1777194816/AuraGem_v4/011_00_pzi5as.png`,
+  12: `${CARD_IMAGE_BASE}/v1777194818/AuraGem_v4/012_00_ow0o3c.png`,
+  13: `${CARD_IMAGE_BASE}/v1777194824/AuraGem_v4/013_00_esyhpj.png`,
+  14: `${CARD_IMAGE_BASE}/v1777194829/AuraGem_v4/014_00_bq0kia.png`,
+  15: `${CARD_IMAGE_BASE}/v1777194835/AuraGem_v4/015_00_exif8i.png`,
+  16: `${CARD_IMAGE_BASE}/v1777194842/AuraGem_v4/016_00_xmsxti.png`,
+  17: `${CARD_IMAGE_BASE}/v1777194917/AuraGem_v4/017_00_h1akdh.png`,
+  18: `${CARD_IMAGE_BASE}/v1777194922/AuraGem_v4/018_00_ntrn4j.png`,
+  19: `${CARD_IMAGE_BASE}/v1777194928/AuraGem_v4/019_00_xogskq.png`,
+  20: `${CARD_IMAGE_BASE}/v1777194936/AuraGem_v4/020_00_t8p5sn.png`,
+  21: `${CARD_IMAGE_BASE}/v1777194941/AuraGem_v4/021_00_brp5k8.png`,
+  22: `${CARD_IMAGE_BASE}/v1777194949/AuraGem_v4/022_00_a36obp.png`,
+  23: `${CARD_IMAGE_BASE}/v1777194957/AuraGem_v4/023_00_yrhg5u.png`,
+  24: `${CARD_IMAGE_BASE}/v1777195138/AuraGem_v4/024_00_rl09ys.png`,
+  25: `${CARD_IMAGE_BASE}/v1777195141/AuraGem_v4/025_00_n1q8gd.png`,
+  26: `${CARD_IMAGE_BASE}/v1777195149/AuraGem_v4/026_00_fgg7ax.png`,
+  27: `${CARD_IMAGE_BASE}/v1777195283/AuraGem_v4/027_00_wesvva.png`,
+  28: `${CARD_IMAGE_BASE}/v1777195291/AuraGem_v4/028_00_sngdxr.png`,
+  29: `${CARD_IMAGE_BASE}/v1777195298/AuraGem_v4/029_00_qfmmfg.png`,
+  30: `${CARD_IMAGE_BASE}/v1777195305/AuraGem_v4/030_00_lkau6z.png`,
+  31: `${CARD_IMAGE_BASE}/v1777195312/AuraGem_v4/031_00_frvy2j.png`,
+  32: `${CARD_IMAGE_BASE}/v1777195318/AuraGem_v4/032_00_avsjan.png`,
+  33: `${CARD_IMAGE_BASE}/v1777195324/AuraGem_v4/033_00_vapga4.png`,
+  34: `${CARD_IMAGE_BASE}/v1777195335/AuraGem_v4/034_00_x93bct.png`,
+  35: `${CARD_IMAGE_BASE}/v1777195341/AuraGem_v4/035_00_hczofo.png`,
+  36: `${CARD_IMAGE_BASE}/v1777195347/AuraGem_v4/036_00_buooch.png`,
+  37: `${CARD_IMAGE_BASE}/v1777195357/AuraGem_v4/037_00_kcz5wd.png`,
+  38: `${CARD_IMAGE_BASE}/v1777195356/AuraGem_v4/038_00_r0mvgw.png`,
+  39: `${CARD_IMAGE_BASE}/v1777195368/AuraGem_v4/039_00_sacdnn.png`,
+  40: `${CARD_IMAGE_BASE}/v1777195374/AuraGem_v4/040_00_hnbate.png`,
+}
 
 const PANEL_EDGE_MARGIN = 8
 
@@ -70,6 +114,22 @@ const CARD_DATA: CardInfo[] = [
   { id: 22, name: "夜空黑曜",     effect: "進入潛行狀態 2 回合,期間攻擊必定暴擊。",                     rarity: "epic" },
   { id: 23, name: "永恆鑽石",     effect: "復活我方陣亡的英雄,並使其獲得 100% 攻擊力加成 2 回合。",     rarity: "legendary" },
   { id: 24, name: "創世聖石",     effect: "全場淨化:解除全體敵我所有狀態,我方額外獲得 1 回合行動權。",   rarity: "legendary" },
+  { id: 25, name: "翠玉冰心",     effect: "對單一目標造成 10 冰屬性傷害,並降低其速度 25% 共 2 回合。",   rarity: "common" },
+  { id: 26, name: "紅尖晶石",     effect: "對單一目標造成 13 火屬性傷害,若目標生命低於 50% 則必定暴擊。", rarity: "common" },
+  { id: 27, name: "金黃水晶",     effect: "為我方友軍提供 8 點臨時護盾,持續 2 回合。",                  rarity: "common" },
+  { id: 28, name: "粉鑽之心",     effect: "為我方全體回復 4 點生命,並提升 10% 防禦力,持續 2 回合。",     rarity: "common" },
+  { id: 29, name: "黑碧璽",       effect: "反射對自身的下一次傷害的 30% 給攻擊者。",                     rarity: "common" },
+  { id: 30, name: "紫鋰輝石",     effect: "淨化我方所有負面狀態,並提升 15% 全屬性抗性 1 回合。",         rarity: "common" },
+  { id: 31, name: "藍寶石之眼",   effect: "對 2 個隨機敵人各造成 14 水屬性傷害,有 30% 機率冰凍。",       rarity: "rare" },
+  { id: 32, name: "帝王托帕石",   effect: "為單一友軍提供 +50% 攻擊力,持續 2 回合。",                    rarity: "rare" },
+  { id: 33, name: "摩根石之吻",   effect: "為我方全體回復 12 點生命,並淨化所有減益狀態。",               rarity: "rare" },
+  { id: 34, name: "沙弗萊石",     effect: "對所有敵人造成 10 風屬性傷害,使其攻擊力下降 20% 共 2 回合。",  rarity: "rare" },
+  { id: 35, name: "紅紋赤晶",     effect: "召喚紅光屏障,吸收下次受到的最多 30 點傷害。",                 rarity: "rare" },
+  { id: 36, name: "坦桑石之星",   effect: "對單一目標造成 30 暗屬性傷害,並使其下回合無法行動。",          rarity: "epic" },
+  { id: 37, name: "帕拉伊巴碧璽", effect: "雷霆風暴:3 回合內每回合對所有敵人造成 12 雷屬性傷害。",        rarity: "epic" },
+  { id: 38, name: "亞歷山大石",   effect: "變色之力:依場上局勢選擇最有利屬性,造成 28 點傷害。",          rarity: "epic" },
+  { id: 39, name: "龍息之心",     effect: "古龍之力:對所有敵人造成 25 火屬性傷害,我方獲得 2 回合無敵。",  rarity: "legendary" },
+  { id: 40, name: "創世虛空",     effect: "時空凍結:敵方下一回合無法行動,我方可額外出 1 張卡。",          rarity: "legendary" },
 ]
 
 const cardMap = new Map(CARD_DATA.map((c) => [c.id, c]))
@@ -546,7 +606,7 @@ function EncyclopediaContent({ onCardClick }: { onCardClick: (id: number) => voi
                 {/* 稀有度色條 */}
                 <div className="h-1" style={{ background: meta.color, boxShadow: `0 0 8px ${meta.glow}` }} />
                 <img
-                  src={getCardImagePath(card.id)}
+                  src={CARD_IMAGE_URLS[card.id]}
                   alt={card.name}
                   className="w-full object-cover"
                 />
@@ -583,7 +643,7 @@ function CardDetail({ card }: { card: CardInfo }) {
           style={{ boxShadow: `0 5px 18px ${meta.glow}` }}
         >
           <img
-            src={getCardImagePath(card.id)}
+            src={CARD_IMAGE_URLS[card.id]}
             alt={card.name}
             className="w-full object-cover"
           />
