@@ -193,7 +193,7 @@ export default function BattlePage() {
       <button
         type="button"
         onClick={() => showRewardAd()}
-        className="fixed bottom-6 right-6 z-[60] px-5 py-3 bg-primary/90 hover:bg-indigo-500 text-white font-bold text-sm uppercase tracking-widest rounded-xl shadow-[0_10px_30px_rgba(99,102,241,0.4)] backdrop-blur transition-all"
+        className="fixed bottom-24 sm:bottom-6 right-6 z-[60] px-5 py-3 bg-primary/90 hover:bg-indigo-500 text-white font-bold text-sm uppercase tracking-widest rounded-xl shadow-[0_10px_30px_rgba(99,102,241,0.4)] backdrop-blur transition-all"
       >
         Watch Ad
       </button>

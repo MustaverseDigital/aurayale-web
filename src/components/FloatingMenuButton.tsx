@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect, useCallback } from "react"
-import { List } from "lucide-react"
 
 interface FloatingMenuButtonProps {
   onClick: () => void
@@ -118,6 +117,21 @@ export function FloatingMenuButton({ onClick, visible = true, pinned }: Floating
     [position]
   )
 
+  // 拖曳結束時吸附到最近的左/右邊緣,避免擋到遊戲畫面中央區
+  const snapToHorizontalEdge = useCallback(
+    (pos: Position): Position => {
+      if (typeof window === "undefined") return pos
+      const buttonCenterX = pos.x + buttonSize / 2
+      const screenCenterX = window.innerWidth / 2
+      const snappedX =
+        buttonCenterX < screenCenterX
+          ? EDGE_PADDING
+          : window.innerWidth - buttonSize - EDGE_PADDING
+      return { x: snappedX, y: pos.y }
+    },
+    [buttonSize]
+  )
+
   // 全域 mousemove / touchmove
   useEffect(() => {
     if (!isDragging) return
@@ -136,15 +150,22 @@ export function FloatingMenuButton({ onClick, visible = true, pinned }: Floating
       setPosition({ x, y })
     }
 
+    const finishDrag = () => {
+      setIsDragging(false)
+      if (didDragRef.current) {
+        setPosition((p) => (p ? snapToHorizontalEdge(p) : p))
+      }
+    }
+
     const onMouseMove = (e: MouseEvent) => handleMove(e.clientX, e.clientY)
-    const onMouseUp = () => setIsDragging(false)
+    const onMouseUp = () => finishDrag()
     const onTouchMove = (e: TouchEvent) => {
       if (e.touches[0]) {
         e.preventDefault()
         handleMove(e.touches[0].clientX, e.touches[0].clientY)
       }
     }
-    const onTouchEnd = () => setIsDragging(false)
+    const onTouchEnd = () => finishDrag()
 
     document.addEventListener("mousemove", onMouseMove)
     document.addEventListener("mouseup", onMouseUp)
@@ -157,7 +178,7 @@ export function FloatingMenuButton({ onClick, visible = true, pinned }: Floating
       document.removeEventListener("touchmove", onTouchMove)
       document.removeEventListener("touchend", onTouchEnd)
     }
-  }, [isDragging, buttonSize])
+  }, [isDragging, buttonSize, snapToHorizontalEdge])
 
   if (!visible) return null
   if (!position) return null
@@ -189,11 +210,19 @@ export function FloatingMenuButton({ onClick, visible = true, pinned }: Floating
         height: `${buttonSize}px`,
         cursor: isDragging ? "grabbing" : "grab",
         touchAction: "none",
+        transition: isDragging
+          ? "none"
+          : "left 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.15s, color 0.15s, border-color 0.15s",
       }}
-      className="fixed z-[55] bg-white/25 backdrop-blur-md text-white border border-white/50 rounded-full flex items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.35)] hover:bg-white hover:text-[#050505] hover:border-white transition-colors select-none active:scale-95"
+      className="fixed z-[55] bg-white/20 backdrop-blur-xl backdrop-saturate-150 border border-white/40 rounded-full flex items-center justify-center shadow-[0_4px_14px_rgba(0,0,0,0.35)] hover:bg-white hover:border-white select-none active:scale-95"
       aria-label="開啟資訊選單"
     >
-      <List className="w-6 h-6 pointer-events-none" strokeWidth={2.4} />
+      <img
+        src="/img/Logo_s.svg"
+        alt=""
+        draggable={false}
+        className="w-8 h-8 pointer-events-none"
+      />
     </button>
   )
 }
