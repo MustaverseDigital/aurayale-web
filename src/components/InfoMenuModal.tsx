@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, type ComponentType } from "react"
 import { useRouter } from "next/router"
-import { X, Gamepad2, BookOpen, Gem, ShoppingBag, ArrowLeft, Zap, Loader2 } from "lucide-react"
+import { X, Gamepad2, BookOpen, Gem, ShoppingBag, ArrowLeft, Zap, Loader2, Palette, Diamond, Sparkles, Scale } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { useInfoPanelLayout } from "../hooks/useInfoPanelLayout"
 import { LanguageSwitcher } from "./LanguageSwitcher"
@@ -728,6 +728,9 @@ function CardDetail({ card, onBack }: { card: CardInfo; onBack: () => void }) {
   )
 }
 
+// 4C 對應的主題圖示(順序需與 i18n 字典的 fourC 一致:Color / Cut / Clarity / Carat)
+const FOUR_C_ICONS = [Palette, Diamond, Sparkles, Scale]
+
 function RarityContent() {
   const { t } = useTranslation()
   const fourC = t("infoMenu.rarity.fourC", { returnObjects: true }) as Array<{
@@ -744,22 +747,25 @@ function RarityContent() {
         </p>
 
         <div className="space-y-3">
-          {fourC.map((c, idx) => (
-            <div
-              key={idx}
-              className="border border-[#cfcfcf] rounded-xl p-3 sm:p-4 bg-[#f7f7f4] flex gap-3 sm:gap-4 items-start shadow-[0_2px_0_rgba(0,0,0,0.06)]"
-            >
-              <div className="shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-[#050505] text-white rounded-lg flex items-center justify-center font-black text-lg sm:text-xl shadow-[0_2px_0_rgba(0,0,0,0.18)]">
-                C
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm sm:text-base font-black uppercase tracking-wider text-[#050505] mb-1">
-                  {c.title}
+          {fourC.map((c, idx) => {
+            const Icon = FOUR_C_ICONS[idx] ?? Gem
+            return (
+              <div
+                key={idx}
+                className="border border-[#cfcfcf] rounded-xl p-3 sm:p-4 bg-[#f7f7f4] flex gap-3 sm:gap-4 items-start shadow-[0_2px_0_rgba(0,0,0,0.06)]"
+              >
+                <div className="shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[#1a1a1a] to-[#050505] rounded-xl flex items-center justify-center shadow-[0_2px_8px_rgba(0,0,0,0.18)]">
+                  <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-[#ffc800]" strokeWidth={2} />
                 </div>
-                <div className="text-xs sm:text-sm text-[#333] leading-relaxed">{c.desc}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm sm:text-base font-black uppercase tracking-wider text-[#050505] mb-1">
+                    {c.title}
+                  </div>
+                  <div className="text-xs sm:text-sm text-[#333] leading-relaxed">{c.desc}</div>
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </section>
 
