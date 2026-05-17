@@ -296,18 +296,6 @@ export function InfoMenuModal({ isOpen, onClose }: InfoMenuModalProps) {
             {/* 語言切換(絕對定位於最左側) */}
             <LanguageSwitcher className="absolute left-3 top-1/2 -translate-y-1/2" />
 
-            {/* 返回圖鑑(僅在卡片詳情時顯示,絕對定位於語言切換右側) */}
-            {selectedCard && (
-              <button
-                type="button"
-                onClick={() => setSelectedCardId(null)}
-                className="absolute left-16 top-1/2 -translate-y-1/2 text-[#050505] hover:text-[#565656] transition-colors"
-                aria-label={t("infoMenu.aria.backToEncyclopedia")}
-              >
-                <ArrowLeft size={18} />
-              </button>
-            )}
-
             {/* 置中標題 */}
             <h2 className="text-sm font-black uppercase tracking-wider text-[#050505] truncate text-center px-20">
               {selectedCard ? selectedCardName : activeLabel}
@@ -357,7 +345,7 @@ export function InfoMenuModal({ isOpen, onClose }: InfoMenuModalProps) {
             {activeCategory === "gameplay" && <GameplayContent />}
             {activeCategory === "encyclopedia" && (
               selectedCard
-                ? <CardDetail card={selectedCard} />
+                ? <CardDetail card={selectedCard} onBack={() => setSelectedCardId(null)} />
                 : <EncyclopediaContent onCardClick={setSelectedCardId} />
             )}
             {activeCategory === "rarity" && <RarityContent />}
@@ -413,18 +401,6 @@ export function InfoMenuModal({ isOpen, onClose }: InfoMenuModalProps) {
         <header className="border-b border-[#e8e8e8] p-3 sm:p-4 flex justify-center items-center bg-white relative shrink-0">
           {/* 語言切換(絕對定位於最左側) */}
           <LanguageSwitcher className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2" />
-
-          {/* 返回圖鑑(僅在卡片詳情時顯示,絕對定位於語言切換右側) */}
-          {selectedCard && (
-            <button
-              type="button"
-              onClick={() => setSelectedCardId(null)}
-              className="absolute left-16 sm:left-20 top-1/2 -translate-y-1/2 text-[#050505] hover:text-[#565656] transition-colors"
-              aria-label={t("infoMenu.aria.backToEncyclopedia")}
-            >
-              <ArrowLeft size={20} />
-            </button>
-          )}
 
           {/* 置中標題 */}
           <h2 className="text-base sm:text-lg font-black uppercase tracking-wider text-[#050505] truncate text-center px-20 sm:px-24">
@@ -492,7 +468,7 @@ export function InfoMenuModal({ isOpen, onClose }: InfoMenuModalProps) {
               {activeCategory === "gameplay" && <GameplayContent />}
               {activeCategory === "encyclopedia" && (
                 selectedCard
-                  ? <CardDetail card={selectedCard} />
+                  ? <CardDetail card={selectedCard} onBack={() => setSelectedCardId(null)} />
                   : <EncyclopediaContent onCardClick={setSelectedCardId} />
               )}
               {activeCategory === "rarity" && <RarityContent />}
@@ -644,7 +620,7 @@ function EncyclopediaContent({ onCardClick }: { onCardClick: (id: number) => voi
   )
 }
 
-function CardDetail({ card }: { card: CardInfo }) {
+function CardDetail({ card, onBack }: { card: CardInfo; onBack: () => void }) {
   const { t } = useTranslation()
   const meta = RARITY_META[card.rarity]
   const [imageLoaded, setImageLoaded] = useState(false)
@@ -658,6 +634,16 @@ function CardDetail({ card }: { card: CardInfo }) {
 
   return (
     <div className="space-y-5">
+      {/* 返回圖鑑按鈕(放在內容區頂部,不擠在 header) */}
+      <button
+        type="button"
+        onClick={onBack}
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-[#565656] hover:bg-[#f7f7f4] hover:text-[#050505] border border-[#cfcfcf] transition-colors"
+      >
+        <ArrowLeft className="w-4 h-4" strokeWidth={2.4} />
+        <span>{t("infoMenu.aria.backToEncyclopedia")}</span>
+      </button>
+
       {/* 主視覺區:卡圖 + 名稱/稀有度 */}
       <div
         className="relative rounded-2xl border-2 p-4 sm:p-6 flex flex-col sm:flex-row items-center gap-4 sm:gap-6"
