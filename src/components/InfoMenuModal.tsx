@@ -329,11 +329,14 @@ export function InfoMenuModal({ isOpen, onClose }: InfoMenuModalProps) {
                   onClick={() => setActiveCategory(cat.id)}
                   className={`shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap ${
                     isActive
-                      ? "bg-[#050505] text-white shadow-[0_2px_0_rgba(0,0,0,0.18)]"
+                      ? "bg-gradient-to-br from-[#1a1a1a] to-[#050505] text-white shadow-[0_2px_8px_rgba(0,0,0,0.18)]"
                       : "text-[#565656] hover:bg-white hover:text-[#050505]"
                   }`}
                 >
-                  <Icon className="w-3.5 h-3.5 shrink-0" strokeWidth={2.2} />
+                  <Icon
+                    className={`w-3.5 h-3.5 shrink-0 ${isActive ? "text-[#ffc800]" : ""}`}
+                    strokeWidth={2.2}
+                  />
                   <span>{t(cat.labelKey)}</span>
                 </button>
               )
@@ -440,11 +443,14 @@ export function InfoMenuModal({ isOpen, onClose }: InfoMenuModalProps) {
                     onClick={() => setActiveCategory(cat.id)}
                     className={`shrink-0 sm:shrink flex items-center gap-2 px-3 py-2 rounded-lg text-xs sm:text-sm font-bold transition-colors whitespace-nowrap ${
                       isActive
-                        ? "bg-[#050505] text-white shadow-[0_2px_0_rgba(0,0,0,0.18)]"
+                        ? "bg-gradient-to-br from-[#1a1a1a] to-[#050505] text-white shadow-[0_2px_8px_rgba(0,0,0,0.18)]"
                         : "text-[#565656] hover:bg-white hover:text-[#050505]"
                     }`}
                   >
-                    <Icon className="w-4 h-4 shrink-0" strokeWidth={2.2} />
+                    <Icon
+                      className={`w-4 h-4 shrink-0 ${isActive ? "text-[#ffc800]" : ""}`}
+                      strokeWidth={2.2}
+                    />
                     <span>{t(cat.labelKey)}</span>
                   </button>
                 )

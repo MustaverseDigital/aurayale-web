@@ -55,7 +55,12 @@ export function WalletInfo() {
   return (
     <div className="rounded-2xl p-3 sm:p-4 mt-4 flex items-center justify-between profile-card overflow-hidden">
       <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[#050505] border border-[#050505] rounded-lg flex items-center justify-center overflow-hidden shrink-0 shadow-[0_5px_14px_rgba(0,0,0,0.16)]">
+        <button
+          type="button"
+          onClick={() => router.push("/profile")}
+          aria-label="Open profile"
+          className="w-12 h-12 sm:w-16 sm:h-16 bg-[#050505] border border-[#050505] rounded-lg flex items-center justify-center overflow-hidden shrink-0 shadow-[0_5px_14px_rgba(0,0,0,0.16)] cursor-pointer hover:opacity-80 transition-opacity"
+        >
           {farcasterPfp ? (
             <img src={farcasterPfp} alt={farcasterUsername || "User"} className="w-full h-full object-cover" />
           ) : farcasterUsername ? (
@@ -63,7 +68,7 @@ export function WalletInfo() {
           ) : (
             <User className="w-6 h-6 sm:w-8 sm:h-8 text-white" strokeWidth={2} />
           )}
-        </div>
+        </button>
         <div className="flex-1 min-w-0">
           {farcasterUsername && (
           <div className="text-[#0b0b0b] font-bold text-sm sm:text-lg truncate">@{farcasterUsername} <span className="text-[10px] sm:text-xs text-[#6f6250] font-normal">(FID: {farcasterFid})</span></div>
