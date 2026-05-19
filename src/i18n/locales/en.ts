@@ -26,10 +26,31 @@ const en: Translation = {
       opacity: "Opacity",
     },
     categories: {
+      event: "Events",
       gameplay: "Gameplay",
       encyclopedia: "Gem Encyclopedia",
       rarity: "Rarity",
       shop: "Gem Shop",
+    },
+    event: {
+      title: "Limited-Time Event",
+      badge: "Live Now",
+      description: "Watch an ad to earn a gem pack! After each completed ad, you'll receive a random pack containing gem fragments to help upgrade your deck.",
+      howToTitle: "How to Participate",
+      howToItems: [
+        "Head to the Battle page.",
+        "Tap the \"Watch Ad\" button on screen.",
+        "Watch the full ad (approx. 15–30 seconds).",
+        "Your gem pack reward is automatically granted once the ad ends.",
+      ],
+      rewardTitle: "Rewards",
+      rewardItems: [
+        "Gem fragments (random rarity)",
+        "Chance to obtain Rare / Epic / Legendary fragments",
+        "Unlimited daily entries",
+      ],
+      imagePlaceholder: "Event illustration (coming soon)",
+      note: "Event details and rewards are subject to change with future updates. Refer to in-game announcements for the latest information.",
     },
     gameplay: {
       whatIsAurayale: {

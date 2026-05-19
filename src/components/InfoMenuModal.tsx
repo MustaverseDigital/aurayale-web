@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, type ComponentType } from "react"
 import { useRouter } from "next/router"
-import { X, Gamepad2, BookOpen, Gem, ShoppingBag, ArrowLeft, Zap, Loader2, Palette, Diamond, Sparkles, Scale } from "lucide-react"
+import { X, Gamepad2, BookOpen, Gem, ShoppingBag, ArrowLeft, Zap, Loader2, Palette, Diamond, Sparkles, Scale, Gift } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { useInfoPanelLayout } from "../hooks/useInfoPanelLayout"
 import { LanguageSwitcher } from "./LanguageSwitcher"
@@ -64,7 +64,7 @@ interface InfoMenuModalProps {
   onClose: () => void
 }
 
-type CategoryId = "gameplay" | "encyclopedia" | "rarity" | "shop"
+type CategoryId = "event" | "gameplay" | "encyclopedia" | "rarity" | "shop"
 type Rarity = "common" | "rare" | "epic" | "legendary"
 
 interface Category {
@@ -74,6 +74,7 @@ interface Category {
 }
 
 const categories: Category[] = [
+  { id: "event",        labelKey: "infoMenu.categories.event",        icon: Gift },
   { id: "gameplay",     labelKey: "infoMenu.categories.gameplay",     icon: Gamepad2 },
   { id: "encyclopedia", labelKey: "infoMenu.categories.encyclopedia", icon: BookOpen },
   { id: "rarity",       labelKey: "infoMenu.categories.rarity",       icon: Gem },
@@ -148,7 +149,7 @@ const cardMap = new Map(CARD_DATA.map((c) => [c.id, c]))
 
 export function InfoMenuModal({ isOpen, onClose }: InfoMenuModalProps) {
   const { t } = useTranslation()
-  const [activeCategory, setActiveCategory] = useState<CategoryId>("gameplay")
+  const [activeCategory, setActiveCategory] = useState<CategoryId>("event")
   const [selectedCardId, setSelectedCardId] = useState<number | null>(null)
   const layout = useInfoPanelLayout()
   const router = useRouter()
@@ -345,6 +346,7 @@ export function InfoMenuModal({ isOpen, onClose }: InfoMenuModalProps) {
 
           {/* Body */}
           <div className="flex-1 overflow-y-auto p-4 bg-white min-h-0">
+            {activeCategory === "event" && <EventContent />}
             {activeCategory === "gameplay" && <GameplayContent />}
             {activeCategory === "encyclopedia" && (
               selectedCard
@@ -471,6 +473,7 @@ export function InfoMenuModal({ isOpen, onClose }: InfoMenuModalProps) {
           {/* Content body(已不再需要第二個 Header) */}
           <section className="flex-1 flex flex-col overflow-hidden min-w-0">
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-white min-h-0">
+              {activeCategory === "event" && <EventContent />}
               {activeCategory === "gameplay" && <GameplayContent />}
               {activeCategory === "encyclopedia" && (
                 selectedCard
@@ -541,6 +544,67 @@ function RarityBadge({ rarity, size = "sm" }: { rarity: Rarity; size?: "sm" | "l
 /* ═══════════════════════════════════════════════
  * 各分類內容
  * ═══════════════════════════════════════════════ */
+
+function EventContent() {
+  const { t } = useTranslation()
+  const howToItems = t("infoMenu.event.howToItems", { returnObjects: true }) as string[]
+  const rewardItems = t("infoMenu.event.rewardItems", { returnObjects: true }) as string[]
+
+  return (
+    <div className="space-y-5 sm:space-y-6">
+      {/* 活動標題 + 狀態徽章 */}
+      <section>
+        <div className="flex items-center gap-2 mb-2">
+          <SectionTitle>{t("infoMenu.event.title")}</SectionTitle>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#ffc100] text-[#050505] shrink-0 -mt-2 sm:-mt-3">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#050505] animate-pulse" />
+            {t("infoMenu.event.badge")}
+          </span>
+        </div>
+        <p className="text-sm text-[#333] leading-relaxed">
+          {t("infoMenu.event.description")}
+        </p>
+      </section>
+
+      {/* 活動截圖 */}
+      <div className="relative w-full rounded-xl overflow-hidden">
+        <img
+          src="/img/activity_1.png"
+          alt={t("infoMenu.event.title")}
+          className="w-full h-auto object-cover rounded-xl"
+        />
+      </div>
+
+      {/* 如何參與 */}
+      <section>
+        <SectionTitle>{t("infoMenu.event.howToTitle")}</SectionTitle>
+        <ol className="space-y-2 text-sm text-[#333] leading-relaxed list-decimal list-inside marker:text-[#050505] marker:font-black">
+          {howToItems.map((item, idx) => (
+            <li key={idx}>{item}</li>
+          ))}
+        </ol>
+      </section>
+
+      {/* 獎勵內容 */}
+      <section>
+        <SectionTitle>{t("infoMenu.event.rewardTitle")}</SectionTitle>
+        <div className="border border-[#cfcfcf] rounded-xl p-4 bg-[#f7f7f4] shadow-[0_2px_0_rgba(0,0,0,0.06)] space-y-2">
+          {rewardItems.map((item, idx) => (
+            <div key={idx} className="flex items-start gap-2 text-sm text-[#333]">
+              <Gift className="w-4 h-4 text-[#ffc100] shrink-0 mt-0.5" strokeWidth={2.2} />
+              <span>{item}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 備注 */}
+      <p className="text-[10px] text-[#9a9a9a] leading-relaxed border-t border-[#e8e8e8] pt-3">
+        {t("infoMenu.event.note")}
+      </p>
+    </div>
+  )
+}
 
 function GameplayContent() {
   const { t } = useTranslation()

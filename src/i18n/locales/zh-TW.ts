@@ -24,10 +24,22 @@ export interface Translation {
       opacity: string
     }
     categories: {
+      event: string
       gameplay: string
       encyclopedia: string
       rarity: string
       shop: string
+    }
+    event: {
+      title: string
+      badge: string
+      description: string
+      howToTitle: string
+      howToItems: string[]
+      rewardTitle: string
+      rewardItems: string[]
+      imagePlaceholder: string
+      note: string
     }
     gameplay: {
       whatIsAurayale: { title: string; body: string }
@@ -94,10 +106,31 @@ const zhTW: Translation = {
       opacity: "不透明度",
     },
     categories: {
+      event: "活動",
       gameplay: "遊戲玩法",
       encyclopedia: "寶石圖鑑",
       rarity: "稀有判別",
       shop: "寶石商店",
+    },
+    event: {
+      title: "限時活動",
+      badge: "進行中",
+      description: "觀看廣告即可獲得寶石卡包！每次看完廣告，系統將隨機發放一個卡包，內含稀有寶石碎片，助你升級牌組。",
+      howToTitle: "如何參與",
+      howToItems: [
+        "進入 Battle 對戰頁面。",
+        "點擊畫面中的「觀看廣告」按鈕。",
+        "完整觀看廣告（約 15–30 秒）。",
+        "廣告結束後自動發放寶石卡包獎勵。",
+      ],
+      rewardTitle: "獎勵內容",
+      rewardItems: [
+        "寶石碎片（隨機稀有度）",
+        "機率獲得稀有 / 史詩 / 傳說等級碎片",
+        "每日可無限次參與",
+      ],
+      imagePlaceholder: "活動示意圖（即將上線）",
+      note: "活動說明與獎勵內容可能隨版本更新調整，請以遊戲內公告為準。",
     },
     gameplay: {
       whatIsAurayale: {
