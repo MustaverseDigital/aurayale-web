@@ -1,8 +1,61 @@
 import { useState, useEffect, useRef, type ComponentType } from "react"
 import { useRouter } from "next/router"
-import { X, Gamepad2, BookOpen, Gem, ShoppingBag, ArrowLeft, Zap } from "lucide-react"
-import { getCardImagePath } from "../lib/utils"
+import { X, Gamepad2, BookOpen, Gem, ShoppingBag, ArrowLeft, Zap, Loader2, Palette, Diamond, Sparkles, Scale, Gift } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { useInfoPanelLayout } from "../hooks/useInfoPanelLayout"
+import { LanguageSwitcher } from "./LanguageSwitcher"
+
+const CARD_IMAGE_BASE = "https://res.cloudinary.com/djpxpezra/image/upload"
+
+const CARD_IMAGE_URLS: Record<number, string> = {
+  1:  `${CARD_IMAGE_BASE}/v1777194740/AuraGem_v4/001_00_d4xvfw.png`,
+  2:  `${CARD_IMAGE_BASE}/v1777194746/AuraGem_v4/002_00_qugosq.png`,
+  3:  `${CARD_IMAGE_BASE}/v1777194751/AuraGem_v4/003_00_fdnmsj.png`,
+  4:  `${CARD_IMAGE_BASE}/v1777194757/AuraGem_v4/004_00_ejgpda.png`,
+  5:  `${CARD_IMAGE_BASE}/v1777194768/AuraGem_v4/005_00_hbx3qj.png`,
+  6:  `${CARD_IMAGE_BASE}/v1777194777/AuraGem_v4/006_00_q3gwwt.png`,
+  7:  `${CARD_IMAGE_BASE}/v1777194780/AuraGem_v4/007_00_qldnbi.png`,
+  8:  `${CARD_IMAGE_BASE}/v1777194786/AuraGem_v4/008_00_xica5e.png`,
+  9:  `${CARD_IMAGE_BASE}/v1777194794/AuraGem_v4/009_00_kfovby.png`,
+  10: `${CARD_IMAGE_BASE}/v1777194800/AuraGem_v4/010_00_n7m34e.png`,
+  11: `${CARD_IMAGE_BASE}/v1777194816/AuraGem_v4/011_00_pzi5as.png`,
+  12: `${CARD_IMAGE_BASE}/v1777194818/AuraGem_v4/012_00_ow0o3c.png`,
+  13: `${CARD_IMAGE_BASE}/v1777194824/AuraGem_v4/013_00_esyhpj.png`,
+  14: `${CARD_IMAGE_BASE}/v1777194829/AuraGem_v4/014_00_bq0kia.png`,
+  15: `${CARD_IMAGE_BASE}/v1777194835/AuraGem_v4/015_00_exif8i.png`,
+  16: `${CARD_IMAGE_BASE}/v1777194842/AuraGem_v4/016_00_xmsxti.png`,
+  17: `${CARD_IMAGE_BASE}/v1777194917/AuraGem_v4/017_00_h1akdh.png`,
+  18: `${CARD_IMAGE_BASE}/v1777194922/AuraGem_v4/018_00_ntrn4j.png`,
+  19: `${CARD_IMAGE_BASE}/v1777194928/AuraGem_v4/019_00_xogskq.png`,
+  20: `${CARD_IMAGE_BASE}/v1777194936/AuraGem_v4/020_00_t8p5sn.png`,
+  21: `${CARD_IMAGE_BASE}/v1777194941/AuraGem_v4/021_00_brp5k8.png`,
+  22: `${CARD_IMAGE_BASE}/v1777194949/AuraGem_v4/022_00_a36obp.png`,
+  23: `${CARD_IMAGE_BASE}/v1777194957/AuraGem_v4/023_00_yrhg5u.png`,
+  24: `${CARD_IMAGE_BASE}/v1777195138/AuraGem_v4/024_00_rl09ys.png`,
+  25: `${CARD_IMAGE_BASE}/v1777195141/AuraGem_v4/025_00_n1q8gd.png`,
+  26: `${CARD_IMAGE_BASE}/v1777195149/AuraGem_v4/026_00_fgg7ax.png`,
+  27: `${CARD_IMAGE_BASE}/v1777195283/AuraGem_v4/027_00_wesvva.png`,
+  28: `${CARD_IMAGE_BASE}/v1777195291/AuraGem_v4/028_00_sngdxr.png`,
+  29: `${CARD_IMAGE_BASE}/v1777195298/AuraGem_v4/029_00_qfmmfg.png`,
+  30: `${CARD_IMAGE_BASE}/v1777195305/AuraGem_v4/030_00_lkau6z.png`,
+  31: `${CARD_IMAGE_BASE}/v1777195312/AuraGem_v4/031_00_frvy2j.png`,
+  32: `${CARD_IMAGE_BASE}/v1777195318/AuraGem_v4/032_00_avsjan.png`,
+  33: `${CARD_IMAGE_BASE}/v1777195324/AuraGem_v4/033_00_vapga4.png`,
+  34: `${CARD_IMAGE_BASE}/v1777195335/AuraGem_v4/034_00_x93bct.png`,
+  35: `${CARD_IMAGE_BASE}/v1777195341/AuraGem_v4/035_00_hczofo.png`,
+  36: `${CARD_IMAGE_BASE}/v1777195347/AuraGem_v4/036_00_buooch.png`,
+  37: `${CARD_IMAGE_BASE}/v1777195357/AuraGem_v4/037_00_kcz5wd.png`,
+  38: `${CARD_IMAGE_BASE}/v1777195356/AuraGem_v4/038_00_r0mvgw.png`,
+  39: `${CARD_IMAGE_BASE}/v1777195368/AuraGem_v4/039_00_sacdnn.png`,
+  40: `${CARD_IMAGE_BASE}/v1777195374/AuraGem_v4/040_00_hnbate.png`,
+}
+
+// 透過 Cloudinary 動態 transformation 取得縮圖：自動轉 WebP/AVIF、自動壓縮畫質、限制寬度
+function cardImageUrl(id: number, width: number): string {
+  const base = CARD_IMAGE_URLS[id]
+  if (!base) return ""
+  return base.replace("/upload/", `/upload/f_auto,q_auto,w_${width},c_limit/`)
+}
 
 const PANEL_EDGE_MARGIN = 8
 
@@ -11,30 +64,30 @@ interface InfoMenuModalProps {
   onClose: () => void
 }
 
-type CategoryId = "gameplay" | "encyclopedia" | "rarity" | "shop"
+type CategoryId = "event" | "gameplay" | "encyclopedia" | "rarity" | "shop"
 type Rarity = "common" | "rare" | "epic" | "legendary"
 
 interface Category {
   id: CategoryId
-  label: string
+  labelKey: string
   icon: ComponentType<{ className?: string; strokeWidth?: number }>
 }
 
 const categories: Category[] = [
-  { id: "gameplay", label: "遊戲玩法", icon: Gamepad2 },
-  { id: "encyclopedia", label: "寶石圖鑑", icon: BookOpen },
-  { id: "rarity", label: "稀有判別", icon: Gem },
-  { id: "shop", label: "寶石商店", icon: ShoppingBag },
+  { id: "event",        labelKey: "infoMenu.categories.event",        icon: Gift },
+  { id: "gameplay",     labelKey: "infoMenu.categories.gameplay",     icon: Gamepad2 },
+  { id: "encyclopedia", labelKey: "infoMenu.categories.encyclopedia", icon: BookOpen },
+  { id: "rarity",       labelKey: "infoMenu.categories.rarity",       icon: Gem },
+  { id: "shop",         labelKey: "infoMenu.categories.shop",         icon: ShoppingBag },
 ]
 
 /* ═══════════════════════════════════════════════
- * 卡片資料表(24 張基礎寶石)
+ * 卡片資料表(40 張寶石)
+ * 名稱/效果改由 i18n 字典 (cards.{id}.name/effect) 取得,此處只保留 id 與 rarity。
  * ═══════════════════════════════════════════════ */
 
 interface CardInfo {
   id: number
-  name: string
-  effect: string
   rarity: Rarity
 }
 
@@ -46,30 +99,46 @@ const RARITY_META: Record<Rarity, { label: string; color: string; glow: string; 
 }
 
 const CARD_DATA: CardInfo[] = [
-  { id: 1,  name: "烈焰紅寶石",   effect: "對單一目標造成 12 火屬性傷害,並附加 2 回合燃燒效果。",       rarity: "common" },
-  { id: 2,  name: "深海藍寶石",   effect: "減速目標 20%,持續 2 回合。對冰結目標額外造成 5 傷害。",      rarity: "common" },
-  { id: 3,  name: "翡翠之心",     effect: "回復我方友軍 10 點生命值,並淨化一個負面狀態。",              rarity: "common" },
-  { id: 4,  name: "黃玉之光",     effect: "對前排目標造成 14 雷屬性傷害,有 25% 機率麻痺 1 回合。",      rarity: "common" },
-  { id: 5,  name: "月光石",       effect: "為我方提供 1 回合無敵護盾(最多吸收 20 傷害)。",             rarity: "common" },
-  { id: 6,  name: "琥珀之眼",     effect: "解除我方所有控制效果,並提升 15% 命中率。",                   rarity: "common" },
-  { id: 7,  name: "珊瑚紅淵",     effect: "對所有敵人造成 8 火屬性範圍傷害。",                          rarity: "common" },
-  { id: 8,  name: "珍珠白星",     effect: "為我方全體回復 6 點生命,並淨化所有減益。",                   rarity: "common" },
-  { id: 9,  name: "煙水晶",       effect: "提升我方友軍 20% 攻擊力,持續 3 回合。",                      rarity: "common" },
-  { id: 10, name: "紫晶幻夢",     effect: "對單一目標造成 13 暗屬性傷害,並偷取 1 回合行動權。",         rarity: "common" },
-  { id: 11, name: "血玉龍息",     effect: "造成 22 火屬性傷害,並對自身回復等同於傷害值 30% 的生命。",   rarity: "rare" },
-  { id: 12, name: "冰霜結晶",     effect: "凍結目標 1 回合,並對下個出手的友軍給予 +30% 傷害加成。",     rarity: "rare" },
-  { id: 13, name: "雷電瑪瑙",     effect: "對 3 個隨機敵人各造成 16 雷屬性傷害,並降低其護甲 10%。",     rarity: "rare" },
-  { id: 14, name: "翠綠橄欖",     effect: "為我方全體回復 18 點生命,並提供 1 層持續性回血(每回合 +5)。", rarity: "rare" },
-  { id: 15, name: "火蛋白石",     effect: "召喚一道火幕,反彈下次受到的傷害 50% 給攻擊者。",             rarity: "rare" },
-  { id: 16, name: "黑曜之矛",     effect: "對裝甲目標額外 +50% 傷害,造成 25 物理傷害並擊退 1 格。",     rarity: "rare" },
-  { id: 17, name: "海藍寶之淚",   effect: "對所有敵人造成 12 水屬性傷害,並使其攻擊力下降 15%。",        rarity: "rare" },
-  { id: 18, name: "帝王綠翡翠",   effect: "為單一友軍提供 2 回合無敵,並回復其至滿血。",                 rarity: "epic" },
-  { id: 19, name: "虎眼石之怒",   effect: "造成 35 物理傷害,若擊殺目標則回滿 1 點專注並重置冷卻。",     rarity: "epic" },
-  { id: 20, name: "星辰藍寶",     effect: "降臨流星雨:3 回合內每回合對隨機敵人造成 18 傷害。",          rarity: "epic" },
-  { id: 21, name: "黃金太陽石",   effect: "我方全體獲得 +40% 暴擊率,持續 3 回合。",                     rarity: "epic" },
-  { id: 22, name: "夜空黑曜",     effect: "進入潛行狀態 2 回合,期間攻擊必定暴擊。",                     rarity: "epic" },
-  { id: 23, name: "永恆鑽石",     effect: "復活我方陣亡的英雄,並使其獲得 100% 攻擊力加成 2 回合。",     rarity: "legendary" },
-  { id: 24, name: "創世聖石",     effect: "全場淨化:解除全體敵我所有狀態,我方額外獲得 1 回合行動權。",   rarity: "legendary" },
+  { id: 1,  rarity: "common" },
+  { id: 2,  rarity: "common" },
+  { id: 3,  rarity: "common" },
+  { id: 4,  rarity: "common" },
+  { id: 5,  rarity: "common" },
+  { id: 6,  rarity: "common" },
+  { id: 7,  rarity: "common" },
+  { id: 8,  rarity: "common" },
+  { id: 9,  rarity: "common" },
+  { id: 10, rarity: "common" },
+  { id: 11, rarity: "rare" },
+  { id: 12, rarity: "rare" },
+  { id: 13, rarity: "rare" },
+  { id: 14, rarity: "rare" },
+  { id: 15, rarity: "rare" },
+  { id: 16, rarity: "rare" },
+  { id: 17, rarity: "rare" },
+  { id: 18, rarity: "epic" },
+  { id: 19, rarity: "epic" },
+  { id: 20, rarity: "epic" },
+  { id: 21, rarity: "epic" },
+  { id: 22, rarity: "epic" },
+  { id: 23, rarity: "legendary" },
+  { id: 24, rarity: "legendary" },
+  { id: 25, rarity: "common" },
+  { id: 26, rarity: "common" },
+  { id: 27, rarity: "common" },
+  { id: 28, rarity: "common" },
+  { id: 29, rarity: "common" },
+  { id: 30, rarity: "common" },
+  { id: 31, rarity: "rare" },
+  { id: 32, rarity: "rare" },
+  { id: 33, rarity: "rare" },
+  { id: 34, rarity: "rare" },
+  { id: 35, rarity: "rare" },
+  { id: 36, rarity: "epic" },
+  { id: 37, rarity: "epic" },
+  { id: 38, rarity: "epic" },
+  { id: 39, rarity: "legendary" },
+  { id: 40, rarity: "legendary" },
 ]
 
 const cardMap = new Map(CARD_DATA.map((c) => [c.id, c]))
@@ -79,7 +148,8 @@ const cardMap = new Map(CARD_DATA.map((c) => [c.id, c]))
  * ═══════════════════════════════════════════════ */
 
 export function InfoMenuModal({ isOpen, onClose }: InfoMenuModalProps) {
-  const [activeCategory, setActiveCategory] = useState<CategoryId>("gameplay")
+  const { t } = useTranslation()
+  const [activeCategory, setActiveCategory] = useState<CategoryId>("event")
   const [selectedCardId, setSelectedCardId] = useState<number | null>(null)
   const layout = useInfoPanelLayout()
   const router = useRouter()
@@ -171,8 +241,9 @@ export function InfoMenuModal({ isOpen, onClose }: InfoMenuModalProps) {
 
   if (!isOpen) return null
 
-  const activeLabel = categories.find((c) => c.id === activeCategory)?.label ?? ""
+  const activeLabel = t(categories.find((c) => c.id === activeCategory)?.labelKey ?? "")
   const selectedCard = selectedCardId ? cardMap.get(selectedCardId) : null
+  const selectedCardName = selectedCard ? t(`cards.${selectedCard.id}.name`) : ""
 
   const effectiveLeft = userPosition?.left ?? layout.panelLeft
   const effectiveTop = userPosition?.top ?? layout.panelTop
@@ -221,23 +292,14 @@ export function InfoMenuModal({ isOpen, onClose }: InfoMenuModalProps) {
               userSelect: "none",
             }}
             className="border-b border-[#e8e8e8] p-3 flex justify-center items-center bg-white shrink-0 relative"
-            aria-label="拖曳資訊面板"
+            aria-label={t("infoMenu.aria.dragPanel")}
           >
-            {/* 返回圖鑑(僅在卡片詳情時顯示,絕對定位於左側) */}
-            {selectedCard && (
-              <button
-                type="button"
-                onClick={() => setSelectedCardId(null)}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#050505] hover:text-[#565656] transition-colors"
-                aria-label="返回圖鑑"
-              >
-                <ArrowLeft size={18} />
-              </button>
-            )}
+            {/* 語言切換(絕對定位於最左側) */}
+            <LanguageSwitcher className="absolute left-3 top-1/2 -translate-y-1/2" />
 
             {/* 置中標題 */}
-            <h2 className="text-sm font-black uppercase tracking-wider text-[#050505] truncate text-center px-10">
-              {selectedCard ? selectedCard.name : activeLabel}
+            <h2 className="text-sm font-black uppercase tracking-wider text-[#050505] truncate text-center px-20">
+              {selectedCard ? selectedCardName : activeLabel}
             </h2>
 
             {/* 收合按鈕(絕對定位於右側) */}
@@ -245,7 +307,7 @@ export function InfoMenuModal({ isOpen, onClose }: InfoMenuModalProps) {
               type="button"
               onClick={onClose}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-[#050505] hover:text-[#565656] transition-colors"
-              aria-label="收合資訊選單"
+              aria-label={t("infoMenu.aria.collapse")}
             >
               <X size={20} />
             </button>
@@ -268,12 +330,15 @@ export function InfoMenuModal({ isOpen, onClose }: InfoMenuModalProps) {
                   onClick={() => setActiveCategory(cat.id)}
                   className={`shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap ${
                     isActive
-                      ? "bg-[#050505] text-white shadow-[0_2px_0_rgba(0,0,0,0.18)]"
+                      ? "bg-gradient-to-br from-[#1a1a1a] to-[#050505] text-white shadow-[0_2px_8px_rgba(0,0,0,0.18)]"
                       : "text-[#565656] hover:bg-white hover:text-[#050505]"
                   }`}
                 >
-                  <Icon className="w-3.5 h-3.5 shrink-0" strokeWidth={2.2} />
-                  <span>{cat.label}</span>
+                  <Icon
+                    className={`w-3.5 h-3.5 shrink-0 ${isActive ? "text-[#ffc800]" : ""}`}
+                    strokeWidth={2.2}
+                  />
+                  <span>{t(cat.labelKey)}</span>
                 </button>
               )
             })}
@@ -281,10 +346,11 @@ export function InfoMenuModal({ isOpen, onClose }: InfoMenuModalProps) {
 
           {/* Body */}
           <div className="flex-1 overflow-y-auto p-4 bg-white min-h-0">
+            {activeCategory === "event" && <EventContent />}
             {activeCategory === "gameplay" && <GameplayContent />}
             {activeCategory === "encyclopedia" && (
               selectedCard
-                ? <CardDetail card={selectedCard} />
+                ? <CardDetail card={selectedCard} onBack={() => setSelectedCardId(null)} />
                 : <EncyclopediaContent onCardClick={setSelectedCardId} />
             )}
             {activeCategory === "rarity" && <RarityContent />}
@@ -299,13 +365,13 @@ export function InfoMenuModal({ isOpen, onClose }: InfoMenuModalProps) {
               className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-bold text-[#050505] hover:bg-white border border-[#cfcfcf] transition-colors"
             >
               <ArrowLeft className="w-4 h-4" strokeWidth={2.4} />
-              <span>返回前頁</span>
+              <span>{t("infoMenu.actions.backToPreviousPage")}</span>
             </button>
 
             {/* 不透明度滑桿 */}
             <div className="flex items-center gap-2 px-1">
               <span className="text-[10px] font-black uppercase tracking-wider text-[#565656] shrink-0">
-                不透明度
+                {t("infoMenu.actions.opacity")}
               </span>
               <input
                 type="range"
@@ -315,7 +381,7 @@ export function InfoMenuModal({ isOpen, onClose }: InfoMenuModalProps) {
                 value={opacity}
                 onChange={(e) => setOpacity(Number(e.target.value))}
                 className="flex-1 accent-[#050505] cursor-pointer"
-                aria-label="調整資訊面板不透明度"
+                aria-label={t("infoMenu.aria.opacity")}
               />
               <span className="text-[10px] font-black tabular-nums text-[#050505] w-9 text-right">
                 {opacity}%
@@ -338,21 +404,12 @@ export function InfoMenuModal({ isOpen, onClose }: InfoMenuModalProps) {
       <div className="bg-white border border-[#050505] rounded-2xl w-full max-w-3xl shadow-[0_10px_28px_rgba(0,0,0,0.16)] h-[85vh] max-h-[640px] flex flex-col overflow-hidden">
         {/* ───── 合併後的頂部 Header(橫跨整個 Modal,標題置中對齊) ───── */}
         <header className="border-b border-[#e8e8e8] p-3 sm:p-4 flex justify-center items-center bg-white relative shrink-0">
-          {/* 返回圖鑑(僅在卡片詳情時顯示,絕對定位於左側) */}
-          {selectedCard && (
-            <button
-              type="button"
-              onClick={() => setSelectedCardId(null)}
-              className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-[#050505] hover:text-[#565656] transition-colors"
-              aria-label="返回圖鑑"
-            >
-              <ArrowLeft size={20} />
-            </button>
-          )}
+          {/* 語言切換(絕對定位於最左側) */}
+          <LanguageSwitcher className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2" />
 
           {/* 置中標題 */}
-          <h2 className="text-base sm:text-lg font-black uppercase tracking-wider text-[#050505] truncate text-center px-10 sm:px-12">
-            {selectedCard ? selectedCard.name : activeLabel}
+          <h2 className="text-base sm:text-lg font-black uppercase tracking-wider text-[#050505] truncate text-center px-20 sm:px-24">
+            {selectedCard ? selectedCardName : activeLabel}
           </h2>
 
           {/* 關閉按鈕(絕對定位於右側) */}
@@ -360,7 +417,7 @@ export function InfoMenuModal({ isOpen, onClose }: InfoMenuModalProps) {
             type="button"
             onClick={onClose}
             className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-[#050505] hover:text-[#565656] transition-colors"
-            aria-label="Close"
+            aria-label={t("infoMenu.aria.close")}
           >
             <X size={20} className="sm:hidden" />
             <X size={24} className="hidden sm:block" />
@@ -388,12 +445,15 @@ export function InfoMenuModal({ isOpen, onClose }: InfoMenuModalProps) {
                     onClick={() => setActiveCategory(cat.id)}
                     className={`shrink-0 sm:shrink flex items-center gap-2 px-3 py-2 rounded-lg text-xs sm:text-sm font-bold transition-colors whitespace-nowrap ${
                       isActive
-                        ? "bg-[#050505] text-white shadow-[0_2px_0_rgba(0,0,0,0.18)]"
+                        ? "bg-gradient-to-br from-[#1a1a1a] to-[#050505] text-white shadow-[0_2px_8px_rgba(0,0,0,0.18)]"
                         : "text-[#565656] hover:bg-white hover:text-[#050505]"
                     }`}
                   >
-                    <Icon className="w-4 h-4 shrink-0" strokeWidth={2.2} />
-                    <span>{cat.label}</span>
+                    <Icon
+                      className={`w-4 h-4 shrink-0 ${isActive ? "text-[#ffc800]" : ""}`}
+                      strokeWidth={2.2}
+                    />
+                    <span>{t(cat.labelKey)}</span>
                   </button>
                 )
               })}
@@ -405,7 +465,7 @@ export function InfoMenuModal({ isOpen, onClose }: InfoMenuModalProps) {
                 className="shrink-0 sm:shrink sm:mt-auto flex items-center gap-2 px-3 py-2 rounded-lg text-xs sm:text-sm font-bold text-[#565656] hover:bg-white hover:text-[#050505] transition-colors whitespace-nowrap sm:border-t sm:border-[#e8e8e8] sm:pt-3 sm:mt-3"
               >
                 <ArrowLeft className="w-4 h-4 shrink-0" strokeWidth={2.2} />
-                <span>返回前頁</span>
+                <span>{t("infoMenu.actions.backToPreviousPage")}</span>
               </button>
             </nav>
           </aside>
@@ -413,10 +473,11 @@ export function InfoMenuModal({ isOpen, onClose }: InfoMenuModalProps) {
           {/* Content body(已不再需要第二個 Header) */}
           <section className="flex-1 flex flex-col overflow-hidden min-w-0">
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-white min-h-0">
+              {activeCategory === "event" && <EventContent />}
               {activeCategory === "gameplay" && <GameplayContent />}
               {activeCategory === "encyclopedia" && (
                 selectedCard
-                  ? <CardDetail card={selectedCard} />
+                  ? <CardDetail card={selectedCard} onBack={() => setSelectedCardId(null)} />
                   : <EncyclopediaContent onCardClick={setSelectedCardId} />
               )}
               {activeCategory === "rarity" && <RarityContent />}
@@ -484,35 +545,96 @@ function RarityBadge({ rarity, size = "sm" }: { rarity: Rarity; size?: "sm" | "l
  * 各分類內容
  * ═══════════════════════════════════════════════ */
 
+function EventContent() {
+  const { t } = useTranslation()
+  const howToItems = t("infoMenu.event.howToItems", { returnObjects: true }) as string[]
+  const rewardItems = t("infoMenu.event.rewardItems", { returnObjects: true }) as string[]
+
+  return (
+    <div className="space-y-5 sm:space-y-6">
+      {/* 活動標題 + 狀態徽章 */}
+      <section>
+        <div className="flex items-center gap-2 mb-2">
+          <SectionTitle>{t("infoMenu.event.title")}</SectionTitle>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#ffc100] text-[#050505] shrink-0 -mt-2 sm:-mt-3">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#050505] animate-pulse" />
+            {t("infoMenu.event.badge")}
+          </span>
+        </div>
+        <p className="text-sm text-[#333] leading-relaxed">
+          {t("infoMenu.event.description")}
+        </p>
+      </section>
+
+      {/* 活動截圖 */}
+      <div className="relative w-full rounded-xl overflow-hidden">
+        <img
+          src="/img/activity_1.png"
+          alt={t("infoMenu.event.title")}
+          className="w-full h-auto object-cover rounded-xl"
+        />
+      </div>
+
+      {/* 如何參與 */}
+      <section>
+        <SectionTitle>{t("infoMenu.event.howToTitle")}</SectionTitle>
+        <ol className="space-y-2 text-sm text-[#333] leading-relaxed list-decimal list-inside marker:text-[#050505] marker:font-black">
+          {howToItems.map((item, idx) => (
+            <li key={idx}>{item}</li>
+          ))}
+        </ol>
+      </section>
+
+      {/* 獎勵內容 */}
+      <section>
+        <SectionTitle>{t("infoMenu.event.rewardTitle")}</SectionTitle>
+        <div className="border border-[#cfcfcf] rounded-xl p-4 bg-[#f7f7f4] shadow-[0_2px_0_rgba(0,0,0,0.06)] space-y-2">
+          {rewardItems.map((item, idx) => (
+            <div key={idx} className="flex items-start gap-2 text-sm text-[#333]">
+              <Gift className="w-4 h-4 text-[#ffc100] shrink-0 mt-0.5" strokeWidth={2.2} />
+              <span>{item}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 備注 */}
+      <p className="text-[10px] text-[#9a9a9a] leading-relaxed border-t border-[#e8e8e8] pt-3">
+        {t("infoMenu.event.note")}
+      </p>
+    </div>
+  )
+}
+
 function GameplayContent() {
+  const { t } = useTranslation()
+  const flowItems = t("infoMenu.gameplay.flow.items", { returnObjects: true }) as string[]
+  const mechanicsItems = t("infoMenu.gameplay.coreMechanics.items", {
+    returnObjects: true,
+  }) as Array<{ t: string; d: string }>
+
   return (
     <div className="space-y-5 sm:space-y-6">
       <section>
-        <SectionTitle>什麼是 Aurayale</SectionTitle>
+        <SectionTitle>{t("infoMenu.gameplay.whatIsAurayale.title")}</SectionTitle>
         <p className="text-sm text-[#333] leading-relaxed">
-          Aurayale 是一款以「寶石」為主題的鏈上集換式對戰遊戲,玩家透過收集、合成、交易寶石卡片組成自己的牌組,進行回合制策略對戰。
+          {t("infoMenu.gameplay.whatIsAurayale.body")}
         </p>
       </section>
 
       <section>
-        <SectionTitle>遊戲流程</SectionTitle>
+        <SectionTitle>{t("infoMenu.gameplay.flow.title")}</SectionTitle>
         <ol className="space-y-2 text-sm text-[#333] leading-relaxed list-decimal list-inside marker:text-[#050505] marker:font-black">
-          <li>連接錢包,完成登入並領取起始牌組。</li>
-          <li>於「Deck」頁面挑選 5 張寶石組成戰鬥牌組。</li>
-          <li>進入「Battle」開始對局,每回合出牌與對手比拚屬性。</li>
-          <li>勝場可獲得寶石碎片,於市場交易升級你的牌組。</li>
+          {flowItems.map((item, idx) => (
+            <li key={idx}>{item}</li>
+          ))}
         </ol>
       </section>
 
       <section>
-        <SectionTitle>核心機制</SectionTitle>
+        <SectionTitle>{t("infoMenu.gameplay.coreMechanics.title")}</SectionTitle>
         <div className="grid sm:grid-cols-2 gap-2 sm:gap-3">
-          {[
-            { t: "屬性相剋", d: "火 / 水 / 風 / 土 / 光 / 暗 互相壓制" },
-            { t: "升級系統", d: "兩張同色寶石可合成更高級的卡片" },
-            { t: "稀有度判定", d: "依 4C 標準分為一般 / 稀有 / 史詩 / 傳說" },
-            { t: "寶石市集", d: "與其他玩家直接以寶石換寶石" },
-          ].map((item) => (
+          {mechanicsItems.map((item) => (
             <div key={item.t} className="border border-[#cfcfcf] rounded-lg p-3 bg-[#f7f7f4] shadow-[0_2px_0_rgba(0,0,0,0.06)]">
               <div className="text-xs font-black uppercase tracking-wider text-[#050505] mb-1">{item.t}</div>
               <div className="text-xs text-[#565656] leading-relaxed">{item.d}</div>
@@ -525,29 +647,33 @@ function GameplayContent() {
 }
 
 function EncyclopediaContent({ onCardClick }: { onCardClick: (id: number) => void }) {
+  const { t } = useTranslation()
   return (
     <div className="space-y-5">
       <section>
-        <SectionTitle>基礎寶石(24 種)</SectionTitle>
+        <SectionTitle>{t("infoMenu.encyclopedia.title")}</SectionTitle>
         <p className="text-xs text-[#565656] mb-3 leading-relaxed">
-          點擊任意卡片查看詳細資料(名稱、效果、稀有度)。每種寶石都有三個升級階段(基礎 / +1 / +2)。
+          {t("infoMenu.encyclopedia.hint")}
         </p>
         <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 sm:gap-3">
           {CARD_DATA.map((card) => {
             const meta = RARITY_META[card.rarity]
+            const name = t(`cards.${card.id}.name`)
             return (
               <button
                 key={card.id}
                 type="button"
                 onClick={() => onCardClick(card.id)}
                 className="group bg-white border border-[#cfcfcf] rounded-lg overflow-hidden shadow-[0_3px_10px_rgba(0,0,0,0.08)] hover:shadow-[0_5px_14px_rgba(0,0,0,0.16)] hover:border-[#050505] hover:scale-[1.03] transition-all relative text-left"
-                aria-label={`查看 ${card.name} 詳細資料`}
+                aria-label={t("infoMenu.aria.viewCardDetail", { name })}
               >
                 {/* 稀有度色條 */}
                 <div className="h-1" style={{ background: meta.color, boxShadow: `0 0 8px ${meta.glow}` }} />
                 <img
-                  src={getCardImagePath(card.id)}
-                  alt={card.name}
+                  src={cardImageUrl(card.id, 300)}
+                  alt={name}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full object-cover"
                 />
                 <div className="p-1 text-center bg-white">
@@ -564,10 +690,30 @@ function EncyclopediaContent({ onCardClick }: { onCardClick: (id: number) => voi
   )
 }
 
-function CardDetail({ card }: { card: CardInfo }) {
+function CardDetail({ card, onBack }: { card: CardInfo; onBack: () => void }) {
+  const { t } = useTranslation()
   const meta = RARITY_META[card.rarity]
+  const [imageLoaded, setImageLoaded] = useState(false)
+  const name = t(`cards.${card.id}.name`)
+  const effect = t(`cards.${card.id}.effect`)
+
+  // 切換卡片時重置 loading 狀態,避免新圖片載入前顯示舊圖
+  useEffect(() => {
+    setImageLoaded(false)
+  }, [card.id])
+
   return (
     <div className="space-y-5">
+      {/* 返回圖鑑按鈕(放在內容區頂部,不擠在 header) */}
+      <button
+        type="button"
+        onClick={onBack}
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-[#565656] hover:bg-[#f7f7f4] hover:text-[#050505] border border-[#cfcfcf] transition-colors"
+      >
+        <ArrowLeft className="w-4 h-4" strokeWidth={2.4} />
+        <span>{t("infoMenu.aria.backToEncyclopedia")}</span>
+      </button>
+
       {/* 主視覺區:卡圖 + 名稱/稀有度 */}
       <div
         className="relative rounded-2xl border-2 p-4 sm:p-6 flex flex-col sm:flex-row items-center gap-4 sm:gap-6"
@@ -578,24 +724,29 @@ function CardDetail({ card }: { card: CardInfo }) {
         }}
       >
         {/* 卡圖 */}
-        <div
-          className="shrink-0 w-32 sm:w-40 bg-white rounded-xl border border-[#cfcfcf] overflow-hidden shadow-[0_5px_14px_rgba(0,0,0,0.16)]"
-          style={{ boxShadow: `0 5px 18px ${meta.glow}` }}
-        >
+        <div className="relative shrink-0 w-32 sm:w-40 aspect-[1136/1600]">
+          {!imageLoaded && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Loader2 className="w-8 h-8 text-[#565656] animate-spin" strokeWidth={2.2} />
+            </div>
+          )}
           <img
-            src={getCardImagePath(card.id)}
-            alt={card.name}
-            className="w-full object-cover"
+            src={cardImageUrl(card.id, 500)}
+            alt={name}
+            loading="lazy"
+            decoding="async"
+            onLoad={() => setImageLoaded(true)}
+            className={`w-full h-full object-contain transition-opacity duration-200 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
           />
         </div>
 
         {/* 名稱 + 稀有度 */}
         <div className="flex-1 min-w-0 text-center sm:text-left space-y-2">
           <div className="text-[10px] font-black uppercase tracking-[0.2em] text-[#565656]">
-            CARD · #{String(card.id).padStart(3, "0")}
+            {t("infoMenu.cardDetail.cardLabel")} · #{String(card.id).padStart(3, "0")}
           </div>
           <h3 className="text-2xl sm:text-3xl font-black text-[#050505] leading-tight">
-            {card.name}
+            {name}
           </h3>
           <div className="flex justify-center sm:justify-start">
             <RarityBadge rarity={card.rarity} size="lg" />
@@ -605,23 +756,25 @@ function CardDetail({ card }: { card: CardInfo }) {
 
       {/* 卡牌效果 */}
       <section>
-        <SectionTitle>卡牌效果</SectionTitle>
+        <SectionTitle>{t("infoMenu.cardDetail.effect")}</SectionTitle>
         <div className="border border-[#cfcfcf] rounded-xl p-4 bg-[#f7f7f4] shadow-[0_2px_0_rgba(0,0,0,0.06)] flex gap-3">
           <Zap className="w-5 h-5 text-[#050505] shrink-0 mt-0.5" strokeWidth={2.4} />
           <p className="text-sm text-[#333] leading-relaxed flex-1">
-            {card.effect}
+            {effect}
           </p>
         </div>
       </section>
 
       {/* 稀有度說明 */}
       <section>
-        <SectionTitle>稀有度說明</SectionTitle>
+        <SectionTitle>{t("infoMenu.cardDetail.rarityExplanation")}</SectionTitle>
         <div className="border border-[#cfcfcf] rounded-xl p-4 bg-white shadow-[0_2px_0_rgba(0,0,0,0.06)] space-y-2">
           <div className="flex items-center justify-between gap-3">
-            <span className="text-xs font-black uppercase tracking-wider text-[#565656]">等級</span>
+            <span className="text-xs font-black uppercase tracking-wider text-[#565656]">
+              {t("infoMenu.cardDetail.tier")}
+            </span>
             <span className="text-sm font-black text-[#050505]">
-              {meta.tier} / 4
+              {t("infoMenu.cardDetail.tierOfFour", { tier: meta.tier })}
             </span>
           </div>
           <div className="flex gap-1">
@@ -637,7 +790,7 @@ function CardDetail({ card }: { card: CardInfo }) {
             ))}
           </div>
           <p className="text-xs text-[#565656] leading-relaxed pt-2">
-            {rarityDescription(card.rarity)}
+            {t(`infoMenu.rarity.descriptions.${card.rarity}`)}
           </p>
         </div>
       </section>
@@ -645,73 +798,49 @@ function CardDetail({ card }: { card: CardInfo }) {
   )
 }
 
-function rarityDescription(rarity: Rarity): string {
-  switch (rarity) {
-    case "common":
-      return "常見的入門級寶石,容易在抽卡或日常任務中取得,適合新手組牌。"
-    case "rare":
-      return "稀有等級寶石,具有較強的單體技能效果,通常需透過進階卡包獲得。"
-    case "epic":
-      return "史詩等級寶石,擁有改變戰局的關鍵技能,是中後期牌組的核心。"
-    case "legendary":
-      return "傳說等級寶石,極為罕見,擁有獨特的全場性效果與絢麗的視覺特效。"
-  }
-}
+// 4C 對應的主題圖示(順序需與 i18n 字典的 fourC 一致:Color / Cut / Clarity / Carat)
+const FOUR_C_ICONS = [Palette, Diamond, Sparkles, Scale]
 
 function RarityContent() {
-  const fourC = [
-    {
-      letter: "C",
-      title: "Color · 顏色",
-      desc: "顏色越純淨、飽和度越高的寶石價值越高。Aurayale 中分為冷色(藍/綠)、暖色(紅/黃)與中性(白/黑),每種色系有獨立的稀有曲線。",
-    },
-    {
-      letter: "C",
-      title: "Cut · 切工",
-      desc: "切工決定光線折射的角度與火彩。遊戲中切工越精細的寶石,在戰鬥中觸發特效的機率越高。",
-    },
-    {
-      letter: "C",
-      title: "Clarity · 淨度",
-      desc: "淨度衡量寶石內部包裹體與表面瑕疵的稀少程度。淨度越高的寶石可承載的附魔等級越高。",
-    },
-    {
-      letter: "C",
-      title: "Carat · 克拉",
-      desc: "克拉指寶石的重量(體積)。同等品質下,克拉越大價值呈幾何級數成長,但也意味著更高的能量消耗。",
-    },
-  ]
+  const { t } = useTranslation()
+  const fourC = t("infoMenu.rarity.fourC", { returnObjects: true }) as Array<{
+    title: string
+    desc: string
+  }>
 
   return (
     <div className="space-y-5">
       <section>
-        <SectionTitle>寶石稀有度的 4C 標準</SectionTitle>
+        <SectionTitle>{t("infoMenu.rarity.fourCTitle")}</SectionTitle>
         <p className="text-xs text-[#565656] mb-4 leading-relaxed">
-          Aurayale 沿用真實寶石業界的 4C 評鑑系統,綜合判定卡片的稀有度與市場價值。
+          {t("infoMenu.rarity.fourCIntro")}
         </p>
 
         <div className="space-y-3">
-          {fourC.map((c, idx) => (
-            <div
-              key={idx}
-              className="border border-[#cfcfcf] rounded-xl p-3 sm:p-4 bg-[#f7f7f4] flex gap-3 sm:gap-4 items-start shadow-[0_2px_0_rgba(0,0,0,0.06)]"
-            >
-              <div className="shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-[#050505] text-white rounded-lg flex items-center justify-center font-black text-lg sm:text-xl shadow-[0_2px_0_rgba(0,0,0,0.18)]">
-                {c.letter}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm sm:text-base font-black uppercase tracking-wider text-[#050505] mb-1">
-                  {c.title}
+          {fourC.map((c, idx) => {
+            const Icon = FOUR_C_ICONS[idx] ?? Gem
+            return (
+              <div
+                key={idx}
+                className="border border-[#cfcfcf] rounded-xl p-3 sm:p-4 bg-[#f7f7f4] flex gap-3 sm:gap-4 items-start shadow-[0_2px_0_rgba(0,0,0,0.06)]"
+              >
+                <div className="shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[#1a1a1a] to-[#050505] rounded-xl flex items-center justify-center shadow-[0_2px_8px_rgba(0,0,0,0.18)]">
+                  <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-[#ffc800]" strokeWidth={2} />
                 </div>
-                <div className="text-xs sm:text-sm text-[#333] leading-relaxed">{c.desc}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm sm:text-base font-black uppercase tracking-wider text-[#050505] mb-1">
+                    {c.title}
+                  </div>
+                  <div className="text-xs sm:text-sm text-[#333] leading-relaxed">{c.desc}</div>
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </section>
 
       <section>
-        <SectionTitle>稀有度級別</SectionTitle>
+        <SectionTitle>{t("infoMenu.rarity.levelsTitle")}</SectionTitle>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {(["common", "rare", "epic", "legendary"] as Rarity[]).map((r) => {
             const meta = RARITY_META[r]
@@ -737,25 +866,26 @@ function RarityContent() {
 }
 
 function ShopContent() {
+  const { t } = useTranslation()
   return (
     <div className="space-y-5">
       <section>
-        <SectionTitle>寶石商店</SectionTitle>
+        <SectionTitle>{t("infoMenu.shop.title")}</SectionTitle>
         <p className="text-xs text-[#565656] leading-relaxed">
-          官方寶石商店即將開放。屆時可使用遊戲內貨幣或鏈上代幣,直接購買限定寶石、皮膚與升級素材。
+          {t("infoMenu.shop.body")}
         </p>
       </section>
 
       <div className="border border-dashed border-[#cfcfcf] rounded-xl p-6 sm:p-8 bg-[#f7f7f4] text-center">
         <ShoppingBag className="w-10 h-10 mx-auto mb-3 text-[#050505]" strokeWidth={1.6} />
         <div className="text-sm sm:text-base font-black uppercase tracking-wider text-[#050505] mb-1">
-          Coming Soon
+          {t("infoMenu.shop.comingSoon")}
         </div>
         <div className="text-xs text-[#565656] leading-relaxed">
-          商店功能尚在開發中,敬請期待。
+          {t("infoMenu.shop.devNotice")}
         </div>
         <div className="mt-4 inline-block bg-[#ffc100] text-[#050505] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">
-          ETA · 2026 Q3
+          {t("infoMenu.shop.eta")}
         </div>
       </div>
     </div>

@@ -1,0 +1,171 @@
+import type { Translation } from "./zh-TW"
+
+const en: Translation = {
+  battle: {
+    rewardToast: {
+      title: "Rewards Claimed",
+      empty: "No reward items",
+      stamina: "Stamina",
+    },
+    rewardClaimFailed: "Reward claim failed: {{message}}",
+  },
+  floatingMenu: {
+    openAriaLabel: "Open info menu",
+  },
+  infoMenu: {
+    aria: {
+      dragPanel: "Drag info panel",
+      backToEncyclopedia: "Back to encyclopedia",
+      collapse: "Collapse info menu",
+      close: "Close",
+      viewCardDetail: "View details of {{name}}",
+      opacity: "Adjust panel opacity",
+    },
+    actions: {
+      backToPreviousPage: "Back",
+      opacity: "Opacity",
+    },
+    categories: {
+      event: "Events",
+      gameplay: "Gameplay",
+      encyclopedia: "Gem Encyclopedia",
+      rarity: "Rarity",
+      shop: "Gem Shop",
+    },
+    event: {
+      title: "Limited-Time Event",
+      badge: "Live Now",
+      description: "Watch an ad to earn a gem pack! After each completed ad, you'll receive a random pack containing gem fragments to help upgrade your deck.",
+      howToTitle: "How to Participate",
+      howToItems: [
+        "Head to the Battle page.",
+        "Tap the \"Watch Ad\" button on screen.",
+        "Watch the full ad (approx. 15–30 seconds).",
+        "Your gem pack reward is automatically granted once the ad ends.",
+      ],
+      rewardTitle: "Rewards",
+      rewardItems: [
+        "Gem fragments (random rarity)",
+        "Chance to obtain Rare / Epic / Legendary fragments",
+        "Unlimited daily entries",
+      ],
+      imagePlaceholder: "Event illustration (coming soon)",
+      note: "Event details and rewards are subject to change with future updates. Refer to in-game announcements for the latest information.",
+    },
+    gameplay: {
+      whatIsAurayale: {
+        title: "What is Aurayale",
+        body: "Aurayale is an on-chain collectible card battle game built around gems. Collect, fuse, and trade gem cards to build your deck, then duel opponents in turn-based strategy battles.",
+      },
+      flow: {
+        title: "Game Flow",
+        items: [
+          "Connect your wallet, sign in, and claim your starter deck.",
+          "On the Deck page, pick 5 gems to form your battle deck.",
+          "Enter Battle and play cards each turn to outmatch your opponent.",
+          "Win matches to earn gem fragments and trade for deck upgrades.",
+        ],
+      },
+      coreMechanics: {
+        title: "Core Mechanics",
+        items: [
+          { t: "Attribute Counters", d: "Fire / Water / Wind / Earth / Light / Dark counter each other" },
+          { t: "Upgrade System", d: "Fuse two same-color gems into a higher-tier card" },
+          { t: "Rarity Tiers", d: "4C standard: Common / Rare / Epic / Legendary" },
+          { t: "Gem Marketplace", d: "Trade gems directly with other players" },
+        ],
+      },
+    },
+    encyclopedia: {
+      title: "Base Gems (24 Types)",
+      hint: "Tap any card to see its details (name, effect, rarity). Every gem has three upgrade stages (base / +1 / +2).",
+    },
+    cardDetail: {
+      cardLabel: "CARD",
+      effect: "Card Effect",
+      rarityExplanation: "Rarity",
+      tier: "Tier",
+      tierOfFour: "{{tier}} / 4",
+    },
+    rarity: {
+      fourCTitle: "The 4C Standard for Gem Rarity",
+      fourCIntro: "Aurayale adopts the real-world gem industry's 4C grading system to determine each card's rarity and market value.",
+      levelsTitle: "Rarity Tiers",
+      fourC: [
+        {
+          title: "Color",
+          desc: "Purer hues and higher saturation drive greater value. Aurayale groups gems into cool (blue/green), warm (red/yellow), and neutral (white/black) palettes, each with its own rarity curve.",
+        },
+        {
+          title: "Cut",
+          desc: "The cut determines how light refracts and how a gem fires. The finer the cut, the more often its battle effects trigger.",
+        },
+        {
+          title: "Clarity",
+          desc: "Clarity measures how rare a gem's internal inclusions and surface flaws are. Higher clarity supports stronger enchantment tiers.",
+        },
+        {
+          title: "Carat",
+          desc: "Carat is the weight (size) of the gem. At equal quality, value grows geometrically with carat — but so does the energy required to wield it.",
+        },
+      ],
+      descriptions: {
+        common: "Entry-level gems easily obtained through pulls or daily quests. Great for beginner decks.",
+        rare: "Rare-tier gems with stronger single-target effects, typically pulled from advanced packs.",
+        epic: "Epic-tier gems carrying game-changing skills. Core picks for mid- to late-game decks.",
+        legendary: "Legendary-tier gems — extremely rare, with unique battlefield-wide effects and dazzling visuals.",
+      },
+    },
+    shop: {
+      title: "Gem Shop",
+      body: "The official gem shop is launching soon. You'll be able to spend in-game currency or on-chain tokens to buy limited gems, skins, and upgrade materials.",
+      comingSoon: "Coming Soon",
+      devNotice: "The shop is under development. Stay tuned.",
+      eta: "ETA · 2026 Q3",
+    },
+  },
+  cards: {
+    "1":  { name: "Flame Ruby",          effect: "ATK + 50 if pattern contains Straight." },
+    "2":  { name: "Deep-Sea Sapphire",   effect: "Mult + 15 if pattern contains Straight." },
+    "3":  { name: "Heart of Jade",       effect: "Target card rank +1." },
+    "4":  { name: "Topaz Light",         effect: "Target card rank -1." },
+    "5":  { name: "Moonstone",           effect: "If all card ranks are odd, ATK + 50." },
+    "6":  { name: "Amber Eye",           effect: "If all card ranks are even, Mult + 10." },
+    "7":  { name: "Coral Abyss",         effect: "ATK + 50 if pattern contains Flush." },
+    "8":  { name: "Pearl Star",          effect: "Mult + 15 if pattern contains Flush." },
+    "9":  { name: "Smoky Quartz",        effect: "Set Heart suit to Spade." },
+    "10": { name: "Amethyst Reverie",    effect: "Set Spade suit to Club." },
+    "11": { name: "Bloodstone Dragon Breath", effect: "Set Diamond suit to Heart." },
+    "12": { name: "Frost Crystal",       effect: "Set Club suit to Diamond." },
+    "13": { name: "Thunder Agate",       effect: "ATK + 25 if pattern contains Two Pair." },
+    "14": { name: "Verdant Olivine",     effect: "Mult + 5 if pattern contains Two Pair." },
+    "15": { name: "Fire Opal",           effect: "If next round contains Two Pair, ATK + 50." },
+    "16": { name: "Obsidian Spear",      effect: "ATK + 35 if pattern contains Three of a Kind." },
+    "17": { name: "Aquamarine Tears",    effect: "Mult + 10 if pattern contains Three of a Kind." },
+    "18": { name: "Imperial Emerald",    effect: "If next round contains Three of a Kind, Mult + 15." },
+    "19": { name: "Tiger Eye Fury",      effect: "ATK + 15." },
+    "20": { name: "Star Sapphire",       effect: "Mult + 4." },
+    "21": { name: "Golden Sunstone",     effect: "Set Mult to 1 this round. Next round Mult x 3." },
+    "22": { name: "Night Obsidian",      effect: "Mult x 2 if pattern contains Straight." },
+    "23": { name: "Eternal Diamond",     effect: "Permanently gain ATK + 10 when pattern contains Flush." },
+    "24": { name: "Genesis Stone",       effect: "Permanently gain Mult + 4 when pattern contains Flush." },
+    "25": { name: "Jade Ice Heart",      effect: "If Spade Flush, gain Mult + 2 for 3 rounds." },
+    "26": { name: "Red Spinel",          effect: "If Heart Flush, restore 5 HP for 3 rounds." },
+    "27": { name: "Citrine",             effect: "If Diamond Flush, permanently gain ATK + 5 for 3 rounds." },
+    "28": { name: "Pink Diamond Heart",  effect: "If Club Flush, reduce damage taken by 15% for 3 rounds." },
+    "29": { name: "Black Tourmaline",    effect: "ATK - 25 this round. Next round ATK + 100." },
+    "30": { name: "Kunzite",             effect: "Mult increases by the sum of all card ranks." },
+    "31": { name: "Sapphire Eye",        effect: "ATK - 25. Mult + 30." },
+    "32": { name: "Imperial Topaz",      effect: "If pattern contains Two Pair, restore 20 HP." },
+    "33": { name: "Morganite Kiss",      effect: "Mult - 5 this round. Next round Mult + 15." },
+    "34": { name: "Tsavorite",           effect: "If pattern contains Full House, reduce damage taken by 50%." },
+    "35": { name: "Crimson Lattice",     effect: "Mult - 5. ATK + 30." },
+    "36": { name: "Tanzanite Star",      effect: "If pattern contains Three of a Kind, reduce damage taken by 30%." },
+    "37": { name: "Paraiba Tourmaline",  effect: "Set ATK to 30." },
+    "38": { name: "Alexandrite",         effect: "Set Mult to 10." },
+    "39": { name: "Dragon Breath Heart", effect: "ATK increases by the sum of all card ranks." },
+    "40": { name: "Genesis Void",        effect: "Reduce damage taken by 15%." },
+  },
+}
+
+export default en
