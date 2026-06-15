@@ -192,14 +192,7 @@ export default function BattlePage() {
     <div className="min-h-screen text-white flex flex-col">
       {/* 背景音樂 */}
       <audio ref={audioRef} src="/bgm/bgm.mp3" autoPlay loop hidden />
-      {/* Watch Ad 測試按鈕（overlay 在 Unity 之上） */}
-      <button
-        type="button"
-        onClick={() => showRewardAd()}
-        className="fixed bottom-24 sm:bottom-6 right-6 z-[60] px-5 py-3 bg-primary/90 hover:bg-indigo-500 text-white font-bold text-sm uppercase tracking-widest rounded-xl shadow-[0_10px_30px_rgba(99,102,241,0.4)] backdrop-blur transition-all"
-      >
-        Watch Ad
-      </button>
+      {/* Watch Ad 測試按鈕已隱藏（showRewardAd 仍透過 window.showRewardAd 供 Unity 呼叫） */}
       {/* 獎勵領取通知 */}
       {rewardToast && (
         <RewardToast data={rewardToast} onClose={() => setRewardToast(null)} />
