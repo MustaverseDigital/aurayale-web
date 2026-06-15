@@ -49,7 +49,7 @@ export interface Translation {
         items: Array<{ t: string; d: string }>
       }
     }
-    encyclopedia: { title: string; hint: string }
+    encyclopedia: { title: string; hint: string; imageFailed: string }
     cardDetail: {
       cardLabel: string
       effect: string
@@ -142,14 +142,14 @@ const zhTW: Translation = {
         items: [
           "連接錢包，完成登入並領取起始牌組。",
           "於「Deck」頁面挑選 5 張寶石組成戰鬥牌組。",
-          "進入「Battle」開始對局，每回合出牌與對手比拚屬性。",
+          "進入「Battle」開始對局，每回合打出寶石卡組成撲克牌型，以 ATK × Mult 結算傷害。",
           "勝場可獲得寶石碎片，於市場交易升級你的牌組。",
         ],
       },
       coreMechanics: {
         title: "核心機制",
         items: [
-          { t: "屬性相剋", d: "火 / 水 / 風 / 土 / 光 / 暗 互相壓制" },
+          { t: "牌型計分", d: "打出順子 / 同花 / 葫蘆等撲克牌型，傷害 = ATK × Mult" },
           { t: "升級系統", d: "兩張同色寶石可合成更高級的卡片" },
           { t: "稀有度判定", d: "依 4C 標準分為一般 / 稀有 / 史詩 / 傳說" },
           { t: "寶石市集", d: "與其他玩家直接以寶石換寶石" },
@@ -159,6 +159,7 @@ const zhTW: Translation = {
     encyclopedia: {
       title: "基礎寶石（24 種）",
       hint: "點擊任意卡片查看詳細資料（名稱、效果、稀有度）。每種寶石都有三個升級階段（基礎 / +1 / +2）。",
+      imageFailed: "圖片載入失敗",
     },
     cardDetail: {
       cardLabel: "CARD",

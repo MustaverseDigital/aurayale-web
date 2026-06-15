@@ -130,3 +130,13 @@ Visit `/auraServerTester` to test the API endpoints for wallet connection, login
 ---
 
 **Note**: This project requires connection to the Aura backend service to function properly.
+
+[x] 把懸浮視窗裡面的寶石圖鑑那邊的更新方式加上如果更新太久沒資訊，當作更新失敗，並且會顯示一個 place holder
+    → InfoMenuModal 新增 CardImage 元件：載入逾時（10s）或 onError 時改顯示 placeholder（ImageOff 圖示 + 「圖片載入失敗」）。
+[x] 遊戲玩法那邊有錯誤的訊息，沒有屬性相剋的內容
+    → 本作為撲克牌型對戰，無火/水/風等屬性相剋。已將錯誤的「屬性相剋」機制改為「牌型計分（ATK × Mult）」，並修正遊戲流程文案（zh-TW / en）。
+[] 把團隊空間的文件下載下來，讓 claude 幫忙整理
+[] 讓他去產生 20 篇文章
+[x] 廣告按鈕那邊的遮擋調整
+    → 與 main 對齊：Watch Ad 測試按鈕直接隱藏（main commit 8b64b57），不再於畫面上顯示；showRewardAd 仍透過 window.showRewardAd 供 Unity 內部呼叫，故無遮擋問題。
+

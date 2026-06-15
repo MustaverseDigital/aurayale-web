@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, type ComponentType } from "react"
 import { useRouter } from "next/router"
-import { X, Gamepad2, BookOpen, Gem, ShoppingBag, ArrowLeft, Zap, Loader2, Palette, Diamond, Sparkles, Scale, Gift } from "lucide-react"
+import { X, Gamepad2, BookOpen, Gem, ShoppingBag, ArrowLeft, Zap, Loader2, Palette, Diamond, Sparkles, Scale, Gift, ImageOff } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { useInfoPanelLayout } from "../hooks/useInfoPanelLayout"
 import { LanguageSwitcher } from "./LanguageSwitcher"
@@ -55,6 +55,74 @@ function cardImageUrl(id: number, width: number): string {
   const base = CARD_IMAGE_URLS[id]
   if (!base) return ""
   return base.replace("/upload/", `/upload/f_auto,q_auto,w_${width},c_limit/`)
+}
+
+// 寶石圖片載入逾時門檻：超過此時間仍未載入完成即視為更新失敗，改顯示 placeholder
+const CARD_IMAGE_TIMEOUT_MS = 10000
+
+/**
+ * 寶石卡圖：在載入期間顯示 spinner，
+ * 載入失敗（onError）或逾時（超過 CARD_IMAGE_TIMEOUT_MS 仍未完成）時顯示 placeholder。
+ * 須置於 position:relative 且有固定尺寸的父容器中。
+ */
+function CardImage({
+  id,
+  width,
+  alt,
+  imgClassName,
+}: {
+  id: number
+  width: number
+  alt: string
+  imgClassName?: string
+}) {
+  const { t } = useTranslation()
+  const [status, setStatus] = useState<"loading" | "loaded" | "error">("loading")
+  const url = cardImageUrl(id, width)
+
+  // 卡片切換或來源變更時重置狀態，並啟動逾時計時器
+  useEffect(() => {
+    if (!url) {
+      setStatus("error")
+      return
+    }
+    setStatus("loading")
+    const timer = setTimeout(() => {
+      // 僅在仍處於 loading 時才判定為失敗，避免覆蓋已載入/已失敗的狀態
+      setStatus((s) => (s === "loading" ? "error" : s))
+    }, CARD_IMAGE_TIMEOUT_MS)
+    return () => clearTimeout(timer)
+  }, [url])
+
+  if (status === "error") {
+    return (
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-[#f0f0ee] text-[#9a9a9a]">
+        <ImageOff className="w-1/3 h-1/3 max-w-[32px] max-h-[32px]" strokeWidth={1.8} />
+        <span className="text-[9px] sm:text-[10px] font-bold text-center px-1 leading-tight">
+          {t("infoMenu.encyclopedia.imageFailed")}
+        </span>
+      </div>
+    )
+  }
+
+  return (
+    <>
+      {status === "loading" && (
+        <div className="absolute inset-0 flex items-center justify-center bg-[#f7f7f4]">
+          <Loader2 className="w-1/4 h-1/4 max-w-[28px] max-h-[28px] text-[#565656] animate-spin" strokeWidth={2.2} />
+        </div>
+      )}
+      <img
+        src={url}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+        onLoad={() => setStatus("loaded")}
+        onError={() => setStatus("error")}
+        className={`${imgClassName ?? ""} transition-opacity duration-200 ${status === "loaded" ? "opacity-100" : "opacity-0"}`}
+      />
+    </>
+  )
 }
 
 const PANEL_EDGE_MARGIN = 8
@@ -669,13 +737,14 @@ function EncyclopediaContent({ onCardClick }: { onCardClick: (id: number) => voi
               >
                 {/* 稀有度色條 */}
                 <div className="h-1" style={{ background: meta.color, boxShadow: `0 0 8px ${meta.glow}` }} />
-                <img
-                  src={cardImageUrl(card.id, 300)}
-                  alt={name}
-                  loading="lazy"
-                  decoding="async"
-                  className="w-full object-cover"
-                />
+                <div className="relative w-full aspect-[1136/1600] bg-white overflow-hidden">
+                  <CardImage
+                    id={card.id}
+                    width={300}
+                    alt={name}
+                    imgClassName="absolute inset-0 w-full h-full object-cover"
+                  />
+                </div>
                 <div className="p-1 text-center bg-white">
                   <div className="text-[9px] sm:text-[10px] font-black text-[#050505]">
                     #{String(card.id).padStart(3, "0")}
@@ -693,14 +762,8 @@ function EncyclopediaContent({ onCardClick }: { onCardClick: (id: number) => voi
 function CardDetail({ card, onBack }: { card: CardInfo; onBack: () => void }) {
   const { t } = useTranslation()
   const meta = RARITY_META[card.rarity]
-  const [imageLoaded, setImageLoaded] = useState(false)
   const name = t(`cards.${card.id}.name`)
   const effect = t(`cards.${card.id}.effect`)
-
-  // 切換卡片時重置 loading 狀態,避免新圖片載入前顯示舊圖
-  useEffect(() => {
-    setImageLoaded(false)
-  }, [card.id])
 
   return (
     <div className="space-y-5">
@@ -724,19 +787,12 @@ function CardDetail({ card, onBack }: { card: CardInfo; onBack: () => void }) {
         }}
       >
         {/* 卡圖 */}
-        <div className="relative shrink-0 w-32 sm:w-40 aspect-[1136/1600]">
-          {!imageLoaded && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Loader2 className="w-8 h-8 text-[#565656] animate-spin" strokeWidth={2.2} />
-            </div>
-          )}
-          <img
-            src={cardImageUrl(card.id, 500)}
+        <div className="relative shrink-0 w-32 sm:w-40 aspect-[1136/1600] overflow-hidden rounded-lg">
+          <CardImage
+            id={card.id}
+            width={500}
             alt={name}
-            loading="lazy"
-            decoding="async"
-            onLoad={() => setImageLoaded(true)}
-            className={`w-full h-full object-contain transition-opacity duration-200 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
+            imgClassName="absolute inset-0 w-full h-full object-contain"
           />
         </div>
 
