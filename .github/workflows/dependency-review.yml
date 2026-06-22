@@ -16,7 +16,7 @@ jobs:
     # If not enabled, this job will fail gracefully
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/dependency-review-action@v5
         with:
           fail-on-severity: high
