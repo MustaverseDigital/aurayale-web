@@ -62,14 +62,14 @@ const en: Translation = {
         items: [
           "Connect your wallet, sign in, and claim your starter deck.",
           "On the Deck page, pick 5 gems to form your battle deck.",
-          "Enter Battle and play cards each turn to outmatch your opponent.",
+          "Enter Battle and play gem cards each turn to form poker hands, dealing ATK × Mult damage.",
           "Win matches to earn gem fragments and trade for deck upgrades.",
         ],
       },
       coreMechanics: {
         title: "Core Mechanics",
         items: [
-          { t: "Attribute Counters", d: "Fire / Water / Wind / Earth / Light / Dark counter each other" },
+          { t: "Poker Scoring", d: "Form poker hands (Straight / Flush / Full House); damage = ATK × Mult" },
           { t: "Upgrade System", d: "Fuse two same-color gems into a higher-tier card" },
           { t: "Rarity Tiers", d: "4C standard: Common / Rare / Epic / Legendary" },
           { t: "Gem Marketplace", d: "Trade gems directly with other players" },
@@ -79,6 +79,7 @@ const en: Translation = {
     encyclopedia: {
       title: "Base Gems (24 Types)",
       hint: "Tap any card to see its details (name, effect, rarity). Every gem has three upgrade stages (base / +1 / +2).",
+      imageFailed: "Image failed to load",
     },
     cardDetail: {
       cardLabel: "CARD",
