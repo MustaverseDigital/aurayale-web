@@ -128,7 +128,7 @@ export default function BattlePage() {
   // Unity 載入完成後傳送 deck
   useEffect(() => {
     if (isLoaded && pendingDeck) {
-      sendMessage("Web", "SetCardDeck", pendingDeck);
+      sendMessage("WebBridge", "SetCardDeck", pendingDeck);
       setPendingDeck(null);
     }
   }, [isLoaded, pendingDeck, sendMessage]);

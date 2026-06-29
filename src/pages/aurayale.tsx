@@ -62,6 +62,19 @@ export default function AurayalePage() {
   const heroRef = useRef<HTMLElement>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // 從別頁帶 hash 進來時（例如導覽選單點某 section），載入後滾動到對應錨點。
+  useEffect(() => {
+    if (!router.isReady) return;
+    const hash = router.asPath.split("#")[1];
+    if (!hash) return;
+    // 等內容渲染後再滾動。
+    const timer = setTimeout(() => {
+      const el = document.getElementById(hash);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [router.isReady, router.asPath]);
+
   // Count-up stats
   const gamesPlayed = useCountUp(24792, { delay: 1200, duration: 2000 });
   const inAgents = useCountUp(2499347, { delay: 1350, duration: 2200 });
@@ -174,14 +187,14 @@ export default function AurayalePage() {
               <span className="text-gradient-landing">One Gem at a Time.</span>
             </h1>
             <div className="hero-enter hero-stats flex flex-wrap items-center justify-center mb-16">
-              <div className="flex flex-wrap justify-center gap-14">
+              {/* <div className="flex flex-wrap justify-center gap-14">
                 {heroStats.map((stat) => (
                   <div key={stat.label} className="hero-stat-item relative">
                     <div className="text-3xl font-bold text-slate-100 font-display tabular-nums">{stat.value}</div>
                     <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-2">{stat.label}</div>
                   </div>
                 ))}
-              </div>
+              </div> */}
             </div>
             <div className="hero-enter hero-cta flex flex-col sm:flex-row items-center justify-center gap-6">
               <button
@@ -201,8 +214,49 @@ export default function AurayalePage() {
           </div>
         </section>
 
-        {/* HOT Games */}
-        <section className="py-32 reveal">
+        {/* Home (game intro) */}
+        <section id="home" className="py-32 relative reveal scroll-mt-24">
+          <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary/5 to-transparent pointer-events-none" />
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="grid lg:grid-cols-2 gap-20 items-center">
+              <div className="relative z-10 order-2 lg:order-1">
+                <div className="relative group">
+                  <div className="aspect-[4/3] rounded-[2rem] glass-card-deep p-2 relative overflow-visible transform rotate-[-2deg] hover:rotate-0 transition-transform duration-700">
+                    <div className="absolute -top-12 -right-12 w-32 h-32 bg-primary/20 rounded-full blur-[40px] z-0" />
+                    <div className="relative  w-full rounded-[1.5rem] overflow-hidden">
+                      <img
+                        alt="Aurayale Gem Universe"
+                        className="w-full h-full object-cover opacity-90 hover:scale-105 transition-transform duration-1000"
+                        src="/images/banner_02.jpg"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent opacity-60" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="relative z-10 order-1 lg:order-2">
+                <span className="text-primary font-bold tracking-[0.2em] text-xs uppercase mb-6 flex items-center gap-2">
+                  <span className="w-8 h-px bg-primary" /> Home
+                </span>
+                <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-8 tracking-tight leading-tight">
+                  Welcome to the{" "}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-slate-200">
+                    Gem Universe
+                  </span>
+                </h2>
+                <p className="text-slate-400 text-lg leading-relaxed mb-6 font-light max-w-lg">
+                  Across the vast Gem Universe, challenging powerful guardians on Gem
+                  Planets to collect, upgrade, and fuse magical Gem Cards.
+                </p>
+                <div className="flex gap-4">
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* HOT Games — 暫時隱藏 */}
+        <section id="hot-games" className="hidden py-32 reveal scroll-mt-24">
           <div className="max-w-7xl mx-auto px-6">
             <div className="flex items-center justify-between mb-10">
               <div className="flex items-center space-x-4">
@@ -322,57 +376,9 @@ export default function AurayalePage() {
           </div>
         </section>
 
-        {/* Worldview */}
-        <section className="py-32 relative reveal">
-          <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary/5 to-transparent pointer-events-none" />
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="grid lg:grid-cols-2 gap-20 items-center">
-              <div className="relative z-10 order-2 lg:order-1">
-                <div className="relative group">
-                  <div className="aspect-[4/3] rounded-[2rem] glass-card-deep p-2 relative overflow-visible transform rotate-[-2deg] hover:rotate-0 transition-transform duration-700">
-                    <div className="absolute -top-12 -right-12 w-32 h-32 bg-primary/20 rounded-full blur-[40px] z-0" />
-                    <div className="relative  w-full rounded-[1.5rem] overflow-hidden">
-                      <img
-                        alt="Primo Planet 3D Render"
-                        className="w-full h-full object-cover opacity-90 hover:scale-105 transition-transform duration-1000"
-                        src="/images/banner_02.jpg"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent opacity-60" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="relative z-10 order-1 lg:order-2">
-                <span className="text-primary font-bold tracking-[0.2em] text-xs uppercase mb-6 flex items-center gap-2">
-                  <span className="w-8 h-px bg-primary" /> Worldview
-                </span>
-                <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-8 tracking-tight leading-tight">
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-slate-200">
-                    Aura Gem
-                  </span>{" "}
-                  Universe
-                </h2>
-                <p className="text-slate-400 text-lg leading-relaxed mb-10 font-light max-w-lg">
-                  Across the arcane infinity universe, galaxies conceal gems holding cosmic secrets. These gems grant
-                  immense power in battle, making them highly sought-after treasures.
-                </p>
-                <div className="flex gap-4">
-                  <div className="glass-card px-6 py-4 rounded-xl text-center">
-                    <h4 className="text-2xl font-bold text-primary font-display">5</h4>
-                    <p className="text-[10px] uppercase tracking-wider text-slate-500 mt-1">Planetary Zones</p>
-                  </div>
-                  <div className="glass-card px-6 py-4 rounded-xl text-center">
-                    <h4 className="text-2xl font-bold text-primary font-display">&infin;</h4>
-                    <p className="text-[10px] uppercase tracking-wider text-slate-500 mt-1">Possibilities</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
 
         {/* Gem Cuts */}
-        <section className="py-32 relative bg-white/[0.01] reveal">
+        <section id="gem-cuts" className="py-32 relative bg-white/[0.01] reveal scroll-mt-24">
           <div className="absolute inset-0 bg-[linear-gradient(rgba(99,102,241,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(99,102,241,0.02)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]" />
           <div className="max-w-7xl mx-auto px-6 relative z-10">
             <div className="text-center mb-6">
@@ -380,7 +386,10 @@ export default function AurayalePage() {
                 Light Strategic Fun
               </h2>
               <p className="text-slate-400 max-w-xl mx-auto font-light">
-                Master the art of gem cutting. Different cuts yield different powers in the Aurayale economy.
+                10 Aura gem card deck, 9 Rune symbols
+              </p>
+              <p className="text-slate-400 max-w-xl mx-auto font-light">
+                Form your stylish combos and unleash dazzling spells.
               </p>
             </div>
             <div className="flex justify-center items-end py-16 overflow-visible">
@@ -411,7 +420,7 @@ export default function AurayalePage() {
         </section>
 
         {/* SwUp System */}
-        <section className="py-32 relative overflow-hidden reveal">
+        <section id="swup-system" className="py-32 relative overflow-hidden reveal scroll-mt-24">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-background-dark z-0" />
           <div className="max-w-7xl mx-auto px-6 relative z-10">
             <div className="glass-panel rounded-[3rem] p-12 md:p-20 border border-white/10 relative overflow-hidden">
@@ -420,11 +429,10 @@ export default function AurayalePage() {
                 <div>
                   <span className="accent-badge mb-6 inline-flex">SwUp System V1.0</span>
                   <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6">
-                    Empowering<br />Digital Assets
+                    Empowering<br /> On-Chain Card
                   </h2>
                   <p className="text-slate-400 text-lg leading-relaxed mb-8 font-light">
-                    Built on the robust ERC-1155 standard, Aurayale assets are more than just collectibles. We
-                    integrate Chainlink VRF for provably fair drop rates, ensuring true scarcity and value.
+                    Aura gems are more than just collectibles. 
                   </p>
                   <ul className="space-y-6">
                     <li className="flex items-start gap-4">
@@ -460,7 +468,7 @@ export default function AurayalePage() {
         </section>
 
         {/* Awards */}
-        <section className="py-24 bg-white/[0.01] border-y border-white/5 reveal">
+        <section id="awards" className="py-24 bg-white/[0.01] border-y border-white/5 reveal scroll-mt-24">
           <div className="max-w-7xl mx-auto px-6 text-center">
             <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em] mb-12">
               Recognized By Industry Leaders
