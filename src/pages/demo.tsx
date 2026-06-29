@@ -2,19 +2,21 @@ import { useEffect, useRef, useState } from "react";
 import { Unity, useUnityContext } from "react-unity-webgl";
 import { useViewportRequirements } from "../context/ViewportRequirementsContext";
 import { useCanvasWidth } from "../hooks/useCanvasWidth";
+import { FloatingMenuButton } from "../components/FloatingMenuButton";
+import { InfoMenuModal } from "../components/InfoMenuModal";
+import { useInfoPanelLayout } from "../hooks/useInfoPanelLayout";
 
 /**
  * Demo / Exhibition page (/demo)
  *
  * 與正常版 /battle 的區隔：
- * - 載入「展覽版」Unity build（/BuildExhibition/），與正常 build (/Build/) 完全分離 →
+ * - 載入「展覽版」Unity build（/demo/Build.*），與正常 build (/Build/) 完全分離 →
  *   展覽功能（無限體力、運營面板）只在這個 build 裡，正式 build 連程式碼都沒有。
  * - 不需登入：展覽版無後端、不傳 JWT / 牌組，玩家直接試玩完整體驗。
  * - 不傳 SetAuthToken / SetCardDeck：展覽 build 自己用全卡池與 ExhibitionConfig，
  *   不依賴 React 推資料。
- *
- * 部署：Unity 用 Tools/Aurayale/Build Mode/Enable Exhibition Mode 開 EXHIBITION_BUILD
- * 後 build，輸出放到 public/BuildExhibition/。
+ * - 保留資訊面板（InfoMenuModal）：教學 / 寶石圖鑑等說明圖，與 /battle 一致，
+ *   讓展場玩家也能看到玩法教學。
  */
 export default function DemoPage() {
   const { unityProvider, isLoaded, loadingProgression } = useUnityContext({
@@ -30,6 +32,15 @@ export default function DemoPage() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const { viewportHeight, safeAreaInsetBottom } = useViewportRequirements();
   const canvasWidth = useCanvasWidth(viewportHeight);
+
+  // 資訊面板（教學 / 寶石圖鑑）— 與 /battle 相同
+  const [isInfoMenuOpen, setIsInfoMenuOpen] = useState(false);
+  const infoPanelLayout = useInfoPanelLayout();
+
+  // 進入 /demo 時預設展開資訊面板（展場玩家第一眼就看到教學）
+  useEffect(() => {
+    setIsInfoMenuOpen(true);
+  }, []);
 
   // 動態追蹤 devicePixelRatio
   useEffect(() => {
@@ -122,6 +133,24 @@ export default function DemoPage() {
       >
         © 2026 MUSTAVERSE STUDIO. ALL RIGHTS RESERVED.
       </div>
+
+      {/* 開啟資訊面板的浮動按鈕（面板開啟時隱藏，避免遮擋） */}
+      <FloatingMenuButton
+        onClick={() => setIsInfoMenuOpen(true)}
+        visible={!isInfoMenuOpen}
+        pinned={
+          infoPanelLayout.isSidePanel
+            ? {
+                left: infoPanelLayout.buttonLeft,
+                top: infoPanelLayout.buttonTop,
+                size: infoPanelLayout.buttonSize,
+              }
+            : undefined
+        }
+      />
+
+      {/* 資訊選單（教學 / 寶石圖鑑） */}
+      <InfoMenuModal isOpen={isInfoMenuOpen} onClose={() => setIsInfoMenuOpen(false)} />
     </div>
   );
 }
