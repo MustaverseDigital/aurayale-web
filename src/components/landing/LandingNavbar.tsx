@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useState } from "react";
 import { useLogin } from "../../hooks/useLogin";
+import { AURAYALE_SECTIONS, scrollToAurayaleSection } from "./aurayaleSections";
 
 type ActivePage = "home" | "aurayale" | "contact";
 
@@ -13,10 +15,10 @@ export function LandingNavbar({
 }) {
   const router = useRouter();
   const { login, logout, authenticated, ready } = useLogin({ redirectTo: null, autoProcess: true });
+  const [aurayaleOpen, setAurayaleOpen] = useState(false);
 
   const navItems: { label: string; href: string; key: ActivePage }[] = [
     // { label: "Home", href: "/landing", key: "home" },
-    { label: "Aurayale", href: "/aurayale", key: "aurayale" },
     { label: "Contact", href: "/contact", key: "contact" },
   ];
 
@@ -29,6 +31,52 @@ export function LandingNavbar({
               <img src="/images/Logo.svg" alt="Mustaverse" style={{ width: 150 }} />
             </Link>
             <nav className="hidden md:flex items-center gap-10">
+              {/* Aurayale：hover 彈出選單，列出頁面各 section + Demo */}
+              <div
+                className="relative"
+                onMouseEnter={() => setAurayaleOpen(true)}
+                onMouseLeave={() => setAurayaleOpen(false)}
+              >
+                <Link
+                  className={activePage === "aurayale" ? "landing-nav-link-active" : "landing-nav-link"}
+                  href="/aurayale"
+                >
+                  Aurayale
+                </Link>
+                <div
+                  className={`absolute left-0 top-full pt-3 w-52 transition-all duration-200 ${
+                    aurayaleOpen
+                      ? "opacity-100 visible translate-y-0"
+                      : "opacity-0 invisible -translate-y-1 pointer-events-none"
+                  }`}
+                >
+                  <div className="glass-panel border border-white/10 rounded-xl py-2 shadow-2xl shadow-black/40">
+                    {AURAYALE_SECTIONS.map((s) => (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => {
+                          setAurayaleOpen(false);
+                          scrollToAurayaleSection(router, s.id);
+                        }}
+                        className="w-full text-left px-4 py-2.5 text-sm text-slate-300 hover:text-white hover:bg-white/5 transition-colors"
+                      >
+                        {s.label}
+                      </button>
+                    ))}
+                    <div className="my-1.5 mx-3 border-t border-white/10" />
+                    {/* 展覽試玩入口（載入展覽版 Unity build，不需登入） */}
+                    <Link
+                      href="/demo"
+                      onClick={() => setAurayaleOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-amber-300 hover:text-amber-200 hover:bg-white/5 transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-base">play_circle</span>
+                      Demo
+                    </Link>
+                  </div>
+                </div>
+              </div>
               {navItems.map((item) => (
                 <Link
                   key={item.key}

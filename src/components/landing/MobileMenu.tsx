@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useLogin } from "../../hooks/useLogin";
+import { AURAYALE_SECTIONS, scrollToAurayaleSection } from "./aurayaleSections";
 
 type ActivePage = "home" | "aurayale" | "contact";
 
@@ -10,7 +12,6 @@ const navItems: {
   icon: string;
 }[] = [
   // { label: "Home", href: "/landing", key: "home", icon: "home" },
-  { label: "Aurayale", href: "/aurayale", key: "aurayale", icon: "diamond" },
   { label: "Contact", href: "/contact", key: "contact", icon: "mail" },
 ];
 
@@ -24,6 +25,7 @@ export function MobileMenu({
   onClose: () => void;
 }) {
   const { login, logout, authenticated, ready } = useLogin({ redirectTo: null, autoProcess: false });
+  const router = useRouter();
 
   return (
     <div
@@ -50,7 +52,49 @@ export function MobileMenu({
             <span className="material-symbols-outlined text-2xl">close</span>
           </button>
         </div>
-        <nav className="flex flex-col gap-2 p-6 flex-grow">
+        <nav className="flex flex-col gap-2 p-6 flex-grow overflow-y-auto">
+          {/* Aurayale：標題連結 + 各 section 子項 */}
+          <Link
+            className={
+              activePage === "aurayale"
+                ? "flex items-center gap-4 px-4 py-4 rounded-xl text-white bg-primary/10 border border-primary/20"
+                : "flex items-center gap-4 px-4 py-4 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all"
+            }
+            href="/aurayale"
+            onClick={onClose}
+          >
+            <span
+              className={`material-symbols-outlined text-xl ${activePage === "aurayale" ? "text-primary" : ""}`}
+            >
+              diamond
+            </span>
+            <span className="text-sm font-semibold uppercase tracking-widest">Aurayale</span>
+          </Link>
+          <div className="flex flex-col gap-1 pl-6 mb-1 border-l border-white/10 ml-5">
+            {AURAYALE_SECTIONS.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => {
+                  onClose();
+                  scrollToAurayaleSection(router, s.id);
+                }}
+                className="text-left px-4 py-2.5 rounded-lg text-xs font-medium uppercase tracking-wider text-slate-400 hover:text-white hover:bg-white/5 transition-all"
+              >
+                {s.label}
+              </button>
+            ))}
+            {/* 展覽試玩入口（載入展覽版 Unity build，不需登入） */}
+            <Link
+              href="/demo"
+              onClick={onClose}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-amber-300 hover:text-amber-200 hover:bg-white/5 transition-all"
+            >
+              <span className="material-symbols-outlined text-base">play_circle</span>
+              Demo
+            </Link>
+          </div>
+
           {navItems.map((item) => (
             <Link
               key={item.key}
