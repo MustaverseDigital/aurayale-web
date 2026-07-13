@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aurayale 寶石鍛造所 — 活動頁企劃</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  :root {
+    --bg: #f7f8f6;
+    --surface: #ffffff;
+    --ink: #1d2422;
+    --ink-soft: #4d5a55;
+    --ink-faint: #7b8a83;
+    --accent: #17805f;
+    --accent-soft: #e3f0ea;
+    --amber: #a4741f;
+    --amber-soft: #f5ecdb;
+    --line: #dde4e0;
+    --code-bg: #eef2ef;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #101614;
+      --surface: #17201c;
+      --ink: #e4ebe7;
+      --ink-soft: #a8b5af;
+      --ink-faint: #6f7d76;
+      --accent: #3fc48f;
+      --accent-soft: #1a2e26;
+      --amber: #d9a44a;
+      --amber-soft: #2c2416;
+      --line: #263029;
+      --code-bg: #1c2621;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101614;
+    --surface: #17201c;
+    --ink: #e4ebe7;
+    --ink-soft: #a8b5af;
+    --ink-faint: #6f7d76;
+    --accent: #3fc48f;
+    --accent-soft: #1a2e26;
+    --amber: #d9a44a;
+    --amber-soft: #2c2416;
+    --line: #263029;
+    --code-bg: #1c2621;
+  }
+  :root[data-theme="light"] {
+    --bg: #f7f8f6;
+    --surface: #ffffff;
+    --ink: #1d2422;
+    --ink-soft: #4d5a55;
+    --ink-faint: #7b8a83;
+    --accent: #17805f;
+    --accent-soft: #e3f0ea;
+    --amber: #a4741f;
+    --amber-soft: #f5ecdb;
+    --line: #dde4e0;
+    --code-bg: #eef2ef;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", -apple-system, sans-serif;
+    line-height: 1.85;
+    font-size: 16px;
+  }
+  .page {
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 3.5rem 1.5rem 5rem;
+  }
+  header.doc-head {
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 2rem;
+    margin-bottom: 2.5rem;
+  }
+  .eyebrow {
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+  }
+  h1 {
+    font-family: "Noto Serif TC", "Songti TC", serif;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.35;
+    text-wrap: balance;
+    margin: 0 0 0.75rem;
+  }
+  .doc-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.5rem;
+    font-size: 0.85rem;
+    color: var(--ink-faint);
+  }
+  h2 {
+    font-family: "Noto Serif TC", "Songti TC", serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin: 3rem 0 1rem;
+    padding-top: 2.25rem;
+    border-top: 1px solid var(--line);
+    text-wrap: balance;
+  }
+  h2 .sec-no {
+    color: var(--accent);
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    display: block;
+    margin-bottom: 0.35rem;
+    font-family: "Noto Sans TC", sans-serif;
+    font-weight: 600;
+  }
+  h3 {
+    font-size: 1.02rem;
+    font-weight: 700;
+    margin: 1.75rem 0 0.5rem;
+  }
+  p { margin: 0 0 1rem; color: var(--ink-soft); }
+  strong { color: var(--ink); font-weight: 600; }
+  ul, ol { margin: 0 0 1rem; padding-left: 1.4rem; color: var(--ink-soft); }
+  li { margin-bottom: 0.35rem; }
+  li::marker { color: var(--accent); }
+  code {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 0.85em;
+    background: var(--code-bg);
+    padding: 0.1em 0.4em;
+    border-radius: 4px;
+  }
+
+  .lede {
+    font-size: 1.05rem;
+    color: var(--ink);
+  }
+
+  .scene-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+    margin: 1.25rem 0;
+  }
+  .scene-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 1.25rem 1.4rem;
+  }
+  .scene-card h3 { margin-top: 0; }
+  .scene-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    font-weight: 600;
+    padding: 0.15rem 0.6rem;
+    border-radius: 99px;
+    margin-bottom: 0.6rem;
+  }
+  .tag-hack { background: var(--accent-soft); color: var(--accent); }
+  .tag-night { background: var(--amber-soft); color: var(--amber); }
+  .scene-card p { font-size: 0.92rem; margin-bottom: 0.5rem; }
+  .scene-card ul { font-size: 0.92rem; margin-bottom: 0; }
+
+  .flow {
+    counter-reset: step;
+    list-style: none;
+    padding: 0;
+    margin: 1.25rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .flow li {
+    counter-increment: step;
+    position: relative;
+    padding: 0 0 1.4rem 3rem;
+    margin: 0;
+  }
+  .flow li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 0.1rem;
+    width: 1.9rem;
+    height: 1.9rem;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .flow li:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    left: 0.93rem;
+    top: 2.2rem;
+    bottom: 0.2rem;
+    width: 1px;
+    background: var(--line);
+  }
+  .flow strong { display: block; margin-bottom: 0.1rem; }
+  .flow p { font-size: 0.92rem; margin: 0; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin: 1.25rem 0;
+  }
+  .table-wrap { overflow-x: auto; }
+  th {
+    text-align: left;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 600;
+    padding: 0.5rem 0.9rem 0.5rem 0;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  td {
+    padding: 0.6rem 0.9rem 0.6rem 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink-soft);
+    vertical-align: top;
+  }
+  td:first-child { color: var(--ink); font-weight: 500; white-space: nowrap; }
+
+  .scope-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+    margin: 1.25rem 0;
+  }
+  .scope-col {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 1.1rem 1.3rem;
+  }
+  .scope-col h3 { margin-top: 0; font-size: 0.92rem; }
+  .scope-col.in h3 { color: var(--accent); }
+  .scope-col.out h3 { color: var(--ink-faint); }
+  .scope-col ul { margin-bottom: 0; font-size: 0.9rem; }
+  .scope-col.out li::marker { color: var(--ink-faint); }
+  .scope-col.out li { color: var(--ink-faint); }
+
+  .note {
+    background: var(--amber-soft);
+    border-left: 3px solid var(--amber);
+    border-radius: 0 6px 6px 0;
+    padding: 0.9rem 1.2rem;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    margin: 1.25rem 0;
+  }
+  .note strong { color: var(--amber); }
+
+  footer {
+    margin-top: 3.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="doc-head">
+    <div class="eyebrow">Aurayale · 活動頁企劃</div>
+    <h1>寶石鍛造所 — AI 對話生成寶石體驗頁</h1>
+    <div class="doc-meta">
+      <span>版本 v1</span>
+      <span>2026-07-13</span>
+      <span>用途：FutureMode 黑客松 ＋ Game Night 線下活動</span>
+    </div>
+  </header>
+
+  <p class="lede">在 Aurayale 主站之外新增一個獨立活動頁：使用者與 AI 對話，描述心中想像的寶石，AI 將對話轉化為一顆結構化的專屬寶石並產出「寶石卡」。同一套體驗同時服務黑客松評審 demo 與 Game Night 現場玩家 — 一魚雙吃。</p>
+
+  <h2><span class="sec-no">01</span>目標與定位</h2>
+  <p>核心體驗是「<strong>用對話把想像鍛造成一顆寶石</strong>」。頁面完全獨立於主站帳號體系：不需登入、不上鏈、結果不存後端，將進場摩擦降到最低，換取 demo 流暢度與現場轉化率。</p>
+  <div class="scene-grid">
+    <div class="scene-card">
+      <span class="scene-tag tag-hack">黑客松</span>
+      <h3>評審視角：創新敘事</h3>
+      <p>賣點是「AI 生成式遊戲資產」的完整故事：</p>
+      <ul>
+        <li>對話式生成流程本身就是 demo 素材</li>
+        <li>結構化屬性輸出，展示可控的生成管線</li>
+        <li>敘事上保留「未來接上 ERC-1155 鑄造」的路徑，說明為何此階段刻意不上鏈</li>
+      </ul>
+    </div>
+    <div class="scene-card">
+      <span class="scene-tag tag-night">Game Night</span>
+      <h3>玩家視角：快、好玩、能帶走</h3>
+      <ul>
+        <li>掃 QR code 即玩，零登入、零排隊摩擦</li>
+        <li>幾輪對話內就能拿到成品，適合現場節奏</li>
+        <li>寶石卡可截圖分享，成為社群傳播素材</li>
+        <li>收藏存在裝置上（localStorage），離場後仍可回味</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2><span class="sec-no">02</span>核心體驗流程</h2>
+  <ol class="flow">
+    <li>
+      <strong>入場</strong>
+      <p>簡短的世界觀引言（Aurayale 宇宙 × 鍛造寶石的儀式感），一顆 CTA 進入鍛造流程。</p>
+    </li>
+    <li>
+      <strong>AI 對話引導</strong>
+      <p>AI 以鍛造師的角色提問，引導使用者描述寶石的元素、個性與故事（約 3–5 輪對話）。</p>
+    </li>
+    <li>
+      <strong>屬性結晶</strong>
+      <p>對話結果轉化為結構化寶石屬性：名稱、元素、稀有度、數值、風格描述（JSON schema 固定）。</p>
+    </li>
+    <li>
+      <strong>寶石卡產出</strong>
+      <p>前端依屬性渲染一張寶石卡。<strong>視覺產出方式暫定留空</strong>（先以屬性驅動的占位視覺呈現，後續再決定 AI 生圖或規則式美術）。</p>
+    </li>
+    <li>
+      <strong>結果與分享</strong>
+      <p>成品頁提供：加入「我的收藏」（localStorage）、重新鍛造、分享（截圖導向的卡面設計）。</p>
+    </li>
+  </ol>
+
+  <h2><span class="sec-no">03</span>頁面架構</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>路由 / 區塊</th><th>內容</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>/events/gem-forge</code></td>
+          <td>活動主頁。單頁式體驗，依狀態切換：入場 → 對話 → 鍛造動畫 → 成品。行動裝置優先（Game Night 現場以手機為主），桌機同樣可用（黑客松 demo）。</td>
+        </tr>
+        <tr>
+          <td>入場區</td>
+          <td>活動標題、世界觀引言、開始鍛造 CTA、我的收藏入口。</td>
+        </tr>
+        <tr>
+          <td>對話區</td>
+          <td>聊天介面：AI 鍛造師訊息、使用者輸入、進度提示（第幾輪／還差什麼素材）。</td>
+        </tr>
+        <tr>
+          <td>成品區</td>
+          <td>寶石卡（名稱、元素、稀有度、數值、故事文案）、收藏／重鍛／分享操作。</td>
+        </tr>
+        <tr>
+          <td>我的收藏</td>
+          <td>本機收藏的寶石列表（localStorage），可重看每顆寶石的卡面。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2><span class="sec-no">04</span>技術規格</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>面向</th><th>決策</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>框架</td>
+          <td>沿用現有 Next.js 15（Pages Router）＋ React 19 ＋ Tailwind CSS v4，新增獨立頁面，不掛入主站 Provider 需求（不使用 Privy / UserContext / AuraServer JWT）。</td>
+        </tr>
+        <tr>
+          <td>對話引擎</td>
+          <td>定義可抽換的 <code>ForgeEngine</code> 介面（輸入對話歷史 → 輸出下一句提問或最終寶石 JSON）。第一版以規則式引導對話實作（依序詢問元素／個性／故事並映射屬性），介面預留之後接 LLM API 的空間。</td>
+        </tr>
+        <tr>
+          <td>寶石資料</td>
+          <td>固定 schema：<code>{ name, element, rarity, stats, story, styleHints }</code>。<code>styleHints</code> 為視覺產出保留欄位。</td>
+        </tr>
+        <tr>
+          <td>視覺產出</td>
+          <td><strong>暫定留空</strong>。先以屬性驅動的占位卡面（色彩／形狀由 element 與 rarity 決定）呈現，元件介面獨立成 <code>GemVisual</code>，之後可整顆替換。</td>
+        </tr>
+        <tr>
+          <td>儲存</td>
+          <td>純前端：收藏與進行中對話存 localStorage，不新增任何後端 API。</td>
+        </tr>
+        <tr>
+          <td>帳號</td>
+          <td>匿名體驗，無登入。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2><span class="sec-no">05</span>範圍界定</h2>
+  <div class="scope-grid">
+    <div class="scope-col in">
+      <h3>✓ 本期範圍</h3>
+      <ul>
+        <li>活動頁完整體驗（入場 → 對話 → 成品 → 收藏）</li>
+        <li>規則式對話引擎（介面預留 LLM 接點）</li>
+        <li>屬性驅動的占位寶石卡</li>
+        <li>localStorage 收藏</li>
+        <li>行動裝置優先的響應式版面</li>
+      </ul>
+    </div>
+    <div class="scope-col out">
+      <h3>✗ 明確不做（本期）</h3>
+      <ul>
+        <li>ERC-1155 上鏈鑄造</li>
+        <li>後端儲存生成結果</li>
+        <li>Privy 登入 / 主站帳號整合</li>
+        <li>視覺產出的最終方案（AI 生圖 vs. 規則式美術）</li>
+        <li>與 Unity 遊戲本體的橋接</li>
+      </ul>
+    </div>
+  </div>
+  <div class="note">
+    <strong>未定項：</strong>寶石卡的視覺產出方式（AI 圖像生成或規則式美術拼接）與是否接真實 LLM 對話，皆已在架構上預留抽換點（<code>GemVisual</code> 元件、<code>ForgeEngine</code> 介面），待後續討論定案後替換，不影響本期交付。
+  </div>
+
+  <h2><span class="sec-no">06</span>里程碑</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>階段</th><th>內容</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>M1 骨架</td><td>頁面路由、狀態機（入場／對話／成品）、寶石 schema 與規則式對話引擎。</td></tr>
+        <tr><td>M2 體驗</td><td>對話 UI、鍛造轉場、占位寶石卡、收藏功能。</td></tr>
+        <tr><td>M3 打磨</td><td>行動裝置調校、分享導向的卡面設計、黑客松 demo 腳本演練。</td></tr>
+        <tr><td>賽後</td><td>視需求接 LLM、決定視覺方案、評估上鏈與帳號整合（Game Night 加值）。</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer>
+    Aurayale — 寶石鍛造所活動頁企劃 · 供 FutureMode 黑客松與 Game Night 規劃使用
+  </footer>
+</div>
+</body>
+</html>

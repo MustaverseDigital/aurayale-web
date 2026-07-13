@@ -982,3 +982,172 @@ body {
 .landing-page ::-webkit-scrollbar-track { background: #0a0a0c; }
 .landing-page ::-webkit-scrollbar-thumb { background: #222; border-radius: 4px; }
 .landing-page ::-webkit-scrollbar-thumb:hover { background: #6366f1; }
+
+/* ========== Gem Forge Event Styles (/events/gem-forge) ========== */
+
+.gem-forge-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: #0b0f0e;
+  color: #d8ded8;
+  background-image:
+    radial-gradient(ellipse 70% 40% at 50% -5%, rgba(200, 167, 90, 0.09) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 35% at 85% 100%, rgba(63, 143, 196, 0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 45% 30% at 10% 90%, rgba(226, 97, 46, 0.05) 0%, transparent 60%);
+}
+
+.gem-serif {
+  font-family: var(--font-gem-serif, "Noto Serif TC"), "Noto Serif TC", "Songti TC", serif;
+}
+
+/* 鍛造金骨架線 */
+.gem-panel {
+  background: rgba(19, 26, 23, 0.85);
+  border: 1px solid rgba(200, 167, 90, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 12px 40px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.gem-card {
+  background:
+    radial-gradient(ellipse 90% 55% at 50% 30%, var(--gem-color-soft, #1c2621) 0%, transparent 75%),
+    linear-gradient(180deg, #131a17 0%, #0b0f0e 100%);
+  border: 1px solid rgba(200, 167, 90, 0.45);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 0 60px rgba(0, 0, 0, 0.35),
+    0 16px 48px rgba(0, 0, 0, 0.6);
+}
+.gem-card::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 1px solid rgba(200, 167, 90, 0.18);
+  border-radius: 12px;
+  pointer-events: none;
+}
+
+.gem-element-chip {
+  border: 1px solid;
+  border-radius: 9999px;
+  padding: 0.15rem 0.65rem;
+}
+
+.gem-card-footer {
+  border-top: 1px solid rgba(200, 167, 90, 0.18);
+  background: rgba(0, 0, 0, 0.25);
+}
+
+/* 對話氣泡 */
+.gem-msg {
+  animation: gemMsgIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.gem-msg-forge {
+  background: rgba(200, 167, 90, 0.08);
+  border: 1px solid rgba(200, 167, 90, 0.22);
+  border-radius: 2px 14px 14px 14px;
+}
+.gem-msg-user {
+  background: rgba(63, 143, 196, 0.1);
+  border: 1px solid rgba(63, 143, 196, 0.25);
+  border-radius: 14px 2px 14px 14px;
+}
+@keyframes gemMsgIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 快速提示 chips */
+.gem-hint-chip {
+  border: 1px solid rgba(200, 167, 90, 0.3);
+  background: rgba(200, 167, 90, 0.06);
+  color: #c8a75a;
+  border-radius: 9999px;
+  transition: background 150ms, border-color 150ms;
+}
+.gem-hint-chip:hover {
+  background: rgba(200, 167, 90, 0.16);
+  border-color: rgba(200, 167, 90, 0.55);
+}
+
+/* 打字中指示 */
+.gem-typing-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  background: #c8a75a;
+  animation: gemTyping 1.2s ease-in-out infinite;
+}
+.gem-typing-dot:nth-child(2) { animation-delay: 0.15s; }
+.gem-typing-dot:nth-child(3) { animation-delay: 0.3s; }
+@keyframes gemTyping {
+  0%, 60%, 100% { opacity: 0.25; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-3px); }
+}
+
+/* 寶石漂浮 */
+.gem-visual-float {
+  animation: gemFloat 4.5s ease-in-out infinite;
+}
+@keyframes gemFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* 鍛造中：脈動 + 光環 */
+.gem-forging-pulse {
+  animation: gemForgePulse 1.1s ease-in-out infinite;
+}
+@keyframes gemForgePulse {
+  0%, 100% { transform: scale(1); filter: brightness(0.9); }
+  50% { transform: scale(1.08); filter: brightness(1.35); }
+}
+.gem-forging-ring {
+  border: 1px solid rgba(200, 167, 90, 0.5);
+  border-radius: 9999px;
+  animation: gemForgeRing 1.6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+@keyframes gemForgeRing {
+  from { transform: scale(0.6); opacity: 0.9; }
+  to { transform: scale(1.5); opacity: 0; }
+}
+
+/* 成品入場 */
+.gem-result-enter {
+  animation: gemResultIn 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes gemResultIn {
+  from { opacity: 0; transform: scale(0.88) translateY(24px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.gem-btn-primary {
+  background: linear-gradient(180deg, #d8b96b 0%, #a8823e 100%);
+  color: #1a130a;
+  box-shadow: 0 2px 12px rgba(200, 167, 90, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  transition: filter 150ms, transform 150ms;
+}
+.gem-btn-primary:hover { filter: brightness(1.08); }
+.gem-btn-primary:active { transform: scale(0.98); }
+.gem-btn-ghost {
+  border: 1px solid rgba(200, 167, 90, 0.35);
+  color: #c8a75a;
+  transition: background 150ms;
+}
+.gem-btn-ghost:hover { background: rgba(200, 167, 90, 0.08); }
+
+@media (prefers-reduced-motion: reduce) {
+  .gem-visual-float,
+  .gem-forging-pulse,
+  .gem-forging-ring,
+  .gem-typing-dot {
+    animation: none !important;
+  }
+  .gem-msg,
+  .gem-result-enter {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
