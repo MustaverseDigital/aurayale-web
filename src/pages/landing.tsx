@@ -290,16 +290,18 @@ export default function LandingPage() {
           {/* 非對稱：Aurayale 為旗艦作品佔 3/5，DEAL 佔 2/5，避免兩張等大卡片的樣板感 */}
           <div className="grid lg:grid-cols-5 gap-6 md:gap-8">
             {/* Aurayale Card */}
+            {/* 圖片始終在正常流中決定卡片高度；只有文字在 lg 以上改為絕對定位疊上圖片，
+                手機則排在圖片下方，高度隨內容增長，不會被裁切。 */}
             <Reveal delay={0} direction="up" className="lg:col-span-3">
-              <div className="group relative rounded-[24px] overflow-hidden glass-panel h-full">
-                <div className="aspect-[4/3] lg:aspect-[16/10] overflow-hidden">
+              <div className="group relative rounded-[24px] overflow-hidden glass-panel">
+                <div className="aspect-[16/10] lg:aspect-[16/9] overflow-hidden">
                   <img
                     alt="Aurayale conceptual environment"
                     className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 opacity-50"
                     src="/images/index_aurayale.jpg"
                   />
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-background-dark via-background-dark/40 to-transparent flex flex-col justify-end p-6 md:p-10">
+                <div className="relative lg:absolute lg:inset-0 -mt-16 lg:mt-0 bg-gradient-to-t from-background-dark via-background-dark/90 lg:via-background-dark/60 to-transparent flex flex-col justify-end p-6 md:p-10">
                   <span className="tcg-rarity-label mb-3">Trading card game</span>
                   <h3 className="text-3xl md:text-4xl font-display font-bold text-white mb-3">Aurayale</h3>
                   <p className="text-slate-300 text-sm md:text-base mb-6 font-light max-w-md leading-relaxed">
@@ -316,15 +318,15 @@ export default function LandingPage() {
             </Reveal>
             {/* DEAL Card */}
             <Reveal delay={150} direction="up" className="lg:col-span-2">
-              <div className="group relative rounded-[24px] overflow-hidden glass-panel h-full">
-                <div className="aspect-[4/3] lg:aspect-[4/5] overflow-hidden">
+              <div className="group relative rounded-[24px] overflow-hidden glass-panel">
+                <div className="aspect-[16/10] lg:aspect-[16/9] overflow-hidden">
                   <img
                     alt="DEAL conceptual environment"
                     className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 opacity-50"
                     src="/images/index_deal.jpg"
                   />
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-background-dark via-background-dark/40 to-transparent flex flex-col justify-end p-6 md:p-10">
+                <div className="relative lg:absolute lg:inset-0 -mt-16 lg:mt-0 bg-gradient-to-t from-background-dark via-background-dark/90 lg:via-background-dark/60 to-transparent flex flex-col justify-end p-6 md:p-10">
                   <span className="tcg-rarity-label mb-3">Toolkit</span>
                   <h3 className="text-2xl md:text-3xl font-display font-bold text-white mb-3">DEAL</h3>
                   <p className="text-slate-300 text-sm mb-6 font-light max-w-md leading-relaxed">
