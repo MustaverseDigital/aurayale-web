@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Aurayale is a Next.js 15 (Pages Router) + React 19 frontend that glues together a Unity WebGL game client, a card/swap marketplace, and on-chain ERC-1155 gem assets across multiple EVM testnets. Authentication is handled by Privy (email / wallet / Google / Farcaster) and gameplay state is mirrored to a backend (`https://aura-server.zeabur.app/api`) which issues a JWT used for all authenticated requests and is forwarded into Unity.
 
+## GitHub / MCP
+
+This is a personal-account project under the `MustaverseDigital` org. For any GitHub MCP operation (open PRs, issues, etc.) use the **`github-personal`** MCP server (personal-account token), **not** the default `github` server (company account) — the company token lacks write access here and returns 404. If `mcp__github-personal__*` tools are unavailable, fall back to asking the user to push/open the PR manually rather than using the company `github` server.
+
 ## Commands
 
 Package manager is **pnpm 9.15.4** (`packageManager` field), Node **>=20**.
