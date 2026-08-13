@@ -8,17 +8,17 @@ export default function ContactPage() {
         {/* Background effects */}
         <div className="absolute inset-0 z-0">
           <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px]" />
-          <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-indigo-900/10 rounded-full blur-[120px]" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-secondary/10 rounded-full blur-[120px]" />
         </div>
 
-        <div className="relative z-10 max-w-[1400px] mx-auto px-8">
+        <div className="relative z-10 max-w-[1400px] mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
             {/* Left: Title + Form */}
             <div className="flex flex-col gap-10">
               <div className="space-y-6">
                 <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
                   Let&apos;s build the{" "}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-primary to-purple-400">
+                  <span className="text-primary">
                     Future Gaming
                   </span>{" "}
                   together.
@@ -53,7 +53,7 @@ export default function ContactPage() {
                   />
                 </div>
                 <button
-                  className="w-full md:w-auto px-10 py-4 bg-primary hover:bg-indigo-500 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 group shadow-[0_20px_50px_rgba(99,102,241,0.3)]"
+                  className="w-full md:w-auto px-10 py-4 bg-primary hover:bg-secondary text-background-dark font-bold rounded-xl transition-all flex items-center justify-center gap-2 group shadow-[0_20px_50px_rgba(0,0,0,0.45)]"
                   type="submit"
                 >
                   Send Message
