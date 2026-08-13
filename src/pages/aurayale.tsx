@@ -5,54 +5,6 @@ import { MobileMenu } from "../components/landing/MobileMenu";
 import { LandingFooter } from "../components/landing/LandingFooter";
 import { useLogin } from "../hooks/useLogin";
 
-// Count-up animation hook
-function useCountUp(
-  target: number,
-  options: { duration?: number; delay?: number; decimals?: number; suffix?: string } = {}
-) {
-  const { duration = 2000, delay = 1000, decimals = 0, suffix = "" } = options;
-  const [display, setDisplay] = useState("0" + suffix);
-  const rafRef = useRef<number>(0);
-
-  useEffect(() => {
-    let start: number | null = null;
-    let delayTimer: ReturnType<typeof setTimeout>;
-
-    const formatNumber = (n: number) => {
-      const fixed = n.toFixed(decimals);
-      const [intPart, decPart] = fixed.split(".");
-      const withCommas = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-      return (decPart ? withCommas + "." + decPart : withCommas) + suffix;
-    };
-
-    const step = (timestamp: number) => {
-      if (!start) start = timestamp;
-      const elapsed = timestamp - start;
-      const progress = Math.min(elapsed / duration, 1);
-      // Ease-out cubic for a satisfying deceleration
-      const eased = 1 - Math.pow(1 - progress, 3);
-      const current = eased * target;
-      setDisplay(formatNumber(current));
-      if (progress < 1) {
-        rafRef.current = requestAnimationFrame(step);
-      } else {
-        setDisplay(formatNumber(target));
-      }
-    };
-
-    delayTimer = setTimeout(() => {
-      rafRef.current = requestAnimationFrame(step);
-    }, delay);
-
-    return () => {
-      clearTimeout(delayTimer);
-      cancelAnimationFrame(rafRef.current);
-    };
-  }, [target, duration, delay, decimals, suffix]);
-
-  return display;
-}
-
 export default function AurayalePage() {
   const router = useRouter();
   const { login, authenticated, ready } = useLogin({ redirectTo: null, autoProcess: false });
@@ -74,11 +26,6 @@ export default function AurayalePage() {
     }, 300);
     return () => clearTimeout(timer);
   }, [router.isReady, router.asPath]);
-
-  // Count-up stats
-  const gamesPlayed = useCountUp(24792, { delay: 1200, duration: 2000 });
-  const inAgents = useCountUp(2499347, { delay: 1350, duration: 2200 });
-  const prizePool = useCountUp(24.7, { delay: 1500, duration: 2000, decimals: 1, suffix: "M" });
 
   useEffect(() => {
     if (pendingAdventureRef.current && ready && authenticated) {
@@ -137,12 +84,6 @@ export default function AurayalePage() {
     return () => observer.disconnect();
   }, []);
 
-  const heroStats = [
-    { value: gamesPlayed, label: "Games Played" },
-    { value: inAgents, label: "In Agents" },
-    { value: prizePool, label: "Total Prize Pool" },
-  ];
-
   return (
     <div className="landing-page font-body antialiased min-h-screen flex flex-col">
       {/* Fixed Video Background */}
@@ -167,57 +108,44 @@ export default function AurayalePage() {
 
       <main className="flex-grow relative z-10">
         {/* Hero */}
-        <section ref={heroRef} className="relative min-h-[85vh] flex items-center justify-center overflow-hidden pt-20">
-          <div className="absolute inset-0 z-0">
-            <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/15 rounded-full blur-[120px] mix-blend-screen" />
-            <div className="absolute bottom-0 right-0 w-[800px] h-[600px] bg-primary/10 rounded-full blur-[100px]" />
-          </div>
-          <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
-            <div className="hero-enter hero-badge inline-flex items-center gap-3 px-6 py-2 rounded-full border border-primary/30 bg-primary/5 backdrop-blur-md mb-12 shadow-[0_0_20px_rgba(99,102,241,0.1)]">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
-              </span>
-              <span className="text-[10px] font-bold text-indigo-300 tracking-[0.3em] uppercase">
-                Season 1: Genesis Mint Live
-              </span>
+        {/* Hero：靠左對齊、壓在畫面下緣，讓背景影片本身成為主視覺。 */}
+        <section
+          ref={heroRef}
+          className="relative min-h-[100dvh] flex items-end overflow-hidden pt-24 pb-20"
+        >
+          <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6">
+            <div className="max-w-3xl">
+              <p className="hero-enter hero-badge text-primary font-bold tracking-[0.2em] text-xs uppercase mb-5">
+                Season 1: Genesis Mint
+              </p>
+              <h1 className="hero-enter hero-title font-display text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter text-white mb-6 leading-[0.95]">
+                Rule the Universe
+                <br />
+                <span className="text-gradient-landing">One Gem at a Time.</span>
+              </h1>
+              <p className="hero-enter hero-stats text-lg text-slate-300 max-w-xl mb-10 leading-relaxed font-light">
+                Collect, upgrade and fuse gem cards across the Gem Universe.
+              </p>
+              <div className="hero-enter hero-cta flex flex-col sm:flex-row gap-4">
+                <button
+                  onClick={handleStartAdventure}
+                  className="group w-full sm:w-auto px-10 py-4 bg-primary text-background-dark rounded-xl font-bold hover:bg-secondary transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                >
+                  Start Adventure
+                  <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                </button>
+                <button className="w-full sm:w-auto px-10 py-4 rounded-xl font-bold text-white border border-white/20 hover:bg-white/5 transition-all active:scale-[0.98] backdrop-blur-md">
+                  Watch Trailer
+                </button>
+              </div>
             </div>
-            <h1 className="hero-enter hero-title font-display text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-white mb-8 leading-[1.1] drop-shadow-2xl">
-              Rule the Universe<br />
-              <span className="text-gradient-landing">One Gem at a Time.</span>
-            </h1>
-            <div className="hero-enter hero-stats flex flex-wrap items-center justify-center mb-16">
-              {/* <div className="flex flex-wrap justify-center gap-14">
-                {heroStats.map((stat) => (
-                  <div key={stat.label} className="hero-stat-item relative">
-                    <div className="text-3xl font-bold text-slate-100 font-display tabular-nums">{stat.value}</div>
-                    <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-2">{stat.label}</div>
-                  </div>
-                ))}
-              </div> */}
-            </div>
-            <div className="hero-enter hero-cta flex flex-col sm:flex-row items-center justify-center gap-6">
-              <button
-                onClick={handleStartAdventure}
-                className="group w-full sm:w-auto px-12 py-4 bg-gradient-to-r from-primary to-secondary hover:brightness-110 text-white rounded-full font-bold text-sm uppercase tracking-widest transition-all shadow-[0_0_30px_rgba(99,102,241,0.4)] hover:shadow-[0_0_50px_rgba(99,102,241,0.6)] flex items-center justify-center gap-2"
-              >
-                Start Adventure
-                <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
-              </button>
-              <button className="w-full sm:w-auto px-12 py-4 glass-panel border-white/20 text-white hover:bg-white/5 rounded-full font-bold text-sm uppercase tracking-widest transition-all backdrop-blur-md">
-                Watch Trailer
-              </button>
-            </div>
-          </div>
-          <div className="absolute bottom-12 left-1/2 -translate-x-1/2 animate-bounce opacity-50">
-            <span className="material-symbols-outlined text-primary text-3xl">keyboard_arrow_down</span>
           </div>
         </section>
 
         {/* Home (game intro) */}
         <section id="home" className="py-32 relative reveal scroll-mt-24">
           <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary/5 to-transparent pointer-events-none" />
-          <div className="max-w-7xl mx-auto px-6">
+          <div className="max-w-[1400px] mx-auto px-6">
             <div className="grid lg:grid-cols-2 gap-20 items-center">
               <div className="relative z-10 order-2 lg:order-1">
                 <div className="relative group">
@@ -257,7 +185,7 @@ export default function AurayalePage() {
 
         {/* HOT Games — 暫時隱藏 */}
         <section id="hot-games" className="hidden py-32 reveal scroll-mt-24">
-          <div className="max-w-7xl mx-auto px-6">
+          <div className="max-w-[1400px] mx-auto px-6">
             <div className="flex items-center justify-between mb-10">
               <div className="flex items-center space-x-4">
                 <div className="p-2.5 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-lg shadow-primary/20">
@@ -274,7 +202,7 @@ export default function AurayalePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 reveal-stagger reveal">
               {/* Card 3: Full */}
               <div className="glass-panel rounded-2xl p-7 hover:border-primary/50 transition-all duration-500 hover:scale-[1.02] group cursor-pointer relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-400 to-primary opacity-30 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-secondary to-primary opacity-30 group-hover:opacity-100 transition-opacity" />
                 <div className="flex justify-between items-start mb-6">
                   <h3 className="font-bold text-xl text-slate-100 group-hover:text-white transition-colors leading-tight">
                     Beginner&apos;s Arena
@@ -298,7 +226,7 @@ export default function AurayalePage() {
                 <div className="flex justify-between items-center pt-6 border-t border-white/5">
                   <div className="flex gap-2">
                     <span className="bg-primary/10 text-primary border border-primary/20 text-[9px] px-2.5 py-1 rounded font-black uppercase tracking-[0.15em]">Novice</span>
-                    <span className="bg-indigo-300/10 text-indigo-300 border border-indigo-300/20 text-[9px] px-2.5 py-1 rounded font-black uppercase tracking-[0.15em]">Ranked</span>
+                    <span className="bg-primary/10 text-primary border border-primary/20 text-[9px] px-2.5 py-1 rounded font-black uppercase tracking-[0.15em]">Ranked</span>
                   </div>
                   <button className="bg-gradient-to-r from-primary to-secondary text-white text-xs font-bold py-2.5 px-6 rounded-xl transition-all shadow-lg shadow-primary/20 uppercase tracking-wider hover:brightness-110">
                     Spectate
@@ -334,7 +262,7 @@ export default function AurayalePage() {
                 <div className="flex justify-between items-center pt-6 border-t border-white/5">
                   <div className="flex gap-2">
                     <span className="bg-primary/10 text-primary border border-primary/20 text-[9px] px-2.5 py-1 rounded font-black uppercase tracking-[0.15em]">Hot</span>
-                    <span className="bg-indigo-300/10 text-indigo-300 border border-indigo-300/20 text-[9px] px-2.5 py-1 rounded font-black uppercase tracking-[0.15em]">Mining</span>
+                    <span className="bg-primary/10 text-primary border border-primary/20 text-[9px] px-2.5 py-1 rounded font-black uppercase tracking-[0.15em]">Mining</span>
                   </div>
                   <button className="bg-primary/10 border border-primary/30 text-primary text-xs font-bold py-2.5 px-6 rounded-xl transition-all uppercase tracking-wider hover:bg-primary/20 hover:border-primary">
                     Enter Room
@@ -380,7 +308,7 @@ export default function AurayalePage() {
         {/* Gem Cuts */}
         <section id="gem-cuts" className="py-32 relative bg-white/[0.01] reveal scroll-mt-24">
           <div className="absolute inset-0 bg-[linear-gradient(rgba(99,102,241,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(99,102,241,0.02)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]" />
-          <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="max-w-[1400px] mx-auto px-6 relative z-10">
             <div className="text-center mb-6">
               <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">
                 Light Strategic Fun
@@ -422,7 +350,7 @@ export default function AurayalePage() {
         {/* SwUp System */}
         <section id="swup-system" className="py-32 relative overflow-hidden reveal scroll-mt-24">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-background-dark z-0" />
-          <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="max-w-[1400px] mx-auto px-6 relative z-10">
             <div className="glass-panel rounded-[3rem] p-12 md:p-20 border border-white/10 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3" />
               <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -469,7 +397,7 @@ export default function AurayalePage() {
 
         {/* Awards */}
         <section id="awards" className="py-24 bg-white/[0.01] border-y border-white/5 reveal scroll-mt-24">
-          <div className="max-w-7xl mx-auto px-6 text-center">
+          <div className="max-w-[1400px] mx-auto px-6 text-center">
             <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em] mb-12">
               Recognized By Industry Leaders
             </h3>
