@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useLogin } from "../../hooks/useLogin";
+import { LandingLanguageSwitcher } from "./LandingLanguageSwitcher";
 import { AURAYALE_SECTIONS, scrollToAurayaleSection } from "./aurayaleSections";
 
 type ActivePage = "home" | "aurayale" | "contact";
@@ -14,12 +16,13 @@ export function LandingNavbar({
   onOpenMobileMenu: () => void;
 }) {
   const router = useRouter();
+  const { t } = useTranslation();
   const { login, logout, authenticated, ready } = useLogin({ redirectTo: null, autoProcess: true });
   const [aurayaleOpen, setAurayaleOpen] = useState(false);
 
   const navItems: { label: string; href: string; key: ActivePage }[] = [
     // { label: "Home", href: "/landing", key: "home" },
-    { label: "Contact", href: "/contact", key: "contact" },
+    { label: t("site.nav.contact"), href: "/contact", key: "contact" },
   ];
 
   return (
@@ -72,7 +75,7 @@ export function LandingNavbar({
                       className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-amber-300 hover:text-amber-200 hover:bg-white/5 transition-colors"
                     >
                       <span className="material-symbols-outlined text-base">play_circle</span>
-                      Demo
+                      {t("site.nav.demo")}
                     </Link>
                   </div>
                 </div>
@@ -89,19 +92,20 @@ export function LandingNavbar({
             </nav>
           </div>
           <div className="flex items-center gap-6">
+            <LandingLanguageSwitcher className="hidden md:flex mr-2" />
             {ready && authenticated ? (
               <>
                 <button
                   onClick={() => router.push("/platform")}
                   className="cursor-pointer hidden md:flex items-center justify-center px-6 py-2.5 text-xs font-bold uppercase tracking-widest bg-gradient-to-r from-primary to-secondary text-white rounded-lg hover:brightness-110 transition-all shadow-lg shadow-primary/25"
                 >
-                  Enter App
+                  {t("site.nav.enterApp")}
                 </button>
                 <button
                   onClick={() => logout()}
                   className="cursor-pointer hidden md:flex items-center justify-center px-6 py-2.5 text-xs font-bold uppercase tracking-widest border border-white/20 text-white/70 rounded-lg hover:bg-white/5 transition-all"
                 >
-                  Logout
+                  {t("site.nav.logout")}
                 </button>
               </>
             ) : (
@@ -109,7 +113,7 @@ export function LandingNavbar({
                 onClick={() => login()}
                 className="cursor-pointer hidden md:flex items-center justify-center px-6 py-2.5 text-xs font-bold uppercase tracking-widest bg-gradient-to-r from-primary to-secondary text-white rounded-lg hover:brightness-110 transition-all shadow-lg shadow-primary/25"
               >
-                Login
+                {t("site.nav.login")}
               </button>
             )}
             <button

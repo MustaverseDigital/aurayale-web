@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { LandingLayout } from "../components/landing/LandingLayout";
+import { useTranslation } from "react-i18next";
 import { useScrollReveal } from "../hooks/useScrollReveal";
 
 /* ─── Reusable Reveal Wrapper ─── */
@@ -39,6 +40,7 @@ function Reveal({
 }
 
 export default function LandingPage() {
+  const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
@@ -133,20 +135,19 @@ export default function LandingPage() {
             <div className="lg:col-span-8">
               <Reveal delay={0}>
                 <p className="text-primary font-bold tracking-[0.2em] text-xs uppercase mb-5">
-                  Mustaverse Studio
+                  {t("site.hero.eyebrow")}
                 </p>
               </Reveal>
               <Reveal delay={120}>
                 <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tighter text-white mb-6 leading-[0.95]">
-                  Your IP.
+                  {t("site.hero.titleLine1")}
                   <br />
-                  On cards, on-chain.
+                  {t("site.hero.titleLine2")}
                 </h1>
               </Reveal>
               <Reveal delay={240}>
                 <p className="text-lg text-slate-300 max-w-xl mb-10 leading-relaxed font-light">
-                  We turn brands and characters into trading card games, with the on-chain
-                  ownership and XR layers around them.
+                  {t("site.hero.body")}
                 </p>
               </Reveal>
               <Reveal delay={360}>
@@ -155,14 +156,14 @@ export default function LandingPage() {
                     href="/contact"
                     className="inline-flex items-center justify-center gap-2 px-10 py-4 bg-primary text-background-dark rounded-[12px] font-bold hover:bg-secondary transition-all active:scale-[0.98]"
                   >
-                    Work with us
+                    {t("site.hero.ctaPrimary")}
                     <span className="material-symbols-outlined text-lg">arrow_forward</span>
                   </Link>
                   <Link
                     href="/aurayale"
                     className="inline-flex items-center justify-center px-10 py-4 rounded-[12px] font-bold text-white border border-white/20 hover:bg-white/5 transition-all active:scale-[0.98]"
                   >
-                    Play Aurayale
+                    {t("site.hero.ctaSecondary")}
                   </Link>
                 </div>
               </Reveal>
@@ -178,26 +179,23 @@ export default function LandingPage() {
             <div className="relative z-10">
               <Reveal delay={0} direction="left">
                 <span className="text-primary font-bold tracking-widest text-xs uppercase mb-4 block">
-                  What we do
+                  {t("site.philosophy.eyebrow")}
                 </span>
               </Reveal>
               <Reveal delay={100} direction="left">
                 <h2 className="font-display text-3xl md:text-5xl font-bold text-white mb-8 tracking-tight">
-                  Cards are where
+                  {t("site.philosophy.titleLine1")}
                   <br />
-                  IP becomes an economy.
+                  {t("site.philosophy.titleLine2")}
                 </h2>
               </Reveal>
               <Reveal delay={200} direction="left">
                 <div className="w-12 h-1 bg-gradient-to-r from-primary to-transparent mb-10" />
                 <p className="text-slate-300 text-lg leading-relaxed mb-6 font-light">
-                  A card carries art, rules and ownership in one object. Players already know how to
-                  collect, trade and value them, which makes it the shortest path from a brand to a
-                  living economy.
+                  {t("site.philosophy.body1")}
                 </p>
                 <p className="text-slate-400 text-base leading-relaxed font-light">
-                  We design that economy end to end: the game, the rarity model, the on-chain assets
-                  and the XR surfaces. Aurayale is our own title and where we prove it works.
+                  {t("site.philosophy.body2")}
                 </p>
               </Reveal>
             </div>
@@ -223,10 +221,10 @@ export default function LandingPage() {
           <Reveal>
             <div className="max-w-2xl mb-16">
               <h2 className="font-display text-3xl md:text-5xl font-bold text-white mb-4 tracking-tight">
-                Bring us your IP.
+                {t("site.services.title")}
               </h2>
               <p className="text-slate-400 font-light text-base leading-relaxed">
-                Three layers, commissioned together or one at a time.
+                {t("site.services.subtitle")}
               </p>
             </div>
           </Reveal>
@@ -234,23 +232,23 @@ export default function LandingPage() {
             {[
               {
                 tier: "tcg-card--rare",
-                rarity: "TCG",
-                title: "The game itself",
-                desc: "Card design, rarity tiers, balance and a Unity client. The part players actually hold and play.",
+                rarity: t("site.services.tcg.label"),
+                title: t("site.services.tcg.title"),
+                desc: t("site.services.tcg.desc"),
                 art: "/images/card_01.png",
               },
               {
                 tier: "tcg-card--epic",
-                rarity: "RWA",
-                title: "Physical meets on-chain",
-                desc: "Printed cards paired with ERC-1155 tokens, so a collection holds value in both places. Aurayale grades rarity on the gem trade's 4C system.",
+                rarity: t("site.services.rwa.label"),
+                title: t("site.services.rwa.title"),
+                desc: t("site.services.rwa.desc"),
                 art: "/images/card_03.png",
               },
               {
                 tier: "tcg-card--legendary",
-                rarity: "XR & AI",
-                title: "Where the cards come alive",
-                desc: "AR card reveals, spatial play and AI-assisted art pipelines built on our Unity and WebGL stack.",
+                rarity: t("site.services.xr.label"),
+                title: t("site.services.xr.title"),
+                desc: t("site.services.xr.desc"),
                 art: "/images/card_04.png",
               },
             ].map((item, i) => (
@@ -282,10 +280,10 @@ export default function LandingPage() {
           <Reveal>
             <div className="max-w-2xl mb-16">
               <h2 className="font-display text-3xl md:text-5xl font-bold text-white mb-4 tracking-tight">
-                Our own titles
+                {t("site.titles.heading")}
               </h2>
               <p className="text-slate-400 font-light text-base leading-relaxed">
-                What we build for ourselves, and what we can build with you.
+                {t("site.titles.subtitle")}
               </p>
             </div>
           </Reveal>
@@ -304,16 +302,16 @@ export default function LandingPage() {
                   />
                 </div>
                 <div className="relative lg:absolute lg:inset-0 -mt-16 lg:mt-0 bg-gradient-to-t from-background-dark via-background-dark/90 lg:via-background-dark/60 to-transparent flex flex-col justify-end p-6 md:p-10">
-                  <span className="tcg-rarity-label mb-3">Trading card game</span>
+                  <span className="tcg-rarity-label mb-3">{t("site.titles.aurayaleLabel")}</span>
                   <h3 className="text-3xl md:text-4xl font-display font-bold text-white mb-3">Aurayale</h3>
                   <p className="text-slate-300 text-sm md:text-base mb-6 font-light max-w-md leading-relaxed">
-                    Collect, upgrade and fuse gem cards across the Gem Universe.
+                    {t("site.titles.aurayaleDesc")}
                   </p>
                   <Link
                     href="/aurayale"
                     className="w-fit px-7 py-3 bg-primary text-background-dark font-bold text-sm rounded-[12px] hover:bg-secondary transition-colors active:scale-[0.98]"
                   >
-                    Play Aurayale
+                    {t("site.titles.aurayaleCta")}
                   </Link>
                 </div>
               </div>
@@ -329,10 +327,10 @@ export default function LandingPage() {
                   />
                 </div>
                 <div className="relative lg:absolute lg:inset-0 -mt-16 lg:mt-0 bg-gradient-to-t from-background-dark via-background-dark/90 lg:via-background-dark/60 to-transparent flex flex-col justify-end p-6 md:p-10">
-                  <span className="tcg-rarity-label mb-3">Toolkit</span>
+                  <span className="tcg-rarity-label mb-3">{t("site.titles.dealLabel")}</span>
                   <h3 className="text-2xl md:text-3xl font-display font-bold text-white mb-3">DEAL</h3>
                   <p className="text-slate-300 text-sm mb-6 font-light max-w-md leading-relaxed">
-                    Take a tabletop game and make it playable online.
+                    {t("site.titles.dealDesc")}
                   </p>
                   <a
                     href="https://chile109.github.io/DEAL-DOC/"
@@ -340,7 +338,7 @@ export default function LandingPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    Read the docs
+                    {t("site.titles.dealCta")}
                   </a>
                 </div>
               </div>
@@ -384,7 +382,7 @@ export default function LandingPage() {
         <Reveal>
           <div className="max-w-[1400px] mx-auto px-6">
             <h3 className="text-center text-sm font-medium text-slate-500 mb-16">
-              Our partners
+              {t("site.partners")}
             </h3>
           </div>
         </Reveal>
@@ -470,13 +468,12 @@ export default function LandingPage() {
             <div className="grid lg:grid-cols-12 gap-10 items-center">
               <div className="lg:col-span-7">
                 <h2 className="font-display text-3xl md:text-5xl font-bold text-white mb-5 tracking-tight">
-                  Got an IP?
+                  {t("site.cta.titleLine1")}
                   <br />
-                  Let&apos;s build the deck.
+                  {t("site.cta.titleLine2")}
                 </h2>
                 <p className="text-slate-400 text-lg max-w-xl font-light leading-relaxed">
-                  Tell us what you own and what you want players to do with it. We will map out the
-                  card, chain and XR layers with you.
+                  {t("site.cta.body")}
                 </p>
               </div>
               <div className="lg:col-span-5 lg:justify-self-end">
@@ -484,7 +481,7 @@ export default function LandingPage() {
                   href="/contact"
                   className="inline-flex items-center justify-center gap-2 bg-primary text-background-dark px-10 py-4 rounded-[12px] font-bold hover:bg-secondary transition-all active:scale-[0.98]"
                 >
-                  Work with us
+                  {t("site.cta.button")}
                   <span className="material-symbols-outlined text-lg">arrow_forward</span>
                 </Link>
               </div>

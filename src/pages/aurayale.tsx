@@ -3,9 +3,11 @@ import { useRouter } from "next/router";
 import { LandingNavbar } from "../components/landing/LandingNavbar";
 import { MobileMenu } from "../components/landing/MobileMenu";
 import { LandingFooter } from "../components/landing/LandingFooter";
+import { useTranslation } from "react-i18next";
 import { useLogin } from "../hooks/useLogin";
 
 export default function AurayalePage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { login, authenticated, ready } = useLogin({ redirectTo: null, autoProcess: false });
   const pendingAdventureRef = useRef(false);
@@ -116,26 +118,26 @@ export default function AurayalePage() {
           <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6">
             <div className="max-w-3xl">
               <p className="hero-enter hero-badge text-primary font-bold tracking-[0.2em] text-xs uppercase mb-5">
-                Season 1: Genesis Mint
+                {t("site.aurayale.hero.badge")}
               </p>
               <h1 className="hero-enter hero-title font-display text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter text-white mb-6 leading-[0.95]">
-                Rule the Universe
+                {t("site.aurayale.hero.titleLine1")}
                 <br />
-                <span className="text-gradient-landing">One Gem at a Time.</span>
+                <span className="text-gradient-landing">{t("site.aurayale.hero.titleLine2")}</span>
               </h1>
               <p className="hero-enter hero-stats text-lg text-slate-300 max-w-xl mb-10 leading-relaxed font-light">
-                Collect, upgrade and fuse gem cards across the Gem Universe.
+                {t("site.aurayale.hero.body")}
               </p>
               <div className="hero-enter hero-cta flex flex-col sm:flex-row gap-4">
                 <button
                   onClick={handleStartAdventure}
                   className="group w-full sm:w-auto px-10 py-4 bg-primary text-background-dark rounded-xl font-bold hover:bg-secondary transition-all active:scale-[0.98] flex items-center justify-center gap-2"
                 >
-                  Start Adventure
+                  {t("site.aurayale.hero.ctaPrimary")}
                   <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
                 </button>
                 <button className="w-full sm:w-auto px-10 py-4 rounded-xl font-bold text-white border border-white/20 hover:bg-white/5 transition-all active:scale-[0.98] backdrop-blur-md">
-                  Watch Trailer
+                  {t("site.aurayale.hero.ctaSecondary")}
                 </button>
               </div>
             </div>
@@ -164,17 +166,16 @@ export default function AurayalePage() {
               </div>
               <div className="relative z-10 order-1 lg:order-2">
                 <span className="text-primary font-bold tracking-[0.2em] text-xs uppercase mb-6 flex items-center gap-2">
-                  <span className="w-8 h-px bg-primary" /> Home
+                  <span className="w-8 h-px bg-primary" /> {t("site.aurayale.home.eyebrow")}
                 </span>
                 <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-8 tracking-tight leading-tight">
-                  Welcome to the{" "}
+                  {t("site.aurayale.home.welcome")}{" "}
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-slate-200">
-                    Gem Universe
+                    {t("site.aurayale.home.title")}
                   </span>
                 </h2>
                 <p className="text-slate-400 text-lg leading-relaxed mb-6 font-light max-w-lg">
-                  Across the vast Gem Universe, challenging powerful guardians on Gem
-                  Planets to collect, upgrade, and fuse magical Gem Cards.
+                  {t("site.aurayale.home.body")}
                 </p>
                 <div className="flex gap-4">
                 </div>
@@ -194,7 +195,7 @@ export default function AurayalePage() {
                 <h2 className="text-3xl font-bold text-white tracking-tight font-display">HOT Games</h2>
               </div>
               <a className="text-slate-400 text-sm hover:text-white flex items-center transition-all font-semibold group" href="#">
-                Explore Library
+                {t("site.aurayale.home.cta")}
                 <span className="material-symbols-outlined text-lg ml-2 transform group-hover:translate-x-1 transition-transform">arrow_forward</span>
               </a>
             </div>
@@ -311,13 +312,13 @@ export default function AurayalePage() {
           <div className="max-w-[1400px] mx-auto px-6 relative z-10">
             <div className="text-center mb-6">
               <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">
-                Light Strategic Fun
+                {t("site.aurayale.gemCuts.title")}
               </h2>
               <p className="text-slate-400 max-w-xl mx-auto font-light">
-                10 Aura gem card deck, 9 Rune symbols
+                {t("site.aurayale.gemCuts.deckLine")}
               </p>
               <p className="text-slate-400 max-w-xl mx-auto font-light">
-                Form your stylish combos and unleash dazzling spells.
+                {t("site.aurayale.gemCuts.comboLine")}
               </p>
             </div>
             <div className="flex justify-center items-end py-16 overflow-visible">
@@ -355,12 +356,12 @@ export default function AurayalePage() {
               <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3" />
               <div className="grid lg:grid-cols-2 gap-16 items-center">
                 <div>
-                  <span className="accent-badge mb-6 inline-flex">SwUp System V1.0</span>
+                  <span className="accent-badge mb-6 inline-flex">{t("site.aurayale.swup.badge")}</span>
                   <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6">
-                    Empowering<br /> On-Chain Card
+                    {t("site.aurayale.swup.titleLine1")}<br /> {t("site.aurayale.swup.titleLine2")}
                   </h2>
                   <p className="text-slate-400 text-lg leading-relaxed mb-8 font-light">
-                    Aura gems are more than just collectibles. 
+                    {t("site.aurayale.swup.body")}
                   </p>
                   <ul className="space-y-6">
                     <li className="flex items-start gap-4">
@@ -368,8 +369,8 @@ export default function AurayalePage() {
                         <span className="material-symbols-outlined text-sm text-primary">check</span>
                       </div>
                       <div>
-                        <h4 className="text-white font-bold text-sm">ERC-1155 Multi-Token Standard</h4>
-                        <p className="text-slate-500 text-xs mt-1">Gas-efficient batch transfers and mixed asset types.</p>
+                        <h4 className="text-white font-bold text-sm">{t("site.aurayale.swup.erc1155Title")}</h4>
+                        <p className="text-slate-500 text-xs mt-1">{t("site.aurayale.swup.erc1155Desc")}</p>
                       </div>
                     </li>
                     <li className="flex items-start gap-4">
@@ -377,8 +378,8 @@ export default function AurayalePage() {
                         <span className="material-symbols-outlined text-sm text-primary">verified_user</span>
                       </div>
                       <div>
-                        <h4 className="text-white font-bold text-sm">Chainlink VRF Integration</h4>
-                        <p className="text-slate-500 text-xs mt-1">Verifiable randomness for all gem generation events.</p>
+                        <h4 className="text-white font-bold text-sm">{t("site.aurayale.swup.vrfTitle")}</h4>
+                        <p className="text-slate-500 text-xs mt-1">{t("site.aurayale.swup.vrfDesc")}</p>
                       </div>
                     </li>
                   </ul>
@@ -399,7 +400,7 @@ export default function AurayalePage() {
         <section id="awards" className="py-24 bg-white/[0.01] border-y border-white/5 reveal scroll-mt-24">
           <div className="max-w-[1400px] mx-auto px-6 text-center">
             <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em] mb-12">
-              Recognized By Industry Leaders
+              {t("site.aurayale.awards.title")}
             </h3>
             <div className="flex flex-wrap justify-center items-center gap-16 md:gap-24 opacity-80">
               {[
@@ -428,18 +429,18 @@ export default function AurayalePage() {
           <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
             <div className="glass-panel py-20 px-8 rounded-[3rem] border border-white/10 shadow-[0_0_100px_rgba(99,102,241,0.15)] bg-gradient-to-b from-white/[0.02] to-transparent">
               <h2 className="font-display text-5xl md:text-7xl font-bold text-white mb-8 tracking-tighter">
-                Begin Your<br />
-                <span className="text-gradient-landing">Galactic Hunt</span>
+                {t("site.aurayale.cta.titleLine1")}<br />
+                <span className="text-gradient-landing">{t("site.aurayale.cta.titleLine2")}</span>
               </h2>
               <p className="text-slate-400 text-lg mb-12 max-w-lg mx-auto font-light">
-                The portal is open. Thousands of gems await discovery. Will you claim the rarest artifacts?
+                {t("site.aurayale.cta.body")}
               </p>
               <div className="flex flex-col items-center">
                 <button
                   onClick={handleStartAdventure}
                   className="px-16 py-6 bg-gradient-to-r from-primary to-secondary text-white rounded-full font-bold text-lg uppercase tracking-widest hover:brightness-110 hover:scale-105 transition-all shadow-[0_0_40px_rgba(99,102,241,0.3)]"
                 >
-                  Play Now
+                  {t("site.aurayale.cta.button")}
                 </button>
                 <p className="mt-6 text-xs text-slate-500 uppercase tracking-wider">Browser &amp; VR Compatible</p>
               </div>

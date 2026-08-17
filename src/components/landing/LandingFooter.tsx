@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import { Mail, MapPin } from "lucide-react";
+import { LandingLanguageSwitcher } from "./LandingLanguageSwitcher";
 
 type FooterVariant = "default" | "aurayale" | "contact";
 
@@ -37,6 +39,7 @@ const SOCIAL_LINKS = [
 ];
 
 export function LandingFooter({ variant = "default" }: { variant?: FooterVariant }) {
+  const { t } = useTranslation();
   return (
     <footer className="relative z-10 bg-background-dark pt-20 pb-10 border-t border-white/5">
       <div className="max-w-[1400px] mx-auto px-6">
@@ -50,14 +53,14 @@ export function LandingFooter({ variant = "default" }: { variant?: FooterVariant
             </Link>
             <p className="text-slate-400 max-w-xs leading-relaxed font-light text-sm">
               {variant === "aurayale"
-                ? "An on-chain trading card game by Mustaverse Studio."
-                : "We turn IP into trading card games, on-chain assets and XR experiences."}
+                ? t("site.footer.taglineAurayale")
+                : t("site.footer.taglineDefault")}
             </p>
           </div>
 
           {/* 聯絡 */}
           <div className="md:shrink-0">
-            <h2 className="text-white text-xs font-bold uppercase tracking-wider mb-4">Contact</h2>
+            <h2 className="text-white text-xs font-bold uppercase tracking-wider mb-4">{t("site.footer.contact")}</h2>
             <a
               className="text-slate-400 hover:text-primary transition-colors text-sm inline-flex items-center gap-2 whitespace-nowrap"
               href={`mailto:${CONTACT_EMAIL}`}
@@ -85,7 +88,7 @@ export function LandingFooter({ variant = "default" }: { variant?: FooterVariant
 
           {/* 據點 */}
           <div className="md:shrink-0">
-            <h2 className="text-white text-xs font-bold uppercase tracking-wider mb-4">Offices</h2>
+            <h2 className="text-white text-xs font-bold uppercase tracking-wider mb-4">{t("site.footer.offices")}</h2>
             <address className="not-italic flex flex-col gap-4">
               {OFFICES.map((office) => (
                 <a
@@ -109,16 +112,19 @@ export function LandingFooter({ variant = "default" }: { variant?: FooterVariant
         </div>
 
         <div className="border-t border-white/5 mt-16 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-slate-500 text-xs font-light">
-            &copy; 2026 Mustaverse Studio. All rights reserved.
-          </p>
+          <div className="flex items-center gap-5">
+            <LandingLanguageSwitcher />
+            <p className="text-slate-500 text-xs font-light">
+              {t("site.footer.rights")}
+            </p>
+          </div>
           {variant === "aurayale" || variant === "contact" ? (
             <div className="flex gap-8">
               <a className="text-slate-500 hover:text-white text-xs font-light transition-colors" href="#">
-                Privacy Policy
+                {t("site.footer.privacy")}
               </a>
               <a className="text-slate-500 hover:text-white text-xs font-light transition-colors" href="#">
-                Terms of Service
+                {t("site.footer.terms")}
               </a>
             </div>
           ) : null}
