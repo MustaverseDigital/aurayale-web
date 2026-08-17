@@ -10,6 +10,11 @@ export interface Translation {
   floatingMenu: {
     openAriaLabel: string
   }
+  exitGame: {
+    label: string
+    ariaLabel: string
+    confirm: string
+  }
   infoMenu: {
     aria: {
       dragPanel: string
@@ -91,6 +96,11 @@ const zhTW: Translation = {
   },
   floatingMenu: {
     openAriaLabel: "開啟資訊選單",
+  },
+  exitGame: {
+    label: "離開遊戲",
+    ariaLabel: "離開遊戲，返回官網",
+    confirm: "確定要離開遊戲嗎？目前的進度不會保留。",
   },
   infoMenu: {
     aria: {

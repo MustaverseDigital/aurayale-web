@@ -4,6 +4,7 @@ import { useViewportRequirements } from "../context/ViewportRequirementsContext"
 import { useCanvasWidth } from "../hooks/useCanvasWidth";
 import { FloatingMenuButton } from "../components/FloatingMenuButton";
 import { InfoMenuModal } from "../components/InfoMenuModal";
+import { ExitGameButton } from "../components/ExitGameButton";
 import { useInfoPanelLayout } from "../hooks/useInfoPanelLayout";
 
 /**
@@ -39,9 +40,13 @@ export default function DemoPage() {
 
   // 展場為直式螢幕，資訊面板在窄畫面是全螢幕 Modal（fixed inset-0 z-[75]），
   // 會整片蓋住 z-index 1 的 Unity canvas，看起來像載入完就卡死。
-  // 因此只在「桌機側邊面板」模式下自動展開；直式展場螢幕改由浮動按鈕手動開啟。
+  // 桌機(側邊面板模式)才預設展開；直式螢幕預設關閉，由浮動按鈕手動開啟。
+  // 只在「模式真的切換」時同步一次，避免每次 resize 都覆蓋使用者手動的開關狀態。
+  const prevSidePanelRef = useRef<boolean | null>(null);
   useEffect(() => {
-    if (infoPanelLayout.isSidePanel) setIsInfoMenuOpen(true);
+    if (prevSidePanelRef.current === infoPanelLayout.isSidePanel) return;
+    prevSidePanelRef.current = infoPanelLayout.isSidePanel;
+    setIsInfoMenuOpen(infoPanelLayout.isSidePanel);
   }, [infoPanelLayout.isSidePanel]);
 
   // 動態追蹤 devicePixelRatio
@@ -77,8 +82,15 @@ export default function DemoPage() {
     <div className="min-h-screen text-white flex flex-col">
       <audio ref={audioRef} src="/bgm/bgm.mp3" autoPlay loop hidden />
 
-      {/* 展覽模式標記（左上角小字，方便現場辨識；不影響操作） */}
-      <div className="fixed top-2 left-3 z-[60] text-[10px] font-bold uppercase tracking-[0.15em] text-amber-300/80 pointer-events-none select-none">
+      {/* 離開遊戲 → 回官網。展場版無進度可失，不需二次確認。
+          桌機側邊面板靠右，不會擋到左上角；只有手機全螢幕 Modal 才需要隱藏。 */}
+      <ExitGameButton
+        href="/landing"
+        visible={infoPanelLayout.isSidePanel || !isInfoMenuOpen}
+      />
+
+      {/* 展覽模式標記（移到右上角，避免與左上角的離開按鈕重疊） */}
+      <div className="fixed top-3 right-3 z-[60] text-[10px] font-bold uppercase tracking-[0.15em] text-amber-300/80 pointer-events-none select-none">
         DEMO / EXHIBITION
       </div>
 

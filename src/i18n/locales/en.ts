@@ -12,6 +12,11 @@ const en: Translation = {
   floatingMenu: {
     openAriaLabel: "Open info menu",
   },
+  exitGame: {
+    label: "Exit game",
+    ariaLabel: "Exit game and return to the website",
+    confirm: "Leave the game? Your current progress will not be saved.",
+  },
   infoMenu: {
     aria: {
       dragPanel: "Drag info panel",
