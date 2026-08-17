@@ -138,30 +138,31 @@ export default function LandingPage() {
               </Reveal>
               <Reveal delay={120}>
                 <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tighter text-white mb-6 leading-[0.95]">
-                  Entertainment and IP,
+                  Your IP.
                   <br />
-                  built on cards.
+                  On cards, on-chain.
                 </h1>
               </Reveal>
               <Reveal delay={240}>
                 <p className="text-lg text-slate-300 max-w-xl mb-10 leading-relaxed font-light">
-                  We design trading card games and the on-chain worlds around them. Aurayale is ours.
+                  We turn brands and characters into trading card games, with the on-chain
+                  ownership and XR layers around them.
                 </p>
               </Reveal>
               <Reveal delay={360}>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link
-                    href="/aurayale"
+                    href="/contact"
                     className="inline-flex items-center justify-center gap-2 px-10 py-4 bg-primary text-background-dark rounded-[12px] font-bold hover:bg-secondary transition-all active:scale-[0.98]"
                   >
-                    Play Aurayale
+                    Work with us
                     <span className="material-symbols-outlined text-lg">arrow_forward</span>
                   </Link>
                   <Link
-                    href="/contact"
+                    href="/aurayale"
                     className="inline-flex items-center justify-center px-10 py-4 rounded-[12px] font-bold text-white border border-white/20 hover:bg-white/5 transition-all active:scale-[0.98]"
                   >
-                    Work with us
+                    Play Aurayale
                   </Link>
                 </div>
               </Reveal>
@@ -182,20 +183,21 @@ export default function LandingPage() {
               </Reveal>
               <Reveal delay={100} direction="left">
                 <h2 className="font-display text-3xl md:text-5xl font-bold text-white mb-8 tracking-tight">
-                  We turn IP into
+                  Cards are where
                   <br />
-                  card games.
+                  IP becomes an economy.
                 </h2>
               </Reveal>
               <Reveal delay={200} direction="left">
                 <div className="w-12 h-1 bg-gradient-to-r from-primary to-transparent mb-10" />
                 <p className="text-slate-300 text-lg leading-relaxed mb-6 font-light">
-                  A card is the smallest unit of a story. It carries art, rules and ownership in one
-                  object, and it is the format players already know how to collect and trade.
+                  A card carries art, rules and ownership in one object. Players already know how to
+                  collect, trade and value them, which makes it the shortest path from a brand to a
+                  living economy.
                 </p>
                 <p className="text-slate-400 text-base leading-relaxed font-light">
-                  We build the game, the card economy and the on-chain layer underneath it. Aurayale is
-                  our own title and the proof of what the studio can ship.
+                  We design that economy end to end: the game, the rarity model, the on-chain assets
+                  and the XR surfaces. Aurayale is our own title and where we prove it works.
                 </p>
               </Reveal>
             </div>
@@ -224,7 +226,7 @@ export default function LandingPage() {
                 Bring us your IP.
               </h2>
               <p className="text-slate-400 font-light text-base leading-relaxed">
-                Three ways studios, brands and project teams work with us.
+                Three layers, commissioned together or one at a time.
               </p>
             </div>
           </Reveal>
@@ -232,23 +234,23 @@ export default function LandingPage() {
             {[
               {
                 tier: "tcg-card--rare",
-                rarity: "Card design",
-                title: "Turn your IP into a deck",
-                desc: "Character design, card framing, rarity tiers and the rules that make a set worth collecting.",
+                rarity: "TCG",
+                title: "The game itself",
+                desc: "Card design, rarity tiers, balance and a Unity client. The part players actually hold and play.",
                 art: "/images/card_01.png",
               },
               {
                 tier: "tcg-card--epic",
-                rarity: "Game build",
-                title: "Ship a playable title",
-                desc: "Unity client, matchmaking and live-ops. Aurayale runs on the same stack we would build for you.",
+                rarity: "RWA",
+                title: "Physical meets on-chain",
+                desc: "Printed cards paired with ERC-1155 tokens, so a collection holds value in both places. Aurayale grades rarity on the gem trade's 4C system.",
                 art: "/images/card_03.png",
               },
               {
                 tier: "tcg-card--legendary",
-                rarity: "On-chain layer",
-                title: "Put assets on-chain",
-                desc: "ERC-1155 cards, wallet onboarding and a trading loop players can actually use.",
+                rarity: "XR & AI",
+                title: "Where the cards come alive",
+                desc: "AR card reveals, spatial play and AI-assisted art pipelines built on our Unity and WebGL stack.",
                 art: "/images/card_04.png",
               },
             ].map((item, i) => (
@@ -473,7 +475,8 @@ export default function LandingPage() {
                   Let&apos;s build the deck.
                 </h2>
                 <p className="text-slate-400 text-lg max-w-xl font-light leading-relaxed">
-                  Tell us what you have and what you want players to do with it.
+                  Tell us what you own and what you want players to do with it. We will map out the
+                  card, chain and XR layers with you.
                 </p>
               </div>
               <div className="lg:col-span-5 lg:justify-self-end">

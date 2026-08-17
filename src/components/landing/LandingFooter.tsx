@@ -51,7 +51,7 @@ export function LandingFooter({ variant = "default" }: { variant?: FooterVariant
             <p className="text-slate-400 max-w-xs leading-relaxed font-light text-sm">
               {variant === "aurayale"
                 ? "An on-chain trading card game by Mustaverse Studio."
-                : "A game studio turning IP into card games, on-chain and in XR."}
+                : "We turn IP into trading card games, on-chain assets and XR experiences."}
             </p>
           </div>
 
