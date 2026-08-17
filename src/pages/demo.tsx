@@ -37,10 +37,12 @@ export default function DemoPage() {
   const [isInfoMenuOpen, setIsInfoMenuOpen] = useState(false);
   const infoPanelLayout = useInfoPanelLayout();
 
-  // 進入 /demo 時預設展開資訊面板（展場玩家第一眼就看到教學）
+  // 展場為直式螢幕，資訊面板在窄畫面是全螢幕 Modal（fixed inset-0 z-[75]），
+  // 會整片蓋住 z-index 1 的 Unity canvas，看起來像載入完就卡死。
+  // 因此只在「桌機側邊面板」模式下自動展開；直式展場螢幕改由浮動按鈕手動開啟。
   useEffect(() => {
-    setIsInfoMenuOpen(true);
-  }, []);
+    if (infoPanelLayout.isSidePanel) setIsInfoMenuOpen(true);
+  }, [infoPanelLayout.isSidePanel]);
 
   // 動態追蹤 devicePixelRatio
   useEffect(() => {
