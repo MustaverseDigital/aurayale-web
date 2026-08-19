@@ -1,0 +1,11 @@
+{
+  "name": "Mustaverse Digital 邁思達數位",
+  "short_name": "Mustaverse",
+  "icons": [
+    { "src": "/favicon-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/favicon-512x512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "theme_color": "#15161a",
+  "background_color": "#15161a",
+  "display": "standalone"
+}
