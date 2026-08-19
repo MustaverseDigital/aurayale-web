@@ -1,5 +1,6 @@
 import '../styles/globals.css';
 import '../i18n';
+import { applyStoredLocale } from '../i18n';
 import type { AppProps } from 'next/app';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -73,6 +74,11 @@ function CollapsibleViewer({ title, position, children }: { title: string; posit
 }
 
 export default function App({ Component, pageProps }: AppProps) {
+  // hydration 完成後才套用使用者語系，避免 server/client 文字不一致。
+  React.useEffect(() => {
+    applyStoredLocale();
+  }, []);
+
   return (
     <PrivyProvider
       appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID || ''}

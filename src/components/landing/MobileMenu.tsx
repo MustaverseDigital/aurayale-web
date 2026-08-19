@@ -1,18 +1,21 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useTranslation } from "react-i18next";
 import { useLogin } from "../../hooks/useLogin";
+import { LandingLanguageSwitcher } from "./LandingLanguageSwitcher";
 import { AURAYALE_SECTIONS, scrollToAurayaleSection } from "./aurayaleSections";
 
 type ActivePage = "home" | "aurayale" | "contact";
 
 const navItems: {
-  label: string;
+  /** i18n key，於 render 時翻譯（模組層無法呼叫 hook） */
+  labelKey: string;
   href: string;
   key: ActivePage;
   icon: string;
 }[] = [
-  // { label: "Home", href: "/landing", key: "home", icon: "home" },
-  { label: "Contact", href: "/contact", key: "contact", icon: "mail" },
+  // { labelKey: "site.nav.home", href: "/landing", key: "home", icon: "home" },
+  { labelKey: "site.nav.contact", href: "/contact", key: "contact", icon: "mail" },
 ];
 
 export function MobileMenu({
@@ -24,6 +27,7 @@ export function MobileMenu({
   activePage: ActivePage;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const { login, logout, authenticated, ready } = useLogin({ redirectTo: null, autoProcess: false });
   const router = useRouter();
 
@@ -91,7 +95,7 @@ export function MobileMenu({
               className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-amber-300 hover:text-amber-200 hover:bg-white/5 transition-all"
             >
               <span className="material-symbols-outlined text-base">play_circle</span>
-              Demo
+              {t("site.nav.demo")}
             </Link>
           </div>
 
@@ -111,7 +115,7 @@ export function MobileMenu({
               >
                 {item.icon}
               </span>
-              <span className="text-sm font-semibold uppercase tracking-widest">{item.label}</span>
+              <span className="text-sm font-semibold uppercase tracking-widest">{t(item.labelKey)}</span>
             </Link>
           ))}
         </nav>
@@ -124,7 +128,7 @@ export function MobileMenu({
               }}
               className="w-full px-6 py-3 border border-white/20 text-white/70 font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-white/5 transition-all"
             >
-              Logout
+              {t("site.nav.logout")}
             </button>
           ) : (
             <button
@@ -134,9 +138,12 @@ export function MobileMenu({
               }}
               className="w-full px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white font-bold text-xs uppercase tracking-widest rounded-xl hover:brightness-110 transition-all shadow-lg shadow-primary/20"
             >
-              Login
+              {t("site.nav.login")}
             </button>
           )}
+          <div className="pt-6 mt-2 border-t border-white/10 flex justify-center">
+            <LandingLanguageSwitcher />
+          </div>
         </div>
       </div>
     </div>

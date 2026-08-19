@@ -62,6 +62,69 @@
               "value": "public, max-age=86400"
             }
           ]
+        },
+        {
+          "source": "/demo/(.*\\.unityweb)",
+          "headers": [
+            {
+              "key": "Content-Encoding",
+              "value": "gzip"
+            }
+          ]
+        },
+        {
+          "source": "/demo/(.*\\.wasm\\.unityweb)",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/wasm"
+            }
+          ]
+        },
+        {
+          "source": "/demo/(.*\\.gz)",
+          "headers": [
+            {
+              "key": "Content-Encoding",
+              "value": "gzip"
+            }
+          ]
+        },
+        {
+          "source": "/demo/(.*\\.wasm\\.gz)",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/wasm"
+            }
+          ]
+        },
+        {
+          "source": "/demo/(.*\\.br)",
+          "headers": [
+            {
+              "key": "Content-Encoding",
+              "value": "br"
+            }
+          ]
+        },
+        {
+          "source": "/demo/(.*\\.wasm\\.br)",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/wasm"
+            }
+          ]
+        },
+        {
+          "source": "/demo/(.*)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=86400"
+            }
+          ]
         }
       ]
 }

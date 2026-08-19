@@ -58,7 +58,7 @@ interface NeuralPulse {
 
 export function WireframeMesh({
   className = "",
-  color = [139, 92, 246], // purple-500
+  color = [200, 167, 90], // 品牌金色 #c8a75a
   opacity = 0.6,
 }: WireframeMeshProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);

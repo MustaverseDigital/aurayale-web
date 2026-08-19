@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { LandingLayout } from "../components/landing/LandingLayout";
-import { WireframeMesh } from "../components/landing/WireframeMesh";
-import { useScrollReveal, useCountUp } from "../hooks/useScrollReveal";
+import { useTranslation } from "react-i18next";
+import { useScrollReveal } from "../hooks/useScrollReveal";
 
 /* ─── Reusable Reveal Wrapper ─── */
 function Reveal({
@@ -39,59 +39,42 @@ function Reveal({
   );
 }
 
-/* ─── Counter Component ─── */
-function CountUpNumber({
-  target,
-  suffix = "",
-  className = "",
-}: {
-  target: number;
-  suffix?: string;
-  className?: string;
-}) {
-  const { ref, isVisible } = useScrollReveal<HTMLDivElement>();
-  const display = useCountUp(target, isVisible, { suffix });
-  return (
-    <div ref={ref} className={className}>
-      {display}
-    </div>
-  );
-}
-
 export default function LandingPage() {
+  const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
 
+  // 捲動時讓 hero 影片緩慢下沉並加深壓暗，製造景深。
+  // 尊重 prefers-reduced-motion：使用者關閉動態時完全不掛監聽。
   useEffect(() => {
     const video = videoRef.current;
     const overlay = overlayRef.current;
     const heroSection = heroRef.current;
     if (!video || !overlay || !heroSection) return;
 
-    const heroHeight = heroSection.offsetHeight;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion) return;
 
+    let frame = 0;
     const onScroll = () => {
-      const scrollY = window.scrollY;
-      const progress = Math.min(scrollY / heroHeight, 1);
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        const heroHeight = heroSection.offsetHeight || 1;
+        const progress = Math.min(window.scrollY / heroHeight, 1);
 
-      // Ease out curve for smoother transition
-      const eased = progress * progress;
-
-      const videoOpacity = 0.7 - eased * 0.3;
-      const overlayOpacity = 0.3 + eased * 0.45;
-      const blurAmount = eased * 20; // 0px → 20px blur
-
-      video.style.opacity = String(videoOpacity);
-      video.style.filter = `blur(${blurAmount}px)`;
-      overlay.style.opacity = String(overlayOpacity);
+        video.style.transform = `translate3d(0, ${progress * 12}%, 0)`;
+        overlay.style.opacity = String(0.9 + progress * 0.1);
+      });
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll(); // Initial call
+    onScroll();
 
     return () => {
       window.removeEventListener("scroll", onScroll);
+      if (frame) window.cancelAnimationFrame(frame);
     };
   }, []);
 
@@ -106,128 +89,124 @@ export default function LandingPage() {
     { src: "/images/%20Partners_z.svg", alt: "Z" },
   ];
 
-  const teamMembers = [
-    { name: "Kevin", role: "Founder", img: "/images/w1.png" },
-    { name: "Wallce", role: "CTO", img: "/images/w2.png" },
-    { name: "Allen", role: "CMP", img: "/images/w3.png" },
-    { name: "Aron", role: "Dev.", img: "/images/w4.png" },
-    { name: "Owen", role: "Dev.", img: "/images/w5.png" },
-    { name: "Benson", role: "Dev.", img: "/images/w6.png" },
-    { name: "Mao", role: "Art", img: "/images/w7.png" },
-    { name: "Json", role: "TA", img: "/images/w8.png" },
-  ];
+  // Our Team 區塊暫時隱藏，資料一併保留以便日後還原
+  // const teamMembers = [
+  //   { name: "Kevin", role: "Founder", img: "/images/w1.png" },
+  //   { name: "Wallce", role: "CTO", img: "/images/w2.png" },
+  //   { name: "Allen", role: "CMP", img: "/images/w3.png" },
+  //   { name: "Aron", role: "Dev.", img: "/images/w4.png" },
+  //   { name: "Owen", role: "Dev.", img: "/images/w5.png" },
+  //   { name: "Benson", role: "Dev.", img: "/images/w6.png" },
+  //   { name: "Mao", role: "Art", img: "/images/w7.png" },
+  //   { name: "Json", role: "TA", img: "/images/w8.png" },
+  // ];
 
   return (
     <LandingLayout activePage="home">
-      {/* Video Background */}
-      <div className="fixed inset-0 z-0 overflow-hidden">
-        <video
-          ref={videoRef}
-          className="w-full h-full object-cover"
-          style={{ opacity: 0.1 }}
-          autoPlay
-          muted
-          loop
-          playsInline
-        >
-          <source src="" type="video/mp4" />
-        </video>
-        {/* Dark overlay that increases with scroll */}
-        <div
-          ref={overlayRef}
-          className="absolute inset-0 bg-background-dark"
-          style={{ opacity: 0.9 }}
-        />
-        {/* Subtle gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background-dark/30 via-transparent to-background-dark/60" />
-      </div>
-      {/* Hero */}
-      <section ref={heroRef} className="relative overflow-hidden min-h-[95vh] flex items-center justify-center pt-32 pb-40 z-1">
-        {/* Animated wireframe mesh background */}
-        <div className="absolute inset-0 z-1 pointer-events-none">
-          <WireframeMesh
-            className="absolute inset-0"
-            color={[139, 92, 246]}
-            opacity={0.75}
+      {/* Hero：以遊戲畫面為主體（參考 Rayark / Skvader 的作品優先結構）， */}
+      {/* 影片不再是整頁 fixed 背景，而是 hero 自己的視覺內容。 */}
+      <section
+        ref={heroRef}
+        className="relative overflow-hidden min-h-[100dvh] flex items-end pt-24 pb-20 z-1"
+      >
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <video
+            ref={videoRef}
+            className="w-full h-full object-cover"
+            style={{ opacity: 0.55 }}
+            autoPlay
+            muted
+            loop
+            playsInline
+            poster="/images/card_layer.jpeg"
+          >
+            <source src="/images/home_banner.mp4" type="video/mp4" />
+          </video>
+          {/* 由下往上壓暗，讓文字壓在畫面下緣仍可讀 */}
+          <div
+            ref={overlayRef}
+            className="absolute inset-0 bg-gradient-to-t from-background-dark via-background-dark/70 to-background-dark/30"
+            style={{ opacity: 0.9 }}
           />
         </div>
-        <div className="absolute inset-0 z-1">
-          <div className="absolute top-[-10%] right-[-10%] w-[800px] h-[800px] bg-primary/10 rounded-full blur-[120px]" />
-          <div className="absolute bottom-[-10%] left-[-10%] w-[800px] h-[800px] bg-indigo-900/10 rounded-full blur-[120px]" />
-        </div>
-        <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
-          <Reveal delay={0}>
-            <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-12">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
-              </span>
-              <span className="text-[10px] font-bold text-slate-300 tracking-[0.2em] uppercase">
-                Your Best XR Partner
-              </span>
+
+        <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6">
+          <div className="grid lg:grid-cols-12 gap-8 items-end">
+            <div className="lg:col-span-8">
+              <Reveal delay={0}>
+                <p className="text-primary font-bold tracking-[0.2em] text-xs uppercase mb-5">
+                  {t("site.hero.eyebrow")}
+                </p>
+              </Reveal>
+              <Reveal delay={120}>
+                <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tighter text-white mb-6 leading-[0.95]">
+                  {t("site.hero.titleLine1")}
+                  <br />
+                  {t("site.hero.titleLine2")}
+                </h1>
+              </Reveal>
+              <Reveal delay={240}>
+                <p className="text-lg text-slate-300 max-w-xl mb-10 leading-relaxed font-light">
+                  {t("site.hero.body")}
+                </p>
+              </Reveal>
+              <Reveal delay={360}>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Link
+                    href="/contact"
+                    className="inline-flex items-center justify-center gap-2 px-10 py-4 bg-primary text-background-dark rounded-[12px] font-bold hover:bg-secondary transition-all active:scale-[0.98]"
+                  >
+                    {t("site.hero.ctaPrimary")}
+                    <span className="material-symbols-outlined text-lg">arrow_forward</span>
+                  </Link>
+                  <Link
+                    href="/aurayale"
+                    className="inline-flex items-center justify-center px-10 py-4 rounded-[12px] font-bold text-white border border-white/20 hover:bg-white/5 transition-all active:scale-[0.98]"
+                  >
+                    {t("site.hero.ctaSecondary")}
+                  </Link>
+                </div>
+              </Reveal>
             </div>
-          </Reveal>
-          <Reveal delay={150}>
-            <h1 className="font-display text-6xl md:text-8xl lg:text-9xl font-extrabold tracking-tighter text-white mb-8 leading-[0.95] text-gradient">
-              Bring Your Game Into <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-primary to-purple-400">
-                Next Generation
-              </span>
-            </h1>
-          </Reveal>
-          <Reveal delay={300}>
-            <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-12 leading-relaxed font-light">
-              Deal your idea, Mustaverse make it success..
-            </p>
-          </Reveal>
+          </div>
         </div>
       </section>
 
       {/* Philosophy */}
-      <section className="py-32 relative z-1">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-24 items-center">
+      <section className="py-24 md:py-32 relative z-1">
+        <div className="max-w-[1400px] mx-auto px-6">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             <div className="relative z-10">
               <Reveal delay={0} direction="left">
                 <span className="text-primary font-bold tracking-widest text-xs uppercase mb-4 block">
-                  Our Philosophy
+                  {t("site.philosophy.eyebrow")}
                 </span>
               </Reveal>
               <Reveal delay={100} direction="left">
-                <h2 className="font-display text-4xl md:text-6xl font-bold text-white mb-8 tracking-tight">
-                  Crafting the <br />Invisible Layer
+                <h2 className="font-display text-3xl md:text-5xl font-bold text-white mb-8 tracking-tight">
+                  {t("site.philosophy.titleLine1")}
+                  <br />
+                  {t("site.philosophy.titleLine2")}
                 </h2>
               </Reveal>
               <Reveal delay={200} direction="left">
                 <div className="w-12 h-1 bg-gradient-to-r from-primary to-transparent mb-10" />
-                <p className="text-slate-300 text-lg leading-relaxed mb-8 font-light">
-                  Mustaverse Studio functions at the intersection of spatial computing and decentralized
-                  systems. We architect immersive ecosystems where physical and digital boundaries dissolve.
+                <p className="text-slate-300 text-lg leading-relaxed mb-6 font-light">
+                  {t("site.philosophy.body1")}
+                </p>
+                <p className="text-slate-400 text-base leading-relaxed font-light">
+                  {t("site.philosophy.body2")}
                 </p>
               </Reveal>
-              <div className="grid grid-cols-2 gap-12 mt-12">
-                <Reveal delay={300} direction="up">
-                  <div className="glass-card p-6 rounded-2xl">
-                    <CountUpNumber target={50} suffix="+" className="text-4xl font-display font-bold text-white mb-1" />
-                    <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Deployments</p>
-                  </div>
-                </Reveal>
-                <Reveal delay={400} direction="up">
-                  <div className="glass-card p-6 rounded-2xl">
-                    <CountUpNumber target={12} className="text-4xl font-display font-bold text-white mb-1" />
-                    <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Innovations</p>
-                  </div>
-                </Reveal>
-              </div>
             </div>
             <Reveal direction="right" delay={200}>
               <div className="relative">
-                <div className="aspect-square rounded-[2rem] overflow-hidden glass-panel p-4 relative">
+                <div className="aspect-square rounded-[24px] overflow-hidden glass-panel p-4 relative">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent z-10" />
                   <img
-                    alt="Advanced conceptual 3D render"
-                    className="w-full h-full object-cover rounded-2xl opacity-60  transition-all duration-1000"
-                    src="/images/m_banner.png"
+                    alt="Aurayale gem cards"
+                    className="w-full h-full object-cover rounded-[16px] opacity-60 transition-all duration-1000"
+                    src="/images/card_layer.jpeg"
                   />
                 </div>
               </div>
@@ -236,31 +215,59 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Core Competencies */}
-      <section className="py-32 bg-white/[0.01] relative z-1">
-        <div className="max-w-7xl mx-auto px-6">
+      {/* Bring us your IP：以卡牌形式呈現三種合作方式，稀有度色階作為視覺分層 */}
+      <section className="py-24 md:py-32 bg-white/[0.01] relative z-1">
+        <div className="max-w-[1400px] mx-auto px-6">
           <Reveal>
-            <div className="text-center mb-20">
-              <h2 className="font-display text-4xl font-bold text-white mb-4 tracking-tight">Core Competencies</h2>
-              <p className="text-slate-400 max-w-xl mx-auto font-light">
-                A multidisciplinary approach to the decentralized spatial web.
+            <div className="max-w-2xl mb-16">
+              <h2 className="font-display text-3xl md:text-5xl font-bold text-white mb-4 tracking-tight">
+                {t("site.services.title")}
+              </h2>
+              <p className="text-slate-400 font-light text-base leading-relaxed">
+                {t("site.services.subtitle")}
               </p>
             </div>
           </Reveal>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-6">
             {[
-              { icon: "view_in_ar", title: "Spatial XR", desc: "Advanced AR/VR experiences leveraging high-fidelity rendering for industrial simulations and luxury retail showrooms." },
-              { icon: "hub", title: "Web3 Infrastructure", desc: "Secure smart contract architecture and sovereign asset ownership layers for the next generation of digital commerce." },
-              { icon: "auto_awesome", title: "Real-time Engine", desc: "Harnessing the power of Unreal Engine 5 to create hyper-realistic environments with dynamic lighting and physics." },
+              {
+                tier: "tcg-card--rare",
+                rarity: t("site.services.tcg.label"),
+                title: t("site.services.tcg.title"),
+                desc: t("site.services.tcg.desc"),
+                art: "/images/card_01.png",
+              },
+              {
+                tier: "tcg-card--epic",
+                rarity: t("site.services.rwa.label"),
+                title: t("site.services.rwa.title"),
+                desc: t("site.services.rwa.desc"),
+                art: "/images/card_03.png",
+              },
+              {
+                tier: "tcg-card--legendary",
+                rarity: t("site.services.xr.label"),
+                title: t("site.services.xr.title"),
+                desc: t("site.services.xr.desc"),
+                art: "/images/card_04.png",
+              },
             ].map((item, i) => (
-              <Reveal key={item.title} delay={i * 150} direction="up">
-                <div className="glass-card p-10 rounded-3xl group h-full">
-                  <div className="w-14 h-14 glass-panel rounded-2xl flex items-center justify-center text-primary mb-8 group-hover:bg-primary group-hover:text-white transition-all duration-500">
-                    <span className="material-symbols-outlined text-3xl">{item.icon}</span>
+              <Reveal key={item.title} delay={i * 120} direction="up" className="h-full">
+                <article className={`tcg-card ${item.tier} h-full`}>
+                  <div className="aspect-[5/3] overflow-hidden bg-background-dark">
+                    <img
+                      alt=""
+                      aria-hidden="true"
+                      className="w-full h-full object-cover object-top opacity-70"
+                      src={item.art}
+                    />
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-4 font-display">{item.title}</h3>
-                  <p className="text-slate-400 text-sm leading-relaxed font-light">{item.desc}</p>
-                </div>
+                  <div className="flex flex-col flex-grow p-7">
+                    <span className="tcg-rarity-label mb-3">{item.rarity}</span>
+                    <h3 className="text-xl font-bold text-white mb-3 font-display">{item.title}</h3>
+                    <p className="text-slate-400 text-sm leading-relaxed font-light">{item.desc}</p>
+                  </div>
+                </article>
               </Reveal>
             ))}
           </div>
@@ -268,77 +275,70 @@ export default function LandingPage() {
       </section>
 
       {/* Active Ventures / Our Products */}
-      <section className="py-16 md:py-32 relative z-1">
-        <div className="max-w-7xl mx-auto px-4 md:px-6">
+      <section className="py-24 md:py-32 relative z-1">
+        <div className="max-w-[1400px] mx-auto px-6">
           <Reveal>
-            <div className="flex flex-col md:flex-row justify-between items-end mb-10 md:mb-16 gap-6 md:gap-8">
-              <div>
-                <h2 className="font-display text-3xl md:text-5xl font-bold text-white mb-3 md:mb-4 tracking-tight">
-                  Our Products
-                </h2>
-                <p className="text-slate-400 font-light text-sm md:text-base">
-                  Internal R&amp;D products currently in early-access phase.
-                </p>
-              </div>
+            <div className="max-w-2xl mb-16">
+              <h2 className="font-display text-3xl md:text-5xl font-bold text-white mb-4 tracking-tight">
+                {t("site.titles.heading")}
+              </h2>
+              <p className="text-slate-400 font-light text-base leading-relaxed">
+                {t("site.titles.subtitle")}
+              </p>
             </div>
           </Reveal>
-          <div className="grid lg:grid-cols-2 gap-6 md:gap-10">
+          {/* 非對稱：Aurayale 為旗艦作品佔 3/5，DEAL 佔 2/5，避免兩張等大卡片的樣板感 */}
+          <div className="grid lg:grid-cols-5 gap-6 md:gap-8">
             {/* Aurayale Card */}
-            <Reveal delay={0} direction="up">
-              <div className="group relative rounded-2xl md:rounded-[2.5rem] overflow-hidden glass-panel">
-                <div className="aspect-[4/3] md:aspect-video overflow-hidden">
+            {/* 圖片始終在正常流中決定卡片高度；只有文字在 lg 以上改為絕對定位疊上圖片，
+                手機則排在圖片下方，高度隨內容增長，不會被裁切。 */}
+            <Reveal delay={0} direction="up" className="lg:col-span-3">
+              <div className="group relative rounded-[24px] overflow-hidden glass-panel">
+                <div className="aspect-[16/10] lg:aspect-[16/9] overflow-hidden">
                   <img
                     alt="Aurayale conceptual environment"
-                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-50"
+                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 opacity-50"
                     src="/images/index_aurayale.jpg"
                   />
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-background-dark via-background-dark/40 to-transparent flex flex-col justify-end p-6 md:p-12">
-                  <div className="flex items-center justify-between mb-3 md:mb-4">
-                    <h3 className="text-2xl md:text-4xl font-display font-bold text-white">Aurayale</h3>
-                    <span className="px-3 md:px-4 py-1 md:py-1.5 glass-panel text-[10px] text-white rounded-full font-bold uppercase tracking-widest">
-                      TCG
-                    </span>
-                  </div>
-                  <p className="text-slate-300 text-sm md:text-base mb-5 md:mb-8 font-light max-w-md">
-                    Rule the Multiverse - One Gem at a Time.
+                <div className="relative lg:absolute lg:inset-0 -mt-16 lg:mt-0 bg-gradient-to-t from-background-dark via-background-dark/90 lg:via-background-dark/60 to-transparent flex flex-col justify-end p-6 md:p-10">
+                  <span className="tcg-rarity-label mb-3">{t("site.titles.aurayaleLabel")}</span>
+                  <h3 className="text-3xl md:text-4xl font-display font-bold text-white mb-3">Aurayale</h3>
+                  <p className="text-slate-300 text-sm md:text-base mb-6 font-light max-w-md leading-relaxed">
+                    {t("site.titles.aurayaleDesc")}
                   </p>
                   <Link
                     href="/aurayale"
-                    className="w-fit px-6 md:px-8 py-2.5 md:py-3 bg-white text-black font-bold text-xs uppercase tracking-widest rounded-lg hover:bg-slate-200 transition-colors"
+                    className="w-fit px-7 py-3 bg-primary text-background-dark font-bold text-sm rounded-[12px] hover:bg-secondary transition-colors active:scale-[0.98]"
                   >
-                    More
+                    {t("site.titles.aurayaleCta")}
                   </Link>
                 </div>
               </div>
             </Reveal>
             {/* DEAL Card */}
-            <Reveal delay={200} direction="up">
-              <div className="group relative rounded-2xl md:rounded-[2.5rem] overflow-hidden glass-panel">
-                <div className="aspect-[4/3] md:aspect-video overflow-hidden">
+            <Reveal delay={150} direction="up" className="lg:col-span-2">
+              <div className="group relative rounded-[24px] overflow-hidden glass-panel">
+                <div className="aspect-[16/10] lg:aspect-[16/9] overflow-hidden">
                   <img
                     alt="DEAL conceptual environment"
-                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-50"
+                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 opacity-50"
                     src="/images/index_deal.jpg"
                   />
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-background-dark via-background-dark/40 to-transparent flex flex-col justify-end p-6 md:p-12">
-                  <div className="flex items-center justify-between mb-3 md:mb-4">
-                    <h3 className="text-2xl md:text-4xl font-display font-bold text-white">DEAL</h3>
-                    <span className="px-3 md:px-4 py-1 md:py-1.5 glass-panel text-[10px] text-white rounded-full font-bold uppercase tracking-widest">
-                      Toolkit
-                    </span>
-                  </div>
-                  <p className="text-slate-300 text-sm md:text-base mb-5 md:mb-8 font-light max-w-md">
-                    The Bridge from Tabletop to Digital.
+                <div className="relative lg:absolute lg:inset-0 -mt-16 lg:mt-0 bg-gradient-to-t from-background-dark via-background-dark/90 lg:via-background-dark/60 to-transparent flex flex-col justify-end p-6 md:p-10">
+                  <span className="tcg-rarity-label mb-3">{t("site.titles.dealLabel")}</span>
+                  <h3 className="text-2xl md:text-3xl font-display font-bold text-white mb-3">DEAL</h3>
+                  <p className="text-slate-300 text-sm mb-6 font-light max-w-md leading-relaxed">
+                    {t("site.titles.dealDesc")}
                   </p>
                   <a
                     href="https://chile109.github.io/DEAL-DOC/"
-                    className="w-fit px-6 md:px-8 py-2.5 md:py-3 bg-white text-black font-bold text-xs uppercase tracking-widest rounded-lg hover:bg-slate-200 transition-colors"
+                    className="w-fit px-7 py-3 border border-white/20 text-white font-bold text-sm rounded-[12px] hover:bg-white/5 transition-colors active:scale-[0.98]"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    More
+                    {t("site.titles.dealCta")}
                   </a>
                 </div>
               </div>
@@ -347,20 +347,20 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Our Team */}
-      <section className="py-32 relative z-1">
-        <div className="max-w-7xl mx-auto px-6">
+      {/* Our Team — 暫時隱藏 */}
+      {/* <section className="py-24 md:py-32 relative z-1">
+        <div className="max-w-[1400px] mx-auto px-6">
           <Reveal>
             <div className="text-center mb-20">
               <h2 className="font-display text-4xl font-bold text-white mb-4 tracking-tight">Our Team</h2>
-              <p className="text-slate-400 font-light">Architects of the next digital frontier.</p>
+              <p className="text-slate-400 font-light">The people who make the cards.</p>
             </div>
           </Reveal>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-8">
             {teamMembers.map((member, i) => (
               <Reveal key={member.name} delay={i * 100} direction="up">
                 <div className="group text-center">
-                  <div className="aspect-square rounded-2xl overflow-hidden mb-4 glass-panel relative">
+                  <div className="aspect-square rounded-[16px] overflow-hidden mb-4 glass-panel relative">
                     <img
                       alt={member.name}
                       className="w-full h-full object-cover grayscale opacity-60 group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-700"
@@ -375,14 +375,14 @@ export default function LandingPage() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Partners */}
       <section className="py-24 border-t border-white/5 bg-white/[0.01] overflow-hidden relative z-1">
         <Reveal>
-          <div className="max-w-7xl mx-auto px-6">
-            <h3 className="text-center text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em] mb-16">
-              Our Partners
+          <div className="max-w-[1400px] mx-auto px-6">
+            <h3 className="text-center text-sm font-medium text-slate-500 mb-16">
+              {t("site.partners")}
             </h3>
           </div>
         </Reveal>
@@ -461,25 +461,33 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-32 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/40 via-background-dark to-background-dark z-1" />
-        <Reveal direction="scale" className="relative z-10">
-          <div className="max-w-5xl mx-auto px-6 text-center relative z-10 glass-panel py-24 rounded-[3rem]">
-            <h2 className="font-display text-4xl md:text-6xl font-extrabold text-white mb-8 tracking-tighter">
-              Let&apos;s Define the <br />New Standard
-            </h2>
-            <p className="text-slate-400 text-lg mb-12 max-w-2xl mx-auto font-light leading-relaxed">
-              Our team is ready to transform your vision into a production-grade digital reality.
-            </p>
-            <Link
-              href="/contact"
-              className="inline-block bg-primary text-white px-12 py-5 rounded-xl font-bold text-lg hover:bg-indigo-500 transition-all shadow-[0_20px_50px_rgba(99,102,241,0.3)]"
-            >
-              Start Consultation
-            </Link>
-          </div>
-        </Reveal>
+      {/* CTA：整幅色帶，不再用浮動面板，讓左右邊界對齊全站容器 */}
+      <section className="relative overflow-hidden border-t border-white/5 bg-gradient-to-b from-secondary/10 to-transparent">
+        <div className="max-w-[1400px] mx-auto px-6 py-24 md:py-32">
+          <Reveal>
+            <div className="grid lg:grid-cols-12 gap-10 items-center">
+              <div className="lg:col-span-7">
+                <h2 className="font-display text-3xl md:text-5xl font-bold text-white mb-5 tracking-tight">
+                  {t("site.cta.titleLine1")}
+                  <br />
+                  {t("site.cta.titleLine2")}
+                </h2>
+                <p className="text-slate-400 text-lg max-w-xl font-light leading-relaxed">
+                  {t("site.cta.body")}
+                </p>
+              </div>
+              <div className="lg:col-span-5 lg:justify-self-end">
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center justify-center gap-2 bg-primary text-background-dark px-10 py-4 rounded-[12px] font-bold hover:bg-secondary transition-all active:scale-[0.98]"
+                >
+                  {t("site.cta.button")}
+                  <span className="material-symbols-outlined text-lg">arrow_forward</span>
+                </Link>
+              </div>
+            </div>
+          </Reveal>
+        </div>
       </section>
 
     </LandingLayout>

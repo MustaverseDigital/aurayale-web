@@ -8,7 +8,8 @@ export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number]
 export const DEFAULT_LOCALE: SupportedLocale = "zh-TW"
 export const LOCALE_STORAGE_KEY = "aurayale_locale"
 
-function readInitialLocale(): SupportedLocale {
+/** 讀取使用者先前選擇的語系；SSR 環境或無紀錄時回傳預設值。 */
+export function readStoredLocale(): SupportedLocale {
   if (typeof window === "undefined") return DEFAULT_LOCALE
   try {
     const saved = window.localStorage.getItem(LOCALE_STORAGE_KEY)
@@ -27,12 +28,24 @@ if (!i18n.isInitialized) {
       "zh-TW": { translation: zhTW },
       en: { translation: en },
     },
-    lng: readInitialLocale(),
+    // 一律以 DEFAULT_LOCALE 初始化。
+    // 行銷頁是靜態預先渲染的，伺服器端讀不到 localStorage；若在這裡就套用
+    // 使用者語系，client 會渲染出與 server HTML 不同的文字而發生 hydration
+    // mismatch。改由 _app 掛載後再切換（見 applyStoredLocale）。
+    lng: DEFAULT_LOCALE,
     fallbackLng: DEFAULT_LOCALE,
     interpolation: { escapeValue: false },
     returnNull: false,
     react: { useSuspense: false },
   })
+}
+
+/** 於 client 掛載後套用已儲存的語系。在 hydration 完成後呼叫。 */
+export function applyStoredLocale() {
+  const stored = readStoredLocale()
+  if (stored !== i18n.language) {
+    void i18n.changeLanguage(stored)
+  }
 }
 
 export default i18n

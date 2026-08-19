@@ -1,62 +1,63 @@
 import { LandingLayout } from "../components/landing/LandingLayout";
+import { useTranslation } from "react-i18next";
 import { Mail } from "lucide-react";
 
 export default function ContactPage() {
+  const { t } = useTranslation();
   return (
     <LandingLayout activePage="contact">
       <section className="relative py-32 overflow-hidden">
         {/* Background effects */}
         <div className="absolute inset-0 z-0">
           <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px]" />
-          <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-indigo-900/10 rounded-full blur-[120px]" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-secondary/10 rounded-full blur-[120px]" />
         </div>
 
-        <div className="relative z-10 max-w-[1400px] mx-auto px-8">
+        <div className="relative z-10 max-w-[1400px] mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
             {/* Left: Title + Form */}
             <div className="flex flex-col gap-10">
               <div className="space-y-6">
                 <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
-                  Let&apos;s build the{" "}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-primary to-purple-400">
-                    Future Gaming
+                  {t("site.contact.titlePre")}{" "}
+                  <span className="text-primary">
+                    {t("site.contact.titleAccent")}
                   </span>{" "}
-                  together.
+                  {t("site.contact.titlePost")}
                 </h1>
                 <p className="text-slate-400 text-lg max-w-lg leading-relaxed font-light">
-                  Reach out to Mustaverse Studio for collaboration, inquiries, or just to say hello. We are building
-                  the future of XR and Web3 gaming.
+                  {t("site.contact.body")}
                 </p>
               </div>
               <form className="space-y-6 max-w-lg" onSubmit={(e) => e.preventDefault()}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-400" htmlFor="name">Name</label>
-                    <input className="landing-input-field" id="name" placeholder="John Doe" type="text" />
+                    <label className="text-sm font-medium text-slate-400" htmlFor="name">{t("site.contact.form.name")}</label>
+                    <input className="landing-input-field" id="name" placeholder={t("site.contact.form.namePlaceholder")} type="text" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-400" htmlFor="org">Organization</label>
-                    <input className="landing-input-field" id="org" placeholder="Company Ltd." type="text" />
+                    <label className="text-sm font-medium text-slate-400" htmlFor="org">{t("site.contact.form.org")}</label>
+                    <input className="landing-input-field" id="org" placeholder={t("site.contact.form.orgPlaceholder")} type="text" />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-400" htmlFor="email">Email</label>
-                  <input className="landing-input-field" id="email" placeholder="john@example.com" type="email" />
+                  <label className="text-sm font-medium text-slate-400" htmlFor="email">{t("site.contact.form.email")}</label>
+                  <input className="landing-input-field" id="email" placeholder={t("site.contact.form.emailPlaceholder")} type="email" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-400" htmlFor="message">Description</label>
+                  <label className="text-sm font-medium text-slate-400" htmlFor="message">{t("site.contact.form.message")}</label>
                   <textarea
                     className="landing-input-field resize-none"
                     id="message"
-                    placeholder="Tell us about your project..."
+                    placeholder={t("site.contact.form.messagePlaceholder")}
                     rows={4}
                   />
                 </div>
                 <button
-                  className="w-full md:w-auto px-10 py-4 bg-primary hover:bg-indigo-500 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 group shadow-[0_20px_50px_rgba(99,102,241,0.3)]"
+                  className="w-full md:w-auto px-10 py-4 bg-primary hover:bg-secondary text-background-dark font-bold rounded-xl transition-all flex items-center justify-center gap-2 group shadow-[0_20px_50px_rgba(0,0,0,0.45)]"
                   type="submit"
                 >
-                  Send Message
+                  {t("site.contact.form.submit")}
                   <span className="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">
                     arrow_forward
                   </span>
@@ -76,10 +77,10 @@ export default function ContactPage() {
                 <div className="absolute bottom-0 left-0 p-8 z-20">
                   <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/30 backdrop-blur-md mb-4">
                     <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                    <span className="text-xs font-bold text-primary tracking-wide uppercase">Open for Deals</span>
+                    <span className="text-xs font-bold text-primary tracking-wide uppercase">{t("site.contact.openForDeals")}</span>
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-2 font-display">Connect Across the Metaverse</h3>
-                  <p className="text-slate-400 text-sm font-light">Join our community of creators and gamers.</p>
+                  <h3 className="text-2xl font-bold text-white mb-2 font-display">{t("site.contact.communityTitle")}</h3>
+                  <p className="text-slate-400 text-sm font-light">{t("site.contact.communityBody")}</p>
                 </div>
               </div>
 
@@ -131,7 +132,7 @@ export default function ContactPage() {
                   <div className="size-10 rounded-xl bg-white/10 flex items-center justify-center mb-3">
                     <Mail className="w-5 h-5 text-white" />
                   </div>
-                  <span className="text-white font-medium text-sm">Email</span>
+                  <span className="text-white font-medium text-sm">{t("site.contact.emailLabel")}</span>
                 </a>
               </div>
             </div>

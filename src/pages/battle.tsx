@@ -9,6 +9,7 @@ import { useUser } from "../context/UserContext";
 import type { ClaimedReward, StaminaInfo } from "../types/auraServer";
 import { FloatingMenuButton } from "../components/FloatingMenuButton";
 import { InfoMenuModal } from "../components/InfoMenuModal";
+import { ExitGameButton } from "../components/ExitGameButton";
 import { useInfoPanelLayout } from "../hooks/useInfoPanelLayout";
 
 type RewardToastData = {
@@ -69,10 +70,15 @@ export default function BattlePage() {
   const [isInfoMenuOpen, setIsInfoMenuOpen] = useState(false);
   const infoPanelLayout = useInfoPanelLayout();
 
-  // 預設展開資訊面板(進入 /battle 時)
+  // 桌機(側邊面板模式)預設展開；手機/窄螢幕是全螢幕 Modal，會整片蓋住 Unity canvas，
+  // 因此預設關閉，改由浮動按鈕手動開啟。
+  // 只在「模式真的切換」時同步一次，避免每次 resize 都覆蓋使用者手動的開關狀態。
+  const prevSidePanelRef = useRef<boolean | null>(null);
   useEffect(() => {
-    setIsInfoMenuOpen(true);
-  }, []);
+    if (prevSidePanelRef.current === infoPanelLayout.isSidePanel) return;
+    prevSidePanelRef.current = infoPanelLayout.isSidePanel;
+    setIsInfoMenuOpen(infoPanelLayout.isSidePanel);
+  }, [infoPanelLayout.isSidePanel]);
 
   const handleAdResult = (r: RewardAdEventPayload) => {
     switch (r.status) {
@@ -192,6 +198,13 @@ export default function BattlePage() {
     <div className="min-h-screen text-white flex flex-col">
       {/* 背景音樂 */}
       <audio ref={audioRef} src="/bgm/bgm.mp3" autoPlay loop hidden />
+      {/* 離開對戰 → 回牌組頁。對戰中可能有進度，先確認再離開。
+          桌機側邊面板靠右，不會擋到左上角；只有手機全螢幕 Modal 才需要隱藏。 */}
+      <ExitGameButton
+        href="/platform"
+        visible={infoPanelLayout.isSidePanel || !isInfoMenuOpen}
+        confirmBeforeExit
+      />
       {/* Watch Ad 測試按鈕已隱藏（showRewardAd 仍透過 window.showRewardAd 供 Unity 呼叫） */}
       {/* 獎勵領取通知 */}
       {rewardToast && (
