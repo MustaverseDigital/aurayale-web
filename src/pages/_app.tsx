@@ -9,7 +9,7 @@ import { PrivyProvider } from '@privy-io/react-auth';
 import { UserProvider, useUser } from "../context/UserContext";
 import React from 'react';
 
-import { config, soneiumMinato, avaxFuji } from '../wagmi';
+import { config, soneiumMinato, avaxFuji, bscTestnet } from '../wagmi';
 import { ViewportRequirementsProvider } from "../context/ViewportRequirementsContext";
 
 const client = new QueryClient();
@@ -98,8 +98,9 @@ export default function App({ Component, pageProps }: AppProps) {
             createOnLogin: 'users-without-wallets'
           }
         },
-        defaultChain: soneiumMinato,
-        supportedChains: [soneiumMinato, avaxFuji]
+        // 比賽 / 正式流程統一使用 BSC Testnet（見 EXHIBITION_BETA_PLAN.md N2）。
+        defaultChain: bscTestnet,
+        supportedChains: [bscTestnet, soneiumMinato, avaxFuji]
       }}
     >
       <QueryClientProvider client={client}>

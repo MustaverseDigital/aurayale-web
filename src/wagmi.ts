@@ -15,6 +15,20 @@ export const soneiumMinato = defineChain({
   testnet: true,
 });
 
+export const bscTestnet = defineChain({
+  id: 97,
+  name: 'BNB Smart Chain Testnet',
+  nativeCurrency: { name: 'BNB', symbol: 'tBNB', decimals: 18 },
+  rpcUrls: {
+    // 與 AuraServer chain.service.ts 的 'bsc-testnet' 設定保持一致。
+    default: { http: ['https://data-seed-prebsc-1-s1.binance.org:8545/'] },
+  },
+  blockExplorers: {
+    default: { name: 'BscScan Testnet', url: 'https://testnet.bscscan.com' },
+  },
+  testnet: true,
+});
+
 export const avaxFuji = defineChain({
   id: 43113,
   name: 'Avalanche Fuji Testnet',
@@ -29,8 +43,10 @@ export const avaxFuji = defineChain({
 });
 
 export const config = createConfig({
-  chains: [soneiumMinato, avaxFuji],
+  // bscTestnet 置首 = 預設鏈；其餘保留給既有 Farcaster / Avalanche 流程。
+  chains: [bscTestnet, soneiumMinato, avaxFuji],
   transports: {
+    [bscTestnet.id]: http(),
     [soneiumMinato.id]: http(),
     [avaxFuji.id]: http(),
   },
