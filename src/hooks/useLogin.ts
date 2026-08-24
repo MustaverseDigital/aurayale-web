@@ -11,13 +11,12 @@ import { getUserDeck, getUserGems, loginWithPrivy } from "../api/auraServer";
 const CONTEST_CHAIN_ID = "bsc-testnet";
 
 /**
- * 登入後的預設落點。
+ * 登入後直接進戰鬥頁。
  *
- * 展場/比賽版要「登入完直接開打」，設 NEXT_PUBLIC_POST_LOGIN_REDIRECT=/battle；
- * 未設定時維持原本的 /platform（先看收藏與牌組再自行進戰鬥）。
- * 用環境變數而非寫死，讓兩種版本共用同一份程式。
+ * Unity 端在收到 SetAuthToken 後會自行跑 DeckSyncStep（GET /user/gem-deck）
+ * 並套用牌組，不需要網頁先經 platform 準備 localStorage.battleDeck。
  */
-const POST_LOGIN_REDIRECT = process.env.NEXT_PUBLIC_POST_LOGIN_REDIRECT || "/platform";
+const POST_LOGIN_REDIRECT = "/battle";
 
 interface UseLoginOptions {
   redirectTo?: string | null;

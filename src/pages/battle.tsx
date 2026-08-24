@@ -125,24 +125,16 @@ export default function BattlePage() {
   const { isAllowed, viewportHeight, safeAreaInsetBottom } = useViewportRequirements();
   const canvasWidth = useCanvasWidth(viewportHeight);
 
-  // 取得 battleDeck
+  // 取得 battleDeck。
   //
-  // 來源有兩個，優先序如下：
-  //   1. localStorage.battleDeck —— 從 platform 頁按 Battle 進來時設定的
-  //   2. UserContext 的 deck —— 登入時 useLogin 已抓過 GET /user/gem-deck
-  //
-  // 第 2 個是為了「登入後直接進 /battle」的流程：不經過 platform 就沒有
-  // localStorage，少了 fallback 會完全不送牌組給 Unity。
+  // 只在「從 platform 按 Battle 進來」時才有值 —— 那條路徑會先把選定的牌組
+  // 寫進 localStorage。直接進 /battle（登入後導向）時沒有這筆資料，也不需要：
+  // Unity 收到 SetAuthToken 後會跑 DeckSyncStep（GET /user/gem-deck）自行取得
+  // 並套用牌組，網頁不必代勞。
   useEffect(() => {
     const stored = localStorage.getItem("battleDeck");
-    if (stored) {
-      setPendingDeck(stored);
-      return;
-    }
-    if (user?.deck && user.deck.length > 0) {
-      setPendingDeck(JSON.stringify(user.deck));
-    }
-  }, [user?.deck]);
+    if (stored) setPendingDeck(stored);
+  }, []);
 
   // Unity 載入完成後傳送 deck
   useEffect(() => {

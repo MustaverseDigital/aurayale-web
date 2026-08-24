@@ -29,9 +29,8 @@ export default function AurayalePage() {
     return () => clearTimeout(timer);
   }, [router.isReady, router.asPath]);
 
-  // 登入後的落點由 NEXT_PUBLIC_POST_LOGIN_REDIRECT 決定：
-  // 展場/比賽版設 /battle（登入完直接開打），未設定則維持 /platform。
-  const postLoginRedirect = process.env.NEXT_PUBLIC_POST_LOGIN_REDIRECT || "/platform";
+  // 登入後直接進戰鬥頁（Unity 會自行同步牌組，不需先經 platform）。
+  const postLoginRedirect = "/battle";
 
   useEffect(() => {
     if (pendingAdventureRef.current && ready && authenticated) {
