@@ -5,7 +5,7 @@
       "headers": [
         {
           "key": "Content-Encoding",
-          "value": "br"
+          "value": "gzip"
         }
       ]
     },

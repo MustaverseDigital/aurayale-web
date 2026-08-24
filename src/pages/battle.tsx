@@ -58,10 +58,13 @@ export default function BattlePage() {
   const { t } = useTranslation();
   const [pendingDeck, setPendingDeck] = useState<string | null>(null);
   const { unityProvider, isLoaded, loadingProgression, sendMessage } = useUnityContext({
+    // 副檔名跟著 Unity 的壓縮格式走：Gzip 產出 .unityweb，Brotli 產出 .br。
+    // 目前是 Brotli（gemfi-gaming ed732bf9），vercel.json 也已把
+    // /Build/(.*\.br) 的 Content-Encoding 設為 br。
     loaderUrl: "/Build/Build.loader.js",
-    dataUrl: "/Build/Build.data.unityweb",
-    frameworkUrl: "/Build/Build.framework.js.unityweb",
-    codeUrl: "/Build/Build.wasm.unityweb",
+    dataUrl: "/Build/Build.data.br",
+    frameworkUrl: "/Build/Build.framework.js.br",
+    codeUrl: "/Build/Build.wasm.br",
   });
 
   const { user } = useUser();
