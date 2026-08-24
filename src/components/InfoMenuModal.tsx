@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, type ComponentType } from "react"
 import { useRouter } from "next/router"
-import { X, Gamepad2, BookOpen, Gem, ShoppingBag, ArrowLeft, Zap, Loader2, Palette, Diamond, Sparkles, Scale, Gift, ImageOff } from "lucide-react"
+import { X, LogOut, Gamepad2, BookOpen, Gem, ShoppingBag, ArrowLeft, Zap, Loader2, Palette, Diamond, Sparkles, Scale, Gift, ImageOff } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { useInfoPanelLayout } from "../hooks/useInfoPanelLayout"
 import { LanguageSwitcher } from "./LanguageSwitcher"
@@ -130,6 +130,8 @@ const PANEL_EDGE_MARGIN = 8
 interface InfoMenuModalProps {
   isOpen: boolean
   onClose: () => void
+  /** 手機版限定：離開遊戲。桌機版由畫面左上角的 ExitGameButton 負責，故為選填。 */
+  onExitGame?: () => void
 }
 
 type CategoryId = "event" | "gameplay" | "encyclopedia" | "rarity" | "shop"
@@ -215,7 +217,7 @@ const cardMap = new Map(CARD_DATA.map((c) => [c.id, c]))
  * 主 Modal
  * ═══════════════════════════════════════════════ */
 
-export function InfoMenuModal({ isOpen, onClose }: InfoMenuModalProps) {
+export function InfoMenuModal({ isOpen, onClose, onExitGame }: InfoMenuModalProps) {
   const { t } = useTranslation()
   const [activeCategory, setActiveCategory] = useState<CategoryId>("event")
   const [selectedCardId, setSelectedCardId] = useState<number | null>(null)
@@ -553,6 +555,25 @@ export function InfoMenuModal({ isOpen, onClose }: InfoMenuModalProps) {
             </div>
           </section>
         </div>
+
+        {/* ───── 手機版底部：離開遊戲 + 版權宣告 ─────
+            桌機版這兩者分別由畫面左上角 ExitGameButton 與右下角版權列負責，
+            不必在面板內重複，故整區 sm:hidden。 */}
+        {onExitGame && (
+          <footer className="sm:hidden shrink-0 border-t border-[#e8e8e8] bg-[#f7f7f4] px-3 py-2.5 flex items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={onExitGame}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold text-[#565656] border border-[#cfcfcf] bg-white hover:bg-[#050505] hover:text-white hover:border-[#050505] active:scale-95 transition-all"
+            >
+              <LogOut className="w-4 h-4 shrink-0" strokeWidth={2.2} />
+              <span>{t("exitGame.exitInPanel")}</span>
+            </button>
+            <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-[#9a9a9a] text-right leading-tight select-none">
+              © 2026 Mustaverse Studio
+            </span>
+          </footer>
+        )}
       </div>
     </div>
   )

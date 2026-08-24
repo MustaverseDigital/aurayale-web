@@ -14,6 +14,7 @@ export interface Translation {
     label: string
     ariaLabel: string
     confirm: string
+    exitInPanel: string
   }
   infoMenu: {
     aria: {
@@ -221,6 +222,7 @@ const zhTW: Translation = {
     label: "離開遊戲",
     ariaLabel: "離開遊戲，返回官網",
     confirm: "確定要離開遊戲嗎？目前的進度不會保留。",
+    exitInPanel: "離開遊戲",
   },
   infoMenu: {
     aria: {

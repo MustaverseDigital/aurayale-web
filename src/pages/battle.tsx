@@ -11,6 +11,7 @@ import { FloatingMenuButton } from "../components/FloatingMenuButton";
 import { InfoMenuModal } from "../components/InfoMenuModal";
 import { ExitGameButton } from "../components/ExitGameButton";
 import { useInfoPanelLayout } from "../hooks/useInfoPanelLayout";
+import { useRouter } from "next/router";
 
 type RewardToastData = {
   claimed: ClaimedReward[];
@@ -56,6 +57,7 @@ function RewardToast({ data, onClose }: { data: RewardToastData; onClose: () => 
 
 export default function BattlePage() {
   const { t } = useTranslation();
+  const router = useRouter();
   const [pendingDeck, setPendingDeck] = useState<string | null>(null);
   const { unityProvider, isLoaded, loadingProgression, sendMessage } = useUnityContext({
     // 副檔名跟著 Unity 的壓縮格式走：Gzip 產出 .unityweb，Brotli 產出 .br。
@@ -210,7 +212,7 @@ export default function BattlePage() {
           桌機側邊面板靠右，不會擋到左上角；只有手機全螢幕 Modal 才需要隱藏。 */}
       <ExitGameButton
         href="/platform"
-        visible={infoPanelLayout.isSidePanel || !isInfoMenuOpen}
+        visible={infoPanelLayout.isSidePanel}
         confirmBeforeExit
       />
       {/* Watch Ad 測試按鈕已隱藏（showRewardAd 仍透過 window.showRewardAd 供 Unity 呼叫） */}
@@ -263,7 +265,7 @@ export default function BattlePage() {
 
       {/* 右下角著作權 */}
       <div
-        className="fixed bottom-2 right-4 z-[55] text-[10px] sm:text-xs font-bold uppercase tracking-[0.15em] text-white/70 pointer-events-none select-none"
+        className="hidden sm:block fixed bottom-2 right-4 z-[55] text-[10px] sm:text-xs font-bold uppercase tracking-[0.15em] text-white/70 pointer-events-none select-none"
         style={{ textShadow: "0 1px 3px rgba(0,0,0,0.6)" }}
       >
         © 2026 MUSTAVERSE STUDIO. ALL RIGHTS RESERVED.
@@ -290,6 +292,10 @@ export default function BattlePage() {
       <InfoMenuModal
         isOpen={isInfoMenuOpen}
         onClose={() => setIsInfoMenuOpen(false)}
+        onExitGame={() => {
+          if (!window.confirm(t("exitGame.confirm"))) return;
+          void router.push("/platform");
+        }}
       />
     </div>
   );

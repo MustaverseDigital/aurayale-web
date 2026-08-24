@@ -16,6 +16,7 @@ const en: Translation = {
     label: "Exit game",
     ariaLabel: "Exit game and return to the website",
     confirm: "Leave the game? Your current progress will not be saved.",
+    exitInPanel: "Exit game",
   },
   infoMenu: {
     aria: {
