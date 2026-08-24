@@ -3,8 +3,14 @@ import { useTranslation } from "react-i18next"
 import { ChevronLeft } from "lucide-react"
 
 interface ExitGameButtonProps {
-  /** 離開後導向的路徑 */
-  href: string
+  /** 離開後導向的路徑。有帶 onExit 時忽略。 */
+  href?: string
+  /**
+   * 自訂離開行為。用於「回到遊戲內大廳」這種不換頁的情境
+   * （呼叫 Unity 的 WebBridge.ReturnToLobby，而非卸載 WebGL 退回網站）。
+   * 有帶這個就不會用 href 導頁。
+   */
+  onExit?: () => void
   /** 是否顯示。資訊面板開啟時建議隱藏，避免與面板重疊 */
   visible?: boolean
   /** 是否在離開前跳出確認（正式遊戲有進度，展場版沒有） */
@@ -18,7 +24,7 @@ interface ExitGameButtonProps {
  * 玩家進入後沒有回到官網的出口，只能按瀏覽器上一頁。
  * 這顆按鈕提供固定的退出路徑，位置避開 9:16 canvas 中央的操作區。
  */
-export function ExitGameButton({ href, visible = true, confirmBeforeExit = false }: ExitGameButtonProps) {
+export function ExitGameButton({ href, onExit, visible = true, confirmBeforeExit = false }: ExitGameButtonProps) {
   const router = useRouter()
   const { t } = useTranslation()
 
@@ -26,7 +32,11 @@ export function ExitGameButton({ href, visible = true, confirmBeforeExit = false
 
   const handleExit = () => {
     if (confirmBeforeExit && !window.confirm(t("exitGame.confirm"))) return
-    void router.push(href)
+    if (onExit) {
+      onExit()
+      return
+    }
+    if (href) void router.push(href)
   }
 
   return (

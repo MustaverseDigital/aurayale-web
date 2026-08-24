@@ -10,9 +10,12 @@ export default function AurayalePage() {
   const { t } = useTranslation();
   const router = useRouter();
   // autoProcess 讓 Privy 登入完成後接著跑 processLogin（換取 Aura token、
-  // 抓寶石與牌組），並由 useLogin 導向 /battle。
-  // 先前是 false + 自行導向：那只等到 Privy 的 authenticated，Aura token
-  // 還沒拿到就跳頁，battle 頁會拿不到 JWT 傳給 Unity。
+  // 抓寶石與牌組）。
+  //
+  // 目前刻意「不」自動跳轉：useLogin 的 redirectTo 預設為 null。
+  // 先前預設跳 /battle，但本頁同時掛載了 LandingNavbar 與 MobileMenu，
+  // 三個 useLogin 實例會各自跳一次，跳轉行為互相打架。
+  // 要恢復自動跳轉時，只在「一個」實例傳入 redirectTo。
   const { login, authenticated, ready } = useLogin({ autoProcess: true });
   const videoRef = useRef<HTMLVideoElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);

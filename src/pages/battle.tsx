@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Unity, useUnityContext } from "react-unity-webgl";
 import { useTranslation } from "react-i18next";
 import { useViewportRequirements } from "../context/ViewportRequirementsContext";
@@ -106,6 +106,16 @@ export default function BattlePage() {
   };
 
   const { showRewardAd, claim: claimReward } = useRewardAd({ sendMessage, onResult: handleAdResult });
+
+  // 「離開遊戲」= 回到 Unity 內的 OutGame 大廳，而不是卸載 WebGL 退回網站。
+  // Unity 尚未載入完成時退而求其次導回 /platform，避免按了沒反應。
+  const returnToLobby = useCallback(() => {
+    if (isLoaded) {
+      sendMessage("WebBridge", "ReturnToLobby");
+      return;
+    }
+    void router.push("/platform");
+  }, [isLoaded, sendMessage, router]);
   const sentTokenRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -208,10 +218,10 @@ export default function BattlePage() {
     <div className="min-h-screen text-white flex flex-col">
       {/* 背景音樂 */}
       <audio ref={audioRef} src="/bgm/bgm.mp3" autoPlay loop hidden />
-      {/* 離開對戰 → 回牌組頁。對戰中可能有進度，先確認再離開。
+      {/* 離開對戰 → 回遊戲內的 OutGame 大廳。對戰中可能有進度，先確認再離開。
           桌機側邊面板靠右，不會擋到左上角；只有手機全螢幕 Modal 才需要隱藏。 */}
       <ExitGameButton
-        href="/platform"
+        onExit={returnToLobby}
         visible={infoPanelLayout.isSidePanel}
         confirmBeforeExit
       />
@@ -294,7 +304,8 @@ export default function BattlePage() {
         onClose={() => setIsInfoMenuOpen(false)}
         onExitGame={() => {
           if (!window.confirm(t("exitGame.confirm"))) return;
-          void router.push("/platform");
+          setIsInfoMenuOpen(false);
+          returnToLobby();
         }}
       />
     </div>

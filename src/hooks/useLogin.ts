@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/router";
 import { usePrivy } from "@privy-io/react-auth";
 import { useUser } from "../context/UserContext";
@@ -11,12 +11,36 @@ import { getUserDeck, getUserGems, loginWithPrivy } from "../api/auraServer";
 const CONTEST_CHAIN_ID = "bsc-testnet";
 
 /**
- * 登入後直接進戰鬥頁。
+ * 登入後若要跳轉，慣例上的落點。
  *
  * Unity 端在收到 SetAuthToken 後會自行跑 DeckSyncStep（GET /user/gem-deck）
  * 並套用牌組，不需要網頁先經 platform 準備 localStorage.battleDeck。
+ *
+ * 注意：這不再是 useLogin 的預設值。跳轉需由呼叫端明確傳入
+ * `useLogin({ redirectTo: POST_LOGIN_BATTLE_ROUTE })` 才會發生，
+ * 避免多個 useLogin 實例同時掛載時互搶跳轉。
  */
-const POST_LOGIN_REDIRECT = "/battle";
+export const POST_LOGIN_BATTLE_ROUTE = "/battle";
+
+/**
+ * 登入流程的模組層級狀態。
+ *
+ * useLogin 會被多個元件同時掛載（例如 /aurayale 就同時有頁面本身、
+ * LandingNavbar、MobileMenu 三個 autoProcess:true 的實例）。若把「是否已處理」
+ * 放在各自的 useRef，三個實例會各自判定「我還沒跑過」而同時呼叫 processLogin：
+ *   - 對 Privy /v1/users/me 併發三次 → 觸發 429
+ *   - 三個實例各自 router.push(redirectTo) → 跳轉互相打架
+ *
+ * 改用模組層級旗標，確保同一次登入全域只跑一次。
+ */
+let loginInFlight = false;
+let loginCompleted = false;
+
+/** Privy 登出／session 失效時重置，讓下一次登入可以重新開始。 */
+function resetLoginGuard() {
+  loginInFlight = false;
+  loginCompleted = false;
+}
 
 interface UseLoginOptions {
   redirectTo?: string | null;
@@ -24,39 +48,29 @@ interface UseLoginOptions {
 }
 
 export function useLogin(options: UseLoginOptions = {}) {
-  const { redirectTo = POST_LOGIN_REDIRECT, autoProcess = true } = options;
+  // 預設不跳轉：登入只負責取得 Aura token / 牌組，換頁由呼叫端明確指定。
+  const { redirectTo = null, autoProcess = true } = options;
 
   const router = useRouter();
   const { login: privyLogin, logout: privyLogout, ready, authenticated, user: privyUser, getAccessToken } = usePrivy();
   const { setUser, user } = useUser();
   const [error, setError] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
-  const hasProcessedRef = useRef(false);
 
   useEffect(() => {
     if (!user && !authenticated) {
-      hasProcessedRef.current = false;
+      resetLoginGuard();
       setIsProcessing(false);
       setError("");
     }
   }, [user, authenticated]);
 
-  useEffect(() => {
-    if (!autoProcess) return;
-    if (hasProcessedRef.current || (user?.token && user.token !== "privy-auth-token")) {
-      return;
-    }
-
-    if (ready && authenticated && privyUser && !isProcessing) {
-      processLogin();
-    }
-  }, [ready, authenticated, privyUser, user?.token, autoProcess]);
-
   const processLogin = useCallback(async () => {
     if (!privyUser) return;
+    if (loginInFlight || loginCompleted) return;
 
+    loginInFlight = true;
     setIsProcessing(true);
-    hasProcessedRef.current = true;
     setError("");
 
     try {
@@ -98,35 +112,56 @@ export function useLogin(options: UseLoginOptions = {}) {
           : {}),
       });
 
+      loginCompleted = true;
+
+      // 登入成功後「不」自動跳頁。
+      //
+      // 先前多個 useLogin 實例會各自 router.push(redirectTo)，造成跳轉互搶；
+      // 加上失敗重試迴圈，導致跳轉行為不可預期。改為只負責把 Aura token 與
+      // 牌組寫進 UserContext，實際要不要換頁、換到哪一頁交由呼叫端決定
+      // （傳入 redirectTo 時才會跳，預設為 null）。
       if (redirectTo) {
         router.push(redirectTo);
       }
     } catch (e: any) {
       console.error("Login error:", e);
       setError(e.message || "登入失敗");
-      // 這裡刻意「不」重置 hasProcessedRef。
+      // 這裡刻意「不」重置 loginCompleted 以外的旗標來自動重跑。
       //
-      // 重置會讓上方的 autoProcess effect 立刻再次符合觸發條件
-      // （ready/authenticated/privyUser 都沒變），形成無限重試迴圈：
+      // 若在此重新開放自動流程，上方的 autoProcess effect 會立刻再次符合
+      // 觸發條件（ready/authenticated/privyUser 都沒變），形成無限重試迴圈：
       // 每一輪都打一次 Privy /v1/users/me，很快就被判定濫用而回 429
       // （表面錯誤訊息是 "Failed to verify Privy token: ... status code 429"）。
       //
       // 失敗後改由使用者手動按 retry()／login() 重新開始，避免自動重打。
     } finally {
+      loginInFlight = false;
       setIsProcessing(false);
     }
   }, [privyUser, getAccessToken, setUser, router, redirectTo]);
 
+  useEffect(() => {
+    if (!autoProcess) return;
+    // loginInFlight / loginCompleted 是模組層級的，跨實例共用，
+    // 因此多個 useLogin 同時掛載時只有第一個會真的進到 processLogin。
+    if (loginInFlight || loginCompleted) return;
+    if (user?.token && user.token !== "privy-auth-token") return;
+
+    if (ready && authenticated && privyUser) {
+      processLogin();
+    }
+  }, [ready, authenticated, privyUser, user?.token, autoProcess, processLogin]);
+
   /** 手動重試登入。自動流程失敗後不會自己重跑，需由 UI 呼叫這支。 */
   const retry = useCallback(() => {
     setError("");
-    hasProcessedRef.current = false;
+    resetLoginGuard();
     setIsProcessing(false);
   }, []);
 
   const login = useCallback(() => {
     setError("");
-    hasProcessedRef.current = false;
+    resetLoginGuard();
     try {
       privyLogin();
     } catch (e: any) {
@@ -136,6 +171,7 @@ export function useLogin(options: UseLoginOptions = {}) {
   }, [privyLogin]);
 
   const logout = useCallback(() => {
+    resetLoginGuard();
     privyLogout();
     setUser(null);
   }, [privyLogout, setUser]);
