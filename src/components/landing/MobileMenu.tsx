@@ -28,7 +28,10 @@ export function MobileMenu({
   onClose: () => void;
 }) {
   const { t } = useTranslation();
-  const { login, logout, authenticated, ready } = useLogin({ redirectTo: null, autoProcess: false });
+  // 與 LandingNavbar 一致：autoProcess 讓登入完成後跑 processLogin
+  // （取 Aura token、抓寶石與牌組），再由 useLogin 導向 /battle。
+  // 維持 false 的話 processLogin 不會執行，等於登入了卻沒建立 session。
+  const { login, logout, authenticated, ready } = useLogin({ autoProcess: true });
   const router = useRouter();
 
   return (

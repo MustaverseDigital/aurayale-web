@@ -9,8 +9,11 @@ import { useLogin } from "../hooks/useLogin";
 export default function AurayalePage() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { login, authenticated, ready } = useLogin({ redirectTo: null, autoProcess: false });
-  const pendingAdventureRef = useRef(false);
+  // autoProcess 讓 Privy 登入完成後接著跑 processLogin（換取 Aura token、
+  // 抓寶石與牌組），並由 useLogin 導向 /battle。
+  // 先前是 false + 自行導向：那只等到 Privy 的 authenticated，Aura token
+  // 還沒拿到就跳頁，battle 頁會拿不到 JWT 傳給 Unity。
+  const { login, authenticated, ready } = useLogin({ autoProcess: true });
   const videoRef = useRef<HTMLVideoElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
@@ -29,21 +32,12 @@ export default function AurayalePage() {
     return () => clearTimeout(timer);
   }, [router.isReady, router.asPath]);
 
-  // 登入後直接進戰鬥頁（Unity 會自行同步牌組，不需先經 platform）。
-  const postLoginRedirect = "/battle";
-
-  useEffect(() => {
-    if (pendingAdventureRef.current && ready && authenticated) {
-      pendingAdventureRef.current = false;
-      router.push(postLoginRedirect);
-    }
-  }, [ready, authenticated, router, postLoginRedirect]);
-
+  // 登入後的導向交給 useLogin（等 processLogin 完成才跳）。
+  // 這裡只處理「已經登入、再點一次按鈕」的情況。
   const handleStartAdventure = () => {
     if (ready && authenticated) {
-      router.push(postLoginRedirect);
+      router.push("/battle");
     } else {
-      pendingAdventureRef.current = true;
       login();
     }
   };

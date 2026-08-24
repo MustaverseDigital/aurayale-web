@@ -17,7 +17,9 @@ export function LandingNavbar({
 }) {
   const router = useRouter();
   const { t } = useTranslation();
-  const { login, logout, authenticated, ready } = useLogin({ redirectTo: null, autoProcess: true });
+  // redirectTo 不覆寫 → 用 useLogin 的預設落點 /battle：
+  // 從導覽列登入完就直接進戰鬥，不停在 landing。
+  const { login, logout, authenticated, ready } = useLogin({ autoProcess: true });
   const [aurayaleOpen, setAurayaleOpen] = useState(false);
 
   const navItems: { label: string; href: string; key: ActivePage }[] = [
