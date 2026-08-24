@@ -146,7 +146,7 @@ export async function editGemDeck(
 }
 
 /**
- * 使用 Privy Access Token 登入（適用於所有 Privy 登入方式：Google、Farcaster 等）
+ * 使用 Privy Access Token 登入（適用於所有 Privy 登入方式：Google、Email、Wallet）
  * @param privyAccessToken Privy Access Token
  * @param chain_id 鏈 ID，選填，預設為 "soneium-testnet"
  * @returns 登入回應
@@ -166,7 +166,7 @@ export async function loginWithPrivy(
     body: JSON.stringify(requestBody),
   });
   const data = await response.json();
-  if (!response.ok) throw new Error(data.error || 'Farcaster login failed');
+  if (!response.ok) throw new Error(data.error || 'Privy login failed');
   return data;
 }
 

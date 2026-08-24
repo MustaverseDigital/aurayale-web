@@ -104,11 +104,25 @@ export function useLogin(options: UseLoginOptions = {}) {
     } catch (e: any) {
       console.error("Login error:", e);
       setError(e.message || "登入失敗");
-      hasProcessedRef.current = false;
+      // 這裡刻意「不」重置 hasProcessedRef。
+      //
+      // 重置會讓上方的 autoProcess effect 立刻再次符合觸發條件
+      // （ready/authenticated/privyUser 都沒變），形成無限重試迴圈：
+      // 每一輪都打一次 Privy /v1/users/me，很快就被判定濫用而回 429
+      // （表面錯誤訊息是 "Failed to verify Privy token: ... status code 429"）。
+      //
+      // 失敗後改由使用者手動按 retry()／login() 重新開始，避免自動重打。
     } finally {
       setIsProcessing(false);
     }
   }, [privyUser, getAccessToken, setUser, router, redirectTo]);
+
+  /** 手動重試登入。自動流程失敗後不會自己重跑，需由 UI 呼叫這支。 */
+  const retry = useCallback(() => {
+    setError("");
+    hasProcessedRef.current = false;
+    setIsProcessing(false);
+  }, []);
 
   const login = useCallback(() => {
     setError("");
@@ -131,6 +145,7 @@ export function useLogin(options: UseLoginOptions = {}) {
   return {
     login,
     logout,
+    retry,
     error,
     loading,
     ready,
