@@ -29,16 +29,20 @@ export default function AurayalePage() {
     return () => clearTimeout(timer);
   }, [router.isReady, router.asPath]);
 
+  // 登入後的落點由 NEXT_PUBLIC_POST_LOGIN_REDIRECT 決定：
+  // 展場/比賽版設 /battle（登入完直接開打），未設定則維持 /platform。
+  const postLoginRedirect = process.env.NEXT_PUBLIC_POST_LOGIN_REDIRECT || "/platform";
+
   useEffect(() => {
     if (pendingAdventureRef.current && ready && authenticated) {
       pendingAdventureRef.current = false;
-      router.push("/platform");
+      router.push(postLoginRedirect);
     }
-  }, [ready, authenticated, router]);
+  }, [ready, authenticated, router, postLoginRedirect]);
 
   const handleStartAdventure = () => {
     if (ready && authenticated) {
-      router.push("/platform");
+      router.push(postLoginRedirect);
     } else {
       pendingAdventureRef.current = true;
       login();

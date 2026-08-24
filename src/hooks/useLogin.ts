@@ -10,13 +10,22 @@ import { getUserDeck, getUserGems, loginWithPrivy } from "../api/auraServer";
  */
 const CONTEST_CHAIN_ID = "bsc-testnet";
 
+/**
+ * 登入後的預設落點。
+ *
+ * 展場/比賽版要「登入完直接開打」，設 NEXT_PUBLIC_POST_LOGIN_REDIRECT=/battle；
+ * 未設定時維持原本的 /platform（先看收藏與牌組再自行進戰鬥）。
+ * 用環境變數而非寫死，讓兩種版本共用同一份程式。
+ */
+const POST_LOGIN_REDIRECT = process.env.NEXT_PUBLIC_POST_LOGIN_REDIRECT || "/platform";
+
 interface UseLoginOptions {
   redirectTo?: string | null;
   autoProcess?: boolean;
 }
 
 export function useLogin(options: UseLoginOptions = {}) {
-  const { redirectTo = "/platform", autoProcess = true } = options;
+  const { redirectTo = POST_LOGIN_REDIRECT, autoProcess = true } = options;
 
   const router = useRouter();
   const { login: privyLogin, logout: privyLogout, ready, authenticated, user: privyUser, getAccessToken } = usePrivy();
