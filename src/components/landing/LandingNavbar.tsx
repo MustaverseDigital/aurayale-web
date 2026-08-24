@@ -2,7 +2,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useLogin } from "../../hooks/useLogin";
+import { useLogin, POST_LOGIN_BATTLE_ROUTE } from "../../hooks/useLogin";
 import { LandingLanguageSwitcher } from "./LandingLanguageSwitcher";
 import { AURAYALE_SECTIONS, scrollToAurayaleSection } from "./aurayaleSections";
 
@@ -17,8 +17,11 @@ export function LandingNavbar({
 }) {
   const router = useRouter();
   const { t } = useTranslation();
-  // redirectTo 不覆寫 → 用 useLogin 的預設落點 /battle：
-  // 從導覽列登入完就直接進戰鬥，不停在 landing。
+  // 目前刻意不傳 redirectTo：useLogin 預設為 null，登入完停在原地。
+  // 登入本身只負責換 Aura token 與牌組，進遊戲由下方的 Enter App 按鈕
+  // 明確觸發（POST_LOGIN_BATTLE_ROUTE = /battle）。
+  // 先前預設自動跳轉，但本元件與 MobileMenu、頁面本身會同時掛載多個
+  // useLogin 實例，各自跳一次會互相打架。
   const { login, logout, authenticated, ready } = useLogin({ autoProcess: true });
   const [aurayaleOpen, setAurayaleOpen] = useState(false);
 
@@ -98,7 +101,7 @@ export function LandingNavbar({
             {ready && authenticated ? (
               <>
                 <button
-                  onClick={() => router.push("/platform")}
+                  onClick={() => router.push(POST_LOGIN_BATTLE_ROUTE)}
                   className="cursor-pointer hidden md:flex items-center justify-center px-6 py-2.5 text-xs font-bold uppercase tracking-widest bg-gradient-to-r from-primary to-secondary text-white rounded-lg hover:brightness-110 transition-all shadow-lg shadow-primary/25"
                 >
                   {t("site.nav.enterApp")}
