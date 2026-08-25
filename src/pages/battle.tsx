@@ -55,6 +55,9 @@ function RewardToast({ data, onClose }: { data: RewardToastData; onClose: () => 
   );
 }
 
+/** 「離開遊戲」的落點：官網的 Aurayale 介紹頁。 */
+const EXIT_GAME_ROUTE = "/aurayale";
+
 export default function BattlePage() {
   const { t } = useTranslation();
   const router = useRouter();
@@ -107,15 +110,10 @@ export default function BattlePage() {
 
   const { showRewardAd, claim: claimReward } = useRewardAd({ sendMessage, onResult: handleAdResult });
 
-  // 「離開遊戲」= 回到 Unity 內的 OutGame 大廳，而不是卸載 WebGL 退回網站。
-  // Unity 尚未載入完成時退而求其次導回 /platform，避免按了沒反應。
-  const returnToLobby = useCallback(() => {
-    if (isLoaded) {
-      sendMessage("WebBridge", "ReturnToLobby");
-      return;
-    }
-    void router.push("/platform");
-  }, [isLoaded, sendMessage, router]);
+  // 「離開遊戲」= 離開 battle 頁，回到官網的 Aurayale 介紹頁。
+  const exitToAurayale = useCallback(() => {
+    void router.push(EXIT_GAME_ROUTE);
+  }, [router]);
   const sentTokenRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -218,10 +216,10 @@ export default function BattlePage() {
     <div className="min-h-screen text-white flex flex-col">
       {/* 背景音樂 */}
       <audio ref={audioRef} src="/bgm/bgm.mp3" autoPlay loop hidden />
-      {/* 離開對戰 → 回遊戲內的 OutGame 大廳。對戰中可能有進度，先確認再離開。
+      {/* 離開對戰 → 回官網 Aurayale 頁。對戰中可能有進度，先確認再離開。
           桌機側邊面板靠右，不會擋到左上角；只有手機全螢幕 Modal 才需要隱藏。 */}
       <ExitGameButton
-        onExit={returnToLobby}
+        href={EXIT_GAME_ROUTE}
         visible={infoPanelLayout.isSidePanel}
         confirmBeforeExit
       />
@@ -305,7 +303,7 @@ export default function BattlePage() {
         onExitGame={() => {
           if (!window.confirm(t("exitGame.confirm"))) return;
           setIsInfoMenuOpen(false);
-          returnToLobby();
+          exitToAurayale();
         }}
       />
     </div>
