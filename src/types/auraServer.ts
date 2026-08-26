@@ -90,37 +90,34 @@ export interface GoogleLoginResponse {
 }
 
 /**
- * Farcaster 登入請求
- * 支援兩種登入方式：
- * 1. 使用 Privy Access Token（推薦，無需簽名）
- * 2. 使用錢包簽名（向後兼容）
+ * Privy 登入請求
  */
-export interface FarcasterLoginRequest {
-  // 方式 1: Privy Token（推薦）
+export interface PrivyLoginRequest {
   privyAccessToken?: string;
   chain_id?: string; // 選填，預設為 "bsc-testnet"
-
-  // 方式 2: 錢包簽名（向後兼容）
-  walletAddress?: string;
-  signature?: string;
-  message?: string; // 選填，預設會自動生成
-  farcasterId?: string; // 選填，Farcaster ID (fid)
 }
 
 /**
- * Farcaster 登入回應
+ * 玩家實際使用的登入手段。
+ * Privy 底下可能是 Google OAuth、email 或直接連錢包。
  */
-export interface FarcasterLoginResponse {
+export type LoginType = 'google' | 'email' | 'wallet' | 'password';
+
+/**
+ * Privy 登入回應
+ */
+export interface PrivyLoginResponse {
   token: string;
   userId: number;
   chainId: 'bsc-testnet' | 'soneium-testnet' | string;
   walletAddress: string;
   gems: Record<string, unknown>;
-  farcasterId?: string;
-  farcasterUsername?: string;
-  farcasterPfpUrl?: string;
+  loginType: LoginType;
   name: string;
+  email?: string | null;
+  avatarUrl?: string | null;
 }
+
 
 // ==================== 錢包相關類型 ====================
 
@@ -172,7 +169,7 @@ export interface UserProfile {
   name: string;
   walletAddress: string | null;
   hasGoogleAccount: boolean;
-  loginType: 'google' | 'password' | 'farcaster';
+  loginType: LoginType;
 }
 
 /**
@@ -228,10 +225,9 @@ export interface UserInfo {
   walletAddress?: string;
   deck?: number[];
   gems?: GemItem[];
-  loginType?: 'google' | 'password' | 'farcaster'; // 登入類型
-  farcasterId?: string; // Farcaster ID（如果是 Farcaster 登入）
-  farcasterUsername?: string; // Farcaster 用戶名
-  farcasterPfpUrl?: string; // Farcaster 頭像 URL
+  loginType?: LoginType; // 登入類型
+  email?: string | null; // 來自 Privy 的 email（Google / email 登入）
+  avatarUrl?: string | null; // 來自 Privy 的頭像
 }
 
 // ==================== 交易訂單相關類型 ====================

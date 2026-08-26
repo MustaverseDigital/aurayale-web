@@ -3,8 +3,8 @@ import type {
   RegisterResponse,
   LoginRequest,
   LoginResponse,
-  FarcasterLoginRequest,
-  FarcasterLoginResponse,
+  PrivyLoginRequest,
+  PrivyLoginResponse,
   BindWalletRequestRequest,
   BindWalletRequestResponse,
   BindWalletConfirmRequest,
@@ -154,8 +154,8 @@ export async function editGemDeck(
 export async function loginWithPrivy(
   privyAccessToken: string,
   chain_id?: string
-): Promise<FarcasterLoginResponse> {
-  const requestBody: FarcasterLoginRequest = {
+): Promise<PrivyLoginResponse> {
+  const requestBody: PrivyLoginRequest = {
     privyAccessToken,
     chain_id: chain_id || 'soneium-testnet', // 預設為 soneium-testnet
   };
@@ -170,39 +170,9 @@ export async function loginWithPrivy(
   return data;
 }
 
-/**
- * 使用錢包簽名進行 Farcaster 登入（向後兼容）
- * @param walletAddress 錢包地址
- * @param signature 簽名
- * @param options 可選參數
- * @returns Farcaster 登入回應
- */
-export async function loginWithFarcaster(
-  walletAddress: string,
-  signature: string,
-  options?: {
-    message?: string;
-    farcasterId?: string;
-    chain_id?: string;
-  }
-): Promise<FarcasterLoginResponse> {
-  const requestBody: FarcasterLoginRequest = {
-    walletAddress,
-    signature,
-    message: options?.message,
-    farcasterId: options?.farcasterId,
-    chain_id: options?.chain_id || 'soneium-testnet', // 預設為 soneium-testnet
-  };
-
-  const response = await fetch(`${BASE_URL}/privy-login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(requestBody),
-  });
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.error || 'Farcaster login failed');
-  return data;
-}
+// 註：loginWithFarcaster（錢包簽名登入）已移除。
+// 它送的是 walletAddress + signature，但後端 /privy-login 只接受
+// privyAccessToken；且專案未啟用 Farcaster，此函式已無呼叫者。
 
 /**
  * 獲取活躍交易訂單 (公開 API)

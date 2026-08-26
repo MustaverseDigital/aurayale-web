@@ -92,8 +92,9 @@ export function useLogin(options: UseLoginOptions = {}) {
         getUserDeck(response.token),
       ]);
 
-      const isFarcaster = Boolean(privyUser.farcaster);
-
+      // loginType 由後端依 Privy 的 linked_accounts 判定（google / email / wallet）。
+      // 先前是用 privyUser.farcaster 推導，但 Privy 的 loginMethods 未啟用
+      // Farcaster，該判斷恆為 false，等於永遠回報 "google"。
       setUser({
         token: response.token,
         userId: response.userId,
@@ -102,14 +103,9 @@ export function useLogin(options: UseLoginOptions = {}) {
         walletAddress: response.walletAddress || undefined,
         deck,
         gems,
-        loginType: isFarcaster ? "farcaster" : "google",
-        ...(isFarcaster
-          ? {
-              farcasterId: response.farcasterId,
-              farcasterUsername: response.farcasterUsername,
-              farcasterPfpUrl: response.farcasterPfpUrl,
-            }
-          : {}),
+        loginType: response.loginType,
+        email: response.email,
+        avatarUrl: response.avatarUrl,
       });
 
       loginCompleted = true;
