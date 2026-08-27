@@ -33,18 +33,18 @@ export interface Translation {
       event: string
       gameplay: string
       encyclopedia: string
-      rarity: string
       shop: string
     }
     event: {
       title: string
       badge: string
       description: string
+      entryTitle: string
+      entryBody: string
       howToTitle: string
       howToItems: string[]
       rewardTitle: string
-      rewardItems: string[]
-      imagePlaceholder: string
+      rewardBody: string
       note: string
     }
     gameplay: {
@@ -52,28 +52,22 @@ export interface Translation {
       flow: { title: string; items: string[] }
       coreMechanics: {
         title: string
-        items: Array<{ t: string; d: string }>
+        heading: string
+        body: string
       }
     }
-    encyclopedia: { title: string; hint: string; imageFailed: string }
+    encyclopedia: {
+      title: string
+      hint: string
+      imageFailed: string
+      imageComingSoon: string
+      eventCardTitle: string
+      eventCardHint: string
+      eventCardBadge: string
+    }
     cardDetail: {
       cardLabel: string
       effect: string
-      rarityExplanation: string
-      tier: string
-      tierOfFour: string
-    }
-    rarity: {
-      fourCTitle: string
-      fourCIntro: string
-      levelsTitle: string
-      fourC: Array<{ title: string; desc: string }>
-      descriptions: {
-        common: string
-        rare: string
-        epic: string
-        legendary: string
-      }
     }
     shop: {
       title: string
@@ -241,28 +235,24 @@ const zhTW: Translation = {
       event: "活動",
       gameplay: "遊戲玩法",
       encyclopedia: "寶石圖鑑",
-      rarity: "稀有判別",
       shop: "寶石商店",
     },
     event: {
       title: "限時活動",
       badge: "進行中",
-      description: "觀看廣告即可獲得寶石卡包！每次看完廣告，系統將隨機發放一個卡包，內含稀有寶石碎片，助你升級牌組。",
+      description: "參加期間限定活動的排行榜！在排行榜中取得高分，爭取高名次，獲得限定活動的各項獎勵。",
+      entryTitle: "活動入口",
+      entryBody: "點擊主畫面右下角的活動 Icon，即可進入活動頁面。",
       howToTitle: "如何參與",
       howToItems: [
-        "進入 Battle 對戰頁面。",
-        "點擊畫面中的「觀看廣告」按鈕。",
-        "完整觀看廣告（約 15–30 秒）。",
-        "廣告結束後自動發放寶石卡包獎勵。",
+        "進入活動頁面。",
+        "點擊該次活動的排行榜關卡。",
+        "對敵人造成傷害累積分數，在排行榜上留下自己的名次。",
+        "前三名*的玩家可以獲得該次活動的限定獎勵。",
       ],
       rewardTitle: "獎勵內容",
-      rewardItems: [
-        "寶石碎片（隨機稀有度）",
-        "機率獲得稀有 / 史詩 / 傳說等級碎片",
-        "每日可無限次參與",
-      ],
-      imagePlaceholder: "活動示意圖（即將上線）",
-      note: "活動說明與獎勵內容可能隨版本更新調整，請以遊戲內公告為準。",
+      rewardBody: "隨活動不同會有不同的獎勵，詳情請見當下活動說明。",
+      note: "*實際可以獲得獎勵的名次以當下活動為準。活動說明與獎勵內容可能隨版本更新調整，請以遊戲內公告為準。",
     },
     gameplay: {
       whatIsAurayale: {
@@ -273,61 +263,30 @@ const zhTW: Translation = {
         title: "遊戲流程",
         items: [
           "連接錢包，完成登入並領取起始牌組。",
-          "於「Deck」頁面挑選 5 張寶石組成戰鬥牌組。",
-          "進入「Battle」開始對局，每回合打出寶石卡組成撲克牌型，以 ATK × Mult 結算傷害。",
-          "勝場可獲得寶石碎片，於市場交易升級你的牌組。",
+          "於「Deck」頁面選擇 10 張寶石卡組成戰鬥牌組。",
+          "進入「Battle」開始對局。每回合抽取 6 張撲克牌，並將寶石手牌補至 5 張；使用寶石調整撲克牌或強化 ATK、MULT 與生存能力。",
+          "系統會計算場上成立的所有組合；各組合的 ATK 與 MULT 分別加總，套用寶石效果後，以 Total ATK × Total MULT 結算傷害。",
+          "戰鬥勝利後可獲得寶石碎片，並於市場交易或升級牌組。",
         ],
       },
       coreMechanics: {
         title: "核心機制",
-        items: [
-          { t: "牌型計分", d: "打出順子 / 同花 / 葫蘆等撲克牌型，傷害 = ATK × Mult" },
-          { t: "升級系統", d: "兩張同色寶石可合成更高級的卡片" },
-          { t: "稀有度判定", d: "依 4C 標準分為一般 / 稀有 / 史詩 / 傳說" },
-          { t: "寶石市集", d: "與其他玩家直接以寶石換寶石" },
-        ],
+        heading: "組合計分",
+        body: "同一手牌可以同時成立多種組合，所有成立的組合都會計分。",
       },
     },
     encyclopedia: {
-      title: "基礎寶石（24 種）",
-      hint: "點擊任意卡片查看詳細資料（名稱、效果、稀有度）。每種寶石都有三個升級階段（基礎 / +1 / +2）。",
+      title: "基礎寶石（40 種）",
+      hint: "點擊任意卡片查看名稱與效果。每種基礎寶石仍有三個升級階段（基礎／+1／+2）。",
       imageFailed: "圖片載入失敗",
+      imageComingSoon: "卡圖準備中",
+      eventCardTitle: "活動限定卡",
+      eventCardHint: "僅於特定活動期間取得，不列入 40 種基礎寶石。",
+      eventCardBadge: "活動限定",
     },
     cardDetail: {
       cardLabel: "CARD",
       effect: "卡牌效果",
-      rarityExplanation: "稀有度說明",
-      tier: "等級",
-      tierOfFour: "{{tier}} / 4",
-    },
-    rarity: {
-      fourCTitle: "寶石稀有度的 4C 標準",
-      fourCIntro: "Aurayale 沿用真實寶石業界的 4C 評鑑系統，綜合判定卡片的稀有度與市場價值。",
-      levelsTitle: "稀有度級別",
-      fourC: [
-        {
-          title: "Color · 顏色",
-          desc: "顏色越純淨、飽和度越高的寶石價值越高。Aurayale 中分為冷色（藍/綠）、暖色（紅/黃）與中性（白/黑），每種色系有獨立的稀有曲線。",
-        },
-        {
-          title: "Cut · 切工",
-          desc: "切工決定光線折射的角度與火彩。遊戲中切工越精細的寶石，在戰鬥中觸發特效的機率越高。",
-        },
-        {
-          title: "Clarity · 淨度",
-          desc: "淨度衡量寶石內部包裹體與表面瑕疵的稀少程度。淨度越高的寶石可承載的附魔等級越高。",
-        },
-        {
-          title: "Carat · 克拉",
-          desc: "克拉指寶石的重量（體積）。同等品質下，克拉越大價值呈幾何級數成長，但也意味著更高的能量消耗。",
-        },
-      ],
-      descriptions: {
-        common: "常見的入門級寶石，容易在抽卡或日常任務中取得，適合新手組牌。",
-        rare: "稀有等級寶石，具有較強的單體技能效果，通常需透過進階卡包獲得。",
-        epic: "史詩等級寶石，擁有改變戰局的關鍵技能，是中後期牌組的核心。",
-        legendary: "傳說等級寶石，極為罕見，擁有獨特的全場性效果與絢麗的視覺特效。",
-      },
     },
     shop: {
       title: "寶石商店",
@@ -470,46 +429,47 @@ const zhTW: Translation = {
     },
   },
   cards: {
-    "1":  { name: "Flame Ruby",               effect: "若牌型包含順子（Straight），ATK + 50。" },
-    "2":  { name: "Deep-Sea Sapphire",        effect: "若牌型包含順子（Straight），Mult + 15。" },
-    "3":  { name: "Heart of Jade",            effect: "目標牌點數 +1。" },
-    "4":  { name: "Topaz Light",              effect: "目標牌點數 -1。" },
-    "5":  { name: "Moonstone",                effect: "若所有牌點數皆為奇數，ATK + 50。" },
-    "6":  { name: "Amber Eye",                effect: "若所有牌點數皆為偶數，Mult + 10。" },
-    "7":  { name: "Coral Abyss",              effect: "若牌型包含同花（Flush），ATK + 50。" },
-    "8":  { name: "Pearl Star",               effect: "若牌型包含同花（Flush），Mult + 15。" },
-    "9":  { name: "Smoky Quartz",             effect: "將紅心（Heart）花色變更為黑桃（Spade）。" },
-    "10": { name: "Amethyst Reverie",         effect: "將黑桃（Spade）花色變更為梅花（Club）。" },
-    "11": { name: "Bloodstone Dragon Breath", effect: "將方塊（Diamond）花色變更為紅心（Heart）。" },
-    "12": { name: "Frost Crystal",            effect: "將梅花（Club）花色變更為方塊（Diamond）。" },
-    "13": { name: "Thunder Agate",            effect: "若牌型包含兩對（Two Pair），ATK + 25。" },
-    "14": { name: "Verdant Olivine",          effect: "若牌型包含兩對（Two Pair），Mult + 5。" },
-    "15": { name: "Fire Opal",                effect: "若下一回合牌型包含兩對（Two Pair），ATK + 50。" },
-    "16": { name: "Obsidian Spear",           effect: "若牌型包含三條（Three of a Kind），ATK + 35。" },
-    "17": { name: "Aquamarine Tears",         effect: "若牌型包含三條（Three of a Kind），Mult + 10。" },
-    "18": { name: "Imperial Emerald",         effect: "若下一回合牌型包含三條（Three of a Kind），Mult + 15。" },
-    "19": { name: "Tiger Eye Fury",           effect: "ATK + 15。" },
-    "20": { name: "Star Sapphire",            effect: "Mult + 4。" },
-    "21": { name: "Golden Sunstone",          effect: "本回合 Mult 設為 1。下一回合 Mult x 3。" },
-    "22": { name: "Night Obsidian",           effect: "若牌型包含順子（Straight），Mult x 2。" },
-    "23": { name: "Eternal Diamond",          effect: "每當牌型包含同花（Flush）時，永久 ATK + 10。" },
-    "24": { name: "Genesis Stone",            effect: "每當牌型包含同花（Flush）時，永久 Mult + 4。" },
-    "25": { name: "Jade Ice Heart",           effect: "若為黑桃同花（Spade Flush），獲得 Mult + 2，持續 3 回合。" },
-    "26": { name: "Red Spinel",               effect: "若為紅心同花（Heart Flush），3 回合內每回合恢復 5 HP。" },
-    "27": { name: "Citrine",                  effect: "若為方塊同花（Diamond Flush），3 回合內每回合永久 ATK + 5。" },
-    "28": { name: "Pink Diamond Heart",       effect: "若為梅花同花（Club Flush），3 回合內受到傷害減少 15%。" },
-    "29": { name: "Black Tourmaline",         effect: "本回合 ATK - 25。下一回合 ATK + 100。" },
-    "30": { name: "Kunzite",                  effect: "Mult 增加值等於所有牌點數之和。" },
-    "31": { name: "Sapphire Eye",             effect: "ATK - 25。Mult + 30。" },
-    "32": { name: "Imperial Topaz",           effect: "若牌型包含兩對（Two Pair），恢復 20 HP。" },
-    "33": { name: "Morganite Kiss",           effect: "本回合 Mult - 5。下一回合 Mult + 15。" },
-    "34": { name: "Tsavorite",                effect: "若牌型包含葫蘆（Full House），受到傷害減少 50%。" },
-    "35": { name: "Crimson Lattice",          effect: "Mult - 5。ATK + 30。" },
-    "36": { name: "Tanzanite Star",           effect: "若牌型包含三條（Three of a Kind），受到傷害減少 30%。" },
-    "37": { name: "Paraiba Tourmaline",       effect: "ATK 設為 30。" },
-    "38": { name: "Alexandrite",              effect: "Mult 設為 10。" },
-    "39": { name: "Dragon Breath Heart",      effect: "ATK 增加值等於所有牌點數之和。" },
-    "40": { name: "Genesis Void",             effect: "受到傷害減少 15%。" },
+    "1":   { name: "Flame Ruby",               effect: "如果手牌包含符文連鎖 III 以上，則攻擊 +75。" },
+    "2":   { name: "Deep-Sea Sapphire",        effect: "如果手牌包含符文連鎖 III 以上，則倍數 +15。" },
+    "3":   { name: "Heart of Jade",            effect: "將一張目標撲克牌的點數增加1。" },
+    "4":   { name: "Topaz Light",              effect: "將一張目標撲克牌的點數減少1。" },
+    "5":   { name: "Moonstone",                effect: "將本回合攻擊設定為250，然後倍數 +3。" },
+    "6":   { name: "Amber Eye",                effect: "恢復20 HP。" },
+    "7":   { name: "Coral Abyss",              effect: "如果手牌包含同色共鳴 III 以上，則攻擊 +60。" },
+    "8":   { name: "Pearl Star",               effect: "如果手牌包含同色共鳴 III 以上，則倍數 +10。" },
+    "9":   { name: "Smoky Quartz",             effect: "將場上所有紅心花色設定為黑桃。" },
+    "10":  { name: "Amethyst Reverie",         effect: "將場上所有黑桃花色設定為梅花。" },
+    "11":  { name: "Bloodstone Dragon Breath", effect: "將場上所有方塊花色設定為紅心。" },
+    "12":  { name: "Frost Crystal",            effect: "將場上所有梅花花色設定為方塊。" },
+    "13":  { name: "Thunder Agate",            effect: "如果手牌包含符文共鳴 II 以上，則攻擊 +40。" },
+    "14":  { name: "Verdant Olivine",          effect: "如果手牌包含符文共鳴 II 以上，則倍數 +5。" },
+    "15":  { name: "Fire Opal",                effect: "下回合：如果手牌包含符文共鳴 II 以上，則攻擊 +75。" },
+    "16":  { name: "Obsidian Spear",           effect: "如果手牌包含符文共鳴 III 以上，則攻擊 +100。" },
+    "17":  { name: "Aquamarine Tears",         effect: "如果手牌包含符文共鳴 III 以上，則倍數 +20。" },
+    "18":  { name: "Imperial Emerald",         effect: "下回合：如果手牌包含符文共鳴 III 以上，則倍數 +30。" },
+    "19":  { name: "Tiger Eye Fury",           effect: "攻擊 +15。" },
+    "20":  { name: "Star Sapphire",            effect: "倍數 +4。" },
+    "21":  { name: "Golden Sunstone",          effect: "如果手牌包含符文連鎖 III 以上，則本回合倍數 -10，下回合倍數 +30。" },
+    "22":  { name: "Night Obsidian",           effect: "如果手牌包含符文連鎖 III 以上，則本回合倍數 ×2。" },
+    "23":  { name: "Eternal Diamond",          effect: "如果手牌包含同色共鳴 III 以上，則攻擊永久 +15。" },
+    "24":  { name: "Genesis Stone",            effect: "如果手牌包含同色共鳴 III 以上，則倍數永久 +2。" },
+    "25":  { name: "Jade Ice Heart",           effect: "如果手牌包含同色共鳴 III 以上，則倍數 +2（持續3回合）。" },
+    "26":  { name: "Red Spinel",               effect: "如果手牌包含同色共鳴 III 以上，則每回合恢復15 HP（持續3回合）。" },
+    "27":  { name: "Citrine",                  effect: "如果手牌包含同色共鳴 III 以上，則接下來3回合每回合永久獲得攻擊 +10（持續3回合）。" },
+    "28":  { name: "Pink Diamond Heart",       effect: "如果手牌包含同色共鳴 III 以上，則受到的傷害減少15%（持續3回合）。" },
+    "29":  { name: "Black Tourmaline",         effect: "如果手牌包含符文連鎖 III 以上，則本回合攻擊 -25，下回合攻擊 +125。" },
+    "30":  { name: "Kunzite",                  effect: "如果手牌包含符文連鎖 IV 以上，則倍數 +（6張撲克牌點數總和）。" },
+    "31":  { name: "Sapphire Eye",             effect: "如果手牌包含符文連鎖 III 以上，則本回合攻擊 -25、倍數 +30。" },
+    "32":  { name: "Imperial Topaz",           effect: "如果手牌包含符文共鳴 II 以上，則恢復50 HP。" },
+    "33":  { name: "Morganite Kiss",           effect: "如果手牌包含符文連鎖 III 以上，則本回合倍數 -5，下回合倍數 +15。" },
+    "34":  { name: "Tsavorite",                effect: "如果手牌包含符文連鎖 IV 以上，則本回合受到的傷害減少50%。" },
+    "35":  { name: "Crimson Lattice",          effect: "如果手牌包含符文連鎖 III 以上，則本回合倍數 -5、攻擊 +100。" },
+    "36":  { name: "Tanzanite Star",           effect: "如果手牌包含符文共鳴 III 以上，則本回合受到的傷害減少30%。" },
+    "37":  { name: "Paraiba Tourmaline",       effect: "本回合攻擊 +150、倍數 -10。" },
+    "38":  { name: "Alexandrite",              effect: "本回合倍數 +25、攻擊 -100。" },
+    "39":  { name: "Dragon Breath Heart",      effect: "攻擊 +（6張撲克牌點數總和）。" },
+    "40":  { name: "Genesis Void",             effect: "本回合受到的傷害減少15%。" },
+    "41":  { name: "Aura Genesis",             effect: "如果手牌包含完美共鳴 II 以上，則本回合攻擊 +100、倍數 +20。" },
   },
 }
 

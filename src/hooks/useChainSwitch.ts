@@ -3,13 +3,11 @@ import { useAccount, useSignMessage } from 'wagmi';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { useUser } from '../context/UserContext';
 import {
-  loginWithFarcaster,
   loginWithPrivy,
   loginWithPassword,
   getUserGems,
   getUserDeck,
 } from '../api/auraServer';
-import { generateFarcasterMessage } from '../lib/farcaster';
 import type { SupportedChain } from '../types/auraServer';
 
 export function useChainSwitch() {
@@ -42,84 +40,12 @@ export function useChainSwitch() {
 
       // 根據登入類型重新登入
       switch (user.loginType) {
-        case 'farcaster': {
-          // Farcaster 登入 - 優先使用 Privy token 方式
-          if (privyUser?.farcaster && getAccessToken) {
-            // 使用 Privy token 方式（推薦，無需簽名）
-            const privyToken = await getAccessToken();
-
-            if (!privyToken) {
-              throw new Error('無法獲取 Privy access token');
-            }
-
-            const response = await loginWithPrivy(
-              privyToken,
-              targetChain
-            );
-
-            newToken = response.token;
-            newChainId = response.chainId;
-            newUserData = {
-              ...user,
-              token: response.token,
-              chainId: response.chainId,
-              walletAddress: response.walletAddress,
-              name: response.name,
-              farcasterId: response.farcasterId,
-              farcasterUsername: response.farcasterUsername,
-              farcasterPfpUrl: response.farcasterPfpUrl,
-            };
-          } else {
-            // 回退到簽名方式（向後兼容）
-            const walletAddress =
-              connectedAddress ||
-              wallets.find((w) => w.walletClientType !== 'privy')?.address ||
-              user.walletAddress;
-
-            if (!walletAddress) {
-              throw new Error('無法獲取錢包地址');
-            }
-
-            if (
-              !isConnected &&
-              !wallets.some((w) => w.address === walletAddress)
-            ) {
-              throw new Error('請先連接錢包');
-            }
-
-            const farcasterId = user.farcasterId || privyUser?.farcaster?.fid;
-            const message = generateFarcasterMessage(
-              walletAddress,
-              farcasterId ? String(farcasterId) : undefined
-            );
-
-            const signature = await signMessageAsync({ message });
-            const response = await loginWithFarcaster(
-              walletAddress,
-              signature,
-              {
-                farcasterId: farcasterId ? String(farcasterId) : undefined,
-                chain_id: targetChain,
-              }
-            );
-
-            newToken = response.token;
-            newChainId = response.chainId;
-            newUserData = {
-              ...user,
-              token: response.token,
-              chainId: response.chainId,
-              walletAddress: response.walletAddress,
-              name: response.name,
-              farcasterId: response.farcasterId,
-              farcasterUsername: response.farcasterUsername,
-              farcasterPfpUrl: response.farcasterPfpUrl,
-            };
-          }
-          break;
-        }
-
-        case 'google': {
+        // Privy 登入（google / email / wallet）：一律用 Privy token 重新換發。
+        // 先前 'farcaster' 與 'google' 是兩個分支，但兩者最終都呼叫
+        // loginWithPrivy，且 Privy 未啟用 Farcaster，簽名回退路徑從未執行。
+        case 'google':
+        case 'email':
+        case 'wallet': {
           const privyToken = await getAccessToken();
           if (!privyToken) {
             throw new Error('無法獲取 Privy access token');
@@ -133,6 +59,9 @@ export function useChainSwitch() {
             chainId: response.chainId,
             walletAddress: response.walletAddress,
             name: response.name,
+            loginType: response.loginType,
+            email: response.email,
+            avatarUrl: response.avatarUrl,
           };
           break;
         }

@@ -43,9 +43,11 @@ export function WalletInfo() {
     }
   }
 
-  const farcasterUsername = privyUser?.farcaster?.username;
-  const farcasterPfp = privyUser?.farcaster?.pfp;
-  const farcasterFid = privyUser?.farcaster?.fid;
+  // 顯示名稱與頭像改讀 Privy 的 Google 帳號。
+  // 先前讀的是 privyUser.farcaster，但 Privy 的 loginMethods 只有
+  // email / wallet / google，該物件恆為 undefined，這段 UI 從未顯示過。
+  const displayName = privyUser?.google?.name ?? undefined;
+  const avatarUrl = undefined; // Privy 的 google 物件不含頭像；待後端 avatarUrl 接上後再補
   
   // Check if we need to prompt for wallet connection/creation
   const showConnectButton = !walletAddress && wallets.length === 0;
@@ -61,17 +63,17 @@ export function WalletInfo() {
           aria-label="Open profile"
           className="w-12 h-12 sm:w-16 sm:h-16 bg-[#050505] border border-[#050505] rounded-lg flex items-center justify-center overflow-hidden shrink-0 shadow-[0_5px_14px_rgba(0,0,0,0.16)] cursor-pointer hover:opacity-80 transition-opacity"
         >
-          {farcasterPfp ? (
-            <img src={farcasterPfp} alt={farcasterUsername || "User"} className="w-full h-full object-cover" />
-          ) : farcasterUsername ? (
-            <span className="text-xl sm:text-2xl text-white">{farcasterUsername.charAt(0).toUpperCase()}</span>
+          {avatarUrl ? (
+            <img src={avatarUrl} alt={displayName || "User"} className="w-full h-full object-cover" />
+          ) : displayName ? (
+            <span className="text-xl sm:text-2xl text-white">{displayName.charAt(0).toUpperCase()}</span>
           ) : (
             <User className="w-6 h-6 sm:w-8 sm:h-8 text-white" strokeWidth={2} />
           )}
         </button>
         <div className="flex-1 min-w-0">
-          {farcasterUsername && (
-          <div className="text-[#0b0b0b] font-bold text-sm sm:text-lg truncate">@{farcasterUsername} <span className="text-[10px] sm:text-xs text-[#6f6250] font-normal">(FID: {farcasterFid})</span></div>
+          {displayName && (
+            <div className="text-[#0b0b0b] font-bold text-sm sm:text-lg truncate">{displayName}</div>
           )}
           <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-[#111]">
             <span className="truncate">{displayAddress}</span>

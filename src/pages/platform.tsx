@@ -29,11 +29,6 @@ export default function PlatformPage() {
   const router = useRouter()
   const { safeAreaInsetBottom } = useViewportRequirements()
 
-  const [farcasterUser, setFarcasterUser] = useState<{
-    username?: string;
-    fid?: number;
-  } | null>(null);
-
   // 優先使用後端認證的地址（與 WalletInfo 顯示一致），避免多錢包時地址不匹配
   const walletAddress = user?.walletAddress || privyUser?.wallet?.address || connectedAddress || null
 
@@ -183,17 +178,9 @@ export default function PlatformPage() {
     fetchTrades() // 刷新訂單列表
   }
 
-  // 如果用戶通過 Privy 登入但沒有有效的 AuraServer token，重定向到登入頁面
-  // Farcaster 登入會在 login.tsx 中處理
+  // 通過 Privy 登入但沒有有效的 AuraServer token 時，回登入頁重新換發。
   useEffect(() => {
     if (ready && authenticated && privyUser && !user?.token) {
-      // 如果有 Farcaster 登入但沒有 token，重定向到登入頁面處理
-      if (privyUser.farcaster) {
-        router.push("/aurayale");
-        return;
-      }
-      // 對於非 Farcaster 登入，也重定向到登入頁面
-      // 因為我們需要有效的 AuraServer token
       router.push("/aurayale");
     }
   }, [ready, authenticated, privyUser, user, router]);

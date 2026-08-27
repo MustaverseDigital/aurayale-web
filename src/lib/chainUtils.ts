@@ -41,7 +41,6 @@ export function getDefaultChainForLoginType(loginType: string | undefined): Chai
   switch (loginType) {
     case 'google':
       return avaxFuji;
-    case 'farcaster':
     default:
       return soneiumMinato;
   }
