@@ -576,7 +576,7 @@ function EventContent() {
       {/* 活動截圖 */}
       <div className="relative w-full rounded-xl overflow-hidden">
         <img
-          src="/img/activity_1.png"
+          src="/img/activity_event.png"
           alt={t("infoMenu.event.title")}
           className="w-full h-auto object-cover rounded-xl"
         />
