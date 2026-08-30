@@ -80,7 +80,6 @@ export interface Translation {
   site: {
     nav: {
       contact: string
-      demo: string
       playNow: string
       login: string
       enterApp: string
@@ -299,7 +298,6 @@ const zhTW: Translation = {
   site: {
     nav: {
       contact: "聯絡我們",
-      demo: "試玩 Demo",
       playNow: "立即遊玩",
       login: "登入",
       enterApp: "進入應用",

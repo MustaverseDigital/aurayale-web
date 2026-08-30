@@ -91,15 +91,6 @@ export function MobileMenu({
                 {s.label}
               </button>
             ))}
-            {/* 展覽試玩入口（載入展覽版 Unity build，不需登入） */}
-            <Link
-              href="/demo"
-              onClick={onClose}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-amber-300 hover:text-amber-200 hover:bg-white/5 transition-all"
-            >
-              <span className="material-symbols-outlined text-base">play_circle</span>
-              {t("site.nav.demo")}
-            </Link>
           </div>
 
           {navItems.map((item) => (

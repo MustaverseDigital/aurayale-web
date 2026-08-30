@@ -99,7 +99,6 @@ const en: Translation = {
   site: {
     nav: {
       contact: "Contact",
-      demo: "Try Demo",
       playNow: "Play Now",
       login: "Log in",
       enterApp: "Enter App",

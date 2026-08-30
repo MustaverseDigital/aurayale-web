@@ -39,7 +39,7 @@ export function LandingNavbar({
               <img src="/images/Logo.svg" alt="Mustaverse" style={{ width: 150 }} />
             </Link>
             <nav className="hidden md:flex items-center gap-10">
-              {/* Aurayale：hover 彈出選單，列出頁面各 section + Demo */}
+              {/* Aurayale：hover 彈出選單，列出頁面各 section */}
               <div
                 className="relative"
                 onMouseEnter={() => setAurayaleOpen(true)}
@@ -72,16 +72,6 @@ export function LandingNavbar({
                         {s.label}
                       </button>
                     ))}
-                    <div className="my-1.5 mx-3 border-t border-white/10" />
-                    {/* 展覽試玩入口（載入展覽版 Unity build，不需登入） */}
-                    <Link
-                      href="/demo"
-                      onClick={() => setAurayaleOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-amber-300 hover:text-amber-200 hover:bg-white/5 transition-colors"
-                    >
-                      <span className="material-symbols-outlined text-base">play_circle</span>
-                      {t("site.nav.demo")}
-                    </Link>
                   </div>
                 </div>
               </div>
