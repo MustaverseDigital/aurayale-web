@@ -63,14 +63,18 @@ export default function BattlePage() {
   const router = useRouter();
   const [pendingDeck, setPendingDeck] = useState<string | null>(null);
   const { unityProvider, isLoaded, loadingProgression, sendMessage } = useUnityContext({
-    // 內容是 Brotli，副檔名是中性的 .unityweb（Unity 開啟 Decompression Fallback
-    // 後的產物，與 Unity 自產的 index.html 命名一致）。
-    // 伺服器仍須送 Content-Encoding: br（見 vercel.json / next.config.js）；
-    // 但不可設 Content-Type: application/wasm —— wasm 在 Vercel 自動壓縮 MIME
-    // 清單內，會讓 CDN 接手 encoding，檔案超過約 11MiB 後 header 反被丟掉。
+    // 內容是 Brotli，副檔名用中性的 .unityweb，由 vercel.json / next.config.js
+    // 送 Content-Encoding: br 讓瀏覽器解壓。
+    //
+    // framework 檔刻意改名為 Build.framework.unityweb（拿掉中間的 .js）：
+    // Vercel 會依副檔名推導 Content-Type，檔名含 .js 會被判為 javascript，
+    // 而 javascript 在 CDN 的自動壓縮 MIME 清單內 —— 於是在我們已經是 Brotli
+    // 的內容上再壓一層，瀏覽器解一層後仍是壓縮資料，導致 SyntaxError。
+    // 同理也不可設 Content-Type: application/wasm（wasm 也在該清單內）。
+    // 重新 build 後複製檔案時，記得一併改名。
     loaderUrl: "/Build/Build.loader.js",
     dataUrl: "/Build/Build.data.unityweb",
-    frameworkUrl: "/Build/Build.framework.js.unityweb",
+    frameworkUrl: "/Build/Build.framework.unityweb",
     codeUrl: "/Build/Build.wasm.unityweb",
   });
 
