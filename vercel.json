@@ -1,6 +1,15 @@
 {
   "headers": [
     {
+      "source": "/Build/(.*\\.unityweb)",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "br"
+        }
+      ]
+    },
+    {
       "source": "/Build/(.*)",
       "headers": [
         {
