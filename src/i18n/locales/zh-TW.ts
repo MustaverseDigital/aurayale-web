@@ -6,6 +6,8 @@ export interface Translation {
       stamina: string
     }
     rewardClaimFailed: string
+    loading: string
+    versionFailed: string
   }
   floatingMenu: {
     openAriaLabel: string
@@ -207,6 +209,8 @@ const zhTW: Translation = {
       stamina: "體力",
     },
     rewardClaimFailed: "領獎流程失敗：{{message}}",
+    loading: "Loading Game...",
+    versionFailed: "無法取得遊戲版本：{{message}}",
   },
   floatingMenu: {
     openAriaLabel: "開啟資訊選單",

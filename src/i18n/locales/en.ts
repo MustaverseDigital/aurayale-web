@@ -8,6 +8,8 @@ const en: Translation = {
       stamina: "Stamina",
     },
     rewardClaimFailed: "Reward claim failed: {{message}}",
+    loading: "Loading Game...",
+    versionFailed: "Failed to load game version: {{message}}",
   },
   floatingMenu: {
     openAriaLabel: "Open info menu",

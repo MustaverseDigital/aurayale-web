@@ -11,6 +11,7 @@ import { FloatingMenuButton } from "../components/FloatingMenuButton";
 import { InfoMenuModal } from "../components/InfoMenuModal";
 import { ExitGameButton } from "../components/ExitGameButton";
 import { useInfoPanelLayout } from "../hooks/useInfoPanelLayout";
+import { useUnityBuildVersion } from "../hooks/useUnityBuildVersion";
 import { useRouter } from "next/router";
 
 type RewardToastData = {
@@ -58,11 +59,67 @@ function RewardToast({ data, onClose }: { data: RewardToastData; onClose: () => 
 /** 「離開遊戲」的落點：官網的 Aurayale 介紹頁。 */
 const EXIT_GAME_ROUTE = "/aurayale";
 
+/**
+ * Unity build 載入前的閘門。
+ *
+ * 先問 /Build/version.json 拿到 buildId，才掛載真正的遊戲元件 —— 因為
+ * react-unity-webgl 的 useUnityContext 是用 useRef 在首次 render 就把四個 URL
+ * 定住的，mount 之後再改 URL 不會生效。用 key={buildId} 讓 buildId 變動時
+ * 整棵子樹重建。
+ */
 export default function BattlePage() {
+  const { t } = useTranslation();
+  const { status, version, error } = useUnityBuildVersion();
+
+  if (status === "loading") {
+    return <BattleBackdrop>{t("battle.loading")}</BattleBackdrop>;
+  }
+
+  if (status === "error") {
+    // 拿不到 version.json 就無從得知該載哪一版；硬猜只會重蹈版本錯配的覆轍。
+    return (
+      <BattleBackdrop>
+        <span className="text-red-300">{t("battle.versionFailed", { message: error })}</span>
+      </BattleBackdrop>
+    );
+  }
+
+  return <UnityGame key={version.buildId} buildId={version.buildId} />;
+}
+
+/** 遊戲載入 / 錯誤時共用的滿版底圖。 */
+function BattleBackdrop({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center"
+      style={{
+        backgroundImage: "url('/img/Aurayale_Bg.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        backgroundColor: "#1a0a2b",
+      }}
+    >
+      <div
+        className="text-white text-2xl font-bold"
+        style={{ textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function UnityGame({ buildId }: { buildId: string }) {
   const { t } = useTranslation();
   const router = useRouter();
   const [pendingDeck, setPendingDeck] = useState<string | null>(null);
   const { unityProvider, isLoaded, loadingProgression, sendMessage } = useUnityContext({
+    // 四個檔案都放在 /Build/<buildId>/ 底下，隨每次 build 換一個新目錄。
+    // 這是「卡在 90%、清快取才能玩」的解法：檔名固定時，loader / data /
+    // framework / wasm 是四個各自過期的快取項目，可能湊出「新 loader + 舊 wasm」，
+    // 版本錯配就會在 wasm 實例化時炸掉。換成版本目錄後四者同進同出。
+    //
     // 內容是 Brotli，副檔名用中性的 .unityweb，由 vercel.json / next.config.js
     // 送 Content-Encoding: br 讓瀏覽器解壓。
     //
@@ -71,11 +128,20 @@ export default function BattlePage() {
     // 而 javascript 在 CDN 的自動壓縮 MIME 清單內 —— 於是在我們已經是 Brotli
     // 的內容上再壓一層，瀏覽器解一層後仍是壓縮資料，導致 SyntaxError。
     // 同理也不可設 Content-Type: application/wasm（wasm 也在該清單內）。
-    // 重新 build 後複製檔案時，記得一併改名。
-    loaderUrl: "/Build/Build.loader.js",
-    dataUrl: "/Build/Build.data.unityweb",
-    frameworkUrl: "/Build/Build.framework.unityweb",
-    codeUrl: "/Build/Build.wasm.unityweb",
+    // 這些改名由 scripts/deploy-unity-build.mjs 自動處理。
+    loaderUrl: `/Build/${buildId}/Build.loader.js`,
+    dataUrl: `/Build/${buildId}/Build.data.unityweb`,
+    frameworkUrl: `/Build/${buildId}/Build.framework.unityweb`,
+    codeUrl: `/Build/${buildId}/Build.wasm.unityweb`,
+
+    // Unity loader 內建的 IndexedDB 快取（webGLDataCaching）用
+    // companyName + productName + productVersion 當作 cache 命名空間，並在
+    // cleanUpCache() 時清掉 version 不符的舊項目。不帶 productVersion 的話
+    // 全部版本共用 "1.0"，舊的 data 檔會一直佔著快取不被淘汰。
+    // 帶上 buildId，等於每次新 build 自動汰換掉上一版的快取。
+    companyName: "MustaverseDigital",
+    productName: "Aurayale",
+    productVersion: buildId,
   });
 
   const { user } = useUser();

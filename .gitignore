@@ -41,3 +41,9 @@ yarn-error.log*
 # ide
 .vscode
 .claude
+# Unity WebGL 產物一律放在 public/Build/<buildId>/ 底下（見 scripts/deploy-unity-build.mjs）。
+# 舊的無版本檔名會造成「新 loader + 舊 wasm」的版本錯配，擋掉避免手滑複製回來。
+/public/Build/Build.loader.js
+/public/Build/Build.data.unityweb
+/public/Build/Build.framework.unityweb
+/public/Build/Build.wasm.unityweb
