@@ -13,12 +13,25 @@ const nextConfig = {
   // MIME 清單內，宣告該型別會讓 CDN 接手 encoding，檔案超過約 11MiB 後我們的
   // Content-Encoding 反而會被丟掉（wasm 從 10.5MiB 長到 11.1MiB 時就踩到了）。
   // .unityweb 不在該清單內，Vercel 會原樣送出。
+  //
+  // 快取策略：產物放在 /Build/<buildId>/ 版本目錄下，內容不會再變，可以
+  // immutable 存一年；version.json 是唯一的 no-store 檔案，用來查最新版本。
   // 正式環境由 vercel.json 提供同等設定（兩邊要一起維護）。
   async headers() {
     return [
       {
         source: "/:dir(Build)/:file*.unityweb",
         headers: [{ key: "Content-Encoding", value: "br" }],
+      },
+      {
+        source: "/Build/:buildId(\\d{8}-\\d{4}-[^/]+)/:file*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      {
+        source: "/Build/version.json",
+        headers: [{ key: "Cache-Control", value: "no-store, must-revalidate" }],
       },
     ];
   },

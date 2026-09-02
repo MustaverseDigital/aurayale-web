@@ -62,7 +62,32 @@ When in doubt for new contract code, mirror `useTradeOrder.ts` — it has the mo
 
 ### Unity WebGL bridge
 
-The Unity build is served from `public/Build/` and loaded on `/battle` (`src/pages/battle.tsx`) via `react-unity-webgl`. `vercel.json` injects `Content-Encoding: gzip|br` and `Content-Type: application/wasm` headers for files under `/Build/`.
+The Unity build is served from `public/Build/<buildId>/` and loaded on `/battle` (`src/pages/battle.tsx`) via `react-unity-webgl`.
+
+**Build artifacts are versioned by directory — never put them back at a fixed path.** The four files (`Build.loader.js`, `Build.data.unityweb`, `Build.framework.unityweb`, `Build.wasm.unityweb`) are four independent cache entries. With fixed filenames a returning player could get a *new loader + old wasm*, and the mismatch blows up during wasm instantiation — stuck at 90% with `Not implemented: Class::FromIl2CppType` / `RangeError: Maximum call stack size exceeded`, only fixable by clearing site data. A per-build directory makes the four move together.
+
+To ship a new Unity build:
+
+```bash
+pnpm deploy:unity <unity-build-output-dir>   # copies + renames into public/Build/<buildId>/, rewrites version.json
+git add public/Build && git commit && git push
+```
+
+`scripts/deploy-unity-build.mjs` derives `buildId` as `<YYYYMMDD>-<HHMM>-<git short sha>`, normalises the extensions, and prunes all but the newest 3 version directories (`--keep N` to change).
+
+Caching contract, defined in both `vercel.json` and `next.config.js` (keep them in sync):
+
+| Path | `Cache-Control` |
+|---|---|
+| `/Build/<buildId>/*` | `public, max-age=31536000, immutable` |
+| `/Build/version.json` | `no-store, must-revalidate` |
+| `/Build/*.unityweb` | (also gets `Content-Encoding: br`) |
+
+`version.json` must stay uncached — it is the lookup that tells the client which `buildId` is current. `useUnityBuildVersion` fetches it with `cache: "no-store"`, and `BattlePage` does not mount `UnityGame` until it resolves, because `useUnityContext` freezes its URLs in a `useRef` on first render (changing them after mount is a no-op; `key={buildId}` forces a remount).
+
+`battle.tsx` also passes `companyName` / `productName` / `productVersion: buildId`. Unity's own IndexedDB cache (`webGLDataCaching`) namespaces entries by those three and evicts entries whose `version` differs from `productVersion` — without them every build shares the default `"1.0"` and stale 43 MB `data` blobs are never evicted.
+
+Do not set `Content-Type: application/wasm` on these files, and do not let the framework file keep a `.js` in its name: both types are in Vercel's CDN auto-compression MIME list, which would re-compress our already-Brotli payload and break decoding. The neutral `.unityweb` extension avoids this.
 
 Web → Unity uses `unityContext.sendMessage(gameObject, method, payload)`:
 - `Web.SetCardDeck(deckJson)` — read from `localStorage["battleDeck"]` set by `/platform`.
