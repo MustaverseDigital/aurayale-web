@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
+import { X } from "lucide-react";
 import { useLogin } from "../../hooks/useLogin";
 import { LandingLanguageSwitcher } from "./LandingLanguageSwitcher";
 import { AURAYALE_SECTIONS, scrollToAurayaleSection } from "./aurayaleSections";
@@ -12,12 +13,12 @@ const navItems: {
   labelKey: string;
   href: string;
   key: ActivePage;
-  icon: string;
-}[] = [
-  // { labelKey: "site.nav.home", href: "/landing", key: "home", icon: "home" },
-  { labelKey: "site.nav.contact", href: "/contact", key: "contact", icon: "mail" },
-];
+}[] = [{ labelKey: "site.nav.contact", href: "/contact", key: "contact" }];
 
+/**
+ * 行動版選單。與桌機同一套語彙：直角、髮絲線分隔、等寬大寫，
+ * 當前頁用左側一條金色細線標示（整站唯一會出現主色的導覽狀態）。
+ */
 export function MobileMenu({
   isOpen,
   activePage,
@@ -29,55 +30,54 @@ export function MobileMenu({
 }) {
   const { t } = useTranslation();
   // 與 LandingNavbar 一致：autoProcess 讓登入完成後跑 processLogin
-  // （取 Aura token、抓寶石與牌組），再由 useLogin 導向 /battle。
-  // 維持 false 的話 processLogin 不會執行，等於登入了卻沒建立 session。
+  // （取 Aura token、抓寶石與牌組）。維持 false 的話 processLogin 不會執行，
+  // 等於登入了卻沒建立 session。
   const { login, logout, authenticated, ready } = useLogin({ autoProcess: true });
   const router = useRouter();
 
   return (
     <div
-      className={`fixed inset-0 z-[60] transition-visibility ${
+      className={`fixed inset-0 z-60 ${
         isOpen ? "pointer-events-auto" : "pointer-events-none"
       }`}
     >
       <div
-        className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ease-out ${
+        className={`absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity duration-300 ease-out ${
           isOpen ? "opacity-100" : "opacity-0"
         }`}
         onClick={onClose}
       />
       <div
-        className={`absolute top-0 right-0 w-full max-w-sm h-full bg-background-dark/95 backdrop-blur-2xl border-l border-white/5 shadow-2xl flex flex-col transition-transform duration-300 ease-out ${
+        className={`absolute right-0 top-0 flex h-full w-full max-w-sm flex-col border-l border-line-2 bg-ink-1 transition-transform duration-300 ease-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between p-6 border-b border-white/5">
+        <div className="flex h-[var(--mv-nav-h)] shrink-0 items-center justify-between border-b border-line-1 px-6">
           <Link href="/landing" onClick={onClose}>
-            <img src="/images/Logo.svg" alt="" style={{ width: 120 }} />
+            <img src="/images/Logo.svg" alt="Mustaverse" className="h-6 w-auto" />
           </Link>
-          <button onClick={onClose} className="p-2 text-slate-400 hover:text-white transition-colors">
-            <span className="material-symbols-outlined text-2xl">close</span>
+          <button
+            onClick={onClose}
+            aria-label={t("site.a11y.closeMenu")}
+            className="-mr-2 cursor-pointer p-2 text-fg-3 transition-colors hover:text-fg-1"
+          >
+            <X className="h-5 w-5" strokeWidth={1.5} />
           </button>
         </div>
-        <nav className="flex flex-col gap-2 p-6 flex-grow overflow-y-auto">
-          {/* Aurayale：標題連結 + 各 section 子項 */}
+
+        <nav className="flex flex-grow flex-col overflow-y-auto">
           <Link
-            className={
+            className={`flex items-center border-b border-line-1 px-6 py-5 text-sm font-semibold tracking-tight transition-colors ${
               activePage === "aurayale"
-                ? "flex items-center gap-4 px-4 py-4 rounded-xl text-white bg-primary/10 border border-primary/20"
-                : "flex items-center gap-4 px-4 py-4 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all"
-            }
+                ? "border-l-2 border-l-primary text-fg-1"
+                : "text-fg-2 hover:bg-white/[0.03] hover:text-fg-1"
+            }`}
             href="/aurayale"
             onClick={onClose}
           >
-            <span
-              className={`material-symbols-outlined text-xl ${activePage === "aurayale" ? "text-primary" : ""}`}
-            >
-              diamond
-            </span>
-            <span className="text-sm font-semibold uppercase tracking-widest">Aurayale</span>
+            Aurayale
           </Link>
-          <div className="flex flex-col gap-1 pl-6 mb-1 border-l border-white/10 ml-5">
+          <div className="border-b border-line-1 py-2">
             {AURAYALE_SECTIONS.map((s) => (
               <button
                 key={s.id}
@@ -86,7 +86,7 @@ export function MobileMenu({
                   onClose();
                   scrollToAurayaleSection(router, s.id);
                 }}
-                className="text-left px-4 py-2.5 rounded-lg text-xs font-medium uppercase tracking-wider text-slate-400 hover:text-white hover:bg-white/5 transition-all"
+                className="mv-label block w-full cursor-pointer py-3 pl-10 pr-6 text-left transition-colors hover:text-fg-1"
               >
                 {s.label}
               </button>
@@ -96,31 +96,27 @@ export function MobileMenu({
           {navItems.map((item) => (
             <Link
               key={item.key}
-              className={
+              className={`flex items-center border-b border-line-1 px-6 py-5 text-sm font-semibold tracking-tight transition-colors ${
                 activePage === item.key
-                  ? "flex items-center gap-4 px-4 py-4 rounded-xl text-white bg-primary/10 border border-primary/20"
-                  : "flex items-center gap-4 px-4 py-4 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all"
-              }
+                  ? "border-l-2 border-l-primary text-fg-1"
+                  : "text-fg-2 hover:bg-white/[0.03] hover:text-fg-1"
+              }`}
               href={item.href}
               onClick={onClose}
             >
-              <span
-                className={`material-symbols-outlined text-xl ${activePage === item.key ? "text-primary" : ""}`}
-              >
-                {item.icon}
-              </span>
-              <span className="text-sm font-semibold uppercase tracking-widest">{t(item.labelKey)}</span>
+              {t(item.labelKey)}
             </Link>
           ))}
         </nav>
-        <div className="p-6 border-t border-white/5">
+
+        <div className="shrink-0 border-t border-line-1 p-6">
           {ready && authenticated ? (
             <button
               onClick={() => {
                 logout();
                 onClose();
               }}
-              className="w-full px-6 py-3 border border-white/20 text-white/70 font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-white/5 transition-all"
+              className="mv-btn mv-btn--ghost mv-btn--sm w-full"
             >
               {t("site.nav.logout")}
             </button>
@@ -130,12 +126,12 @@ export function MobileMenu({
                 login();
                 onClose();
               }}
-              className="w-full px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white font-bold text-xs uppercase tracking-widest rounded-xl hover:brightness-110 transition-all shadow-lg shadow-primary/20"
+              className="mv-btn mv-btn--ghost mv-btn--sm w-full"
             >
               {t("site.nav.login")}
             </button>
           )}
-          <div className="pt-6 mt-2 border-t border-white/10 flex justify-center">
+          <div className="mt-6 flex justify-center">
             <LandingLanguageSwitcher />
           </div>
         </div>

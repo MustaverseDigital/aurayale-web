@@ -1,10 +1,31 @@
-import { useEffect, useRef, useCallback, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/router";
-import { LandingNavbar } from "../components/landing/LandingNavbar";
-import { MobileMenu } from "../components/landing/MobileMenu";
-import { LandingFooter } from "../components/landing/LandingFooter";
 import { useTranslation } from "react-i18next";
+import { ArrowRight, Check, ShieldCheck } from "lucide-react";
+import { LandingLayout } from "../components/landing/LandingLayout";
+import { HeroMedia } from "../components/landing/HeroMedia";
+import { MosaicImage } from "../components/landing/MosaicImage";
+import { Reveal, Rule, Section } from "../components/landing/primitives";
 import { useLogin } from "../hooks/useLogin";
+
+const TRAILER_URL = "https://youtu.be/UFAOxXTXFuo";
+
+/**
+ * Gem Cuts 的卡牌扇形。旋轉與垂直位移寫死成常數，靠負的水平外距互相疊壓，
+ * 不再用 vw 算位移（視窗一窄就會爆版）。
+ */
+const FAN_CARDS = [
+  { src: "/images/card_01.png", rotate: -13, offsetY: 26, z: 1 },
+  { src: "/images/card_02.png", rotate: -4.5, offsetY: 5, z: 2 },
+  { src: "/images/card_03.png", rotate: 4.5, offsetY: 5, z: 3 },
+  { src: "/images/card_04.png", rotate: 13, offsetY: 26, z: 4 },
+];
+
+const AWARDS = [
+  { name: "ETHGlobal", sub: "Finalist 2024" },
+  { name: "BYBIT", nameSuffix: "Unleashed", sub: "Grant Recipient" },
+  { name: "Avalanche", sub: "AVAX Ecosystem" },
+];
 
 export default function AurayalePage() {
   const { t } = useTranslation();
@@ -13,14 +34,9 @@ export default function AurayalePage() {
   // 抓寶石與牌組）。
   //
   // 目前刻意「不」自動跳轉：useLogin 的 redirectTo 預設為 null。
-  // 先前預設跳 /battle，但本頁同時掛載了 LandingNavbar 與 MobileMenu，
-  // 三個 useLogin 實例會各自跳一次，跳轉行為互相打架。
-  // 要恢復自動跳轉時，只在「一個」實例傳入 redirectTo。
+  // 本頁同時掛載了 LandingNavbar 與 MobileMenu，三個 useLogin 實例會各自
+  // 跳一次，跳轉行為互相打架。要恢復自動跳轉時，只在「一個」實例傳 redirectTo。
   const { login, authenticated, ready } = useLogin({ autoProcess: true });
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
-  const heroRef = useRef<HTMLElement>(null);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // 從別頁帶 hash 進來時（例如導覽選單點某 section），載入後滾動到對應錨點。
   useEffect(() => {
@@ -45,412 +61,223 @@ export default function AurayalePage() {
     }
   };
 
-  const handleScroll = useCallback(() => {
-    const video = videoRef.current;
-    const overlay = overlayRef.current;
-    const hero = heroRef.current;
-    if (!video || !overlay || !hero) return;
-
-    const heroHeight = hero.offsetHeight;
-    const scrollY = window.scrollY;
-    const progress = Math.min(scrollY / heroHeight, 1);
-    const eased = progress * progress;
-
-    video.style.opacity = String(0.7 - eased * 0.3);
-    video.style.filter = `blur(${eased * 20}px)`;
-    overlay.style.opacity = String(0.3 + eased * 0.45);
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [handleScroll]);
-
-  // Scroll-reveal: Intersection Observer for below-the-fold sections
-  useEffect(() => {
-    const reveals = document.querySelectorAll(".reveal");
-    if (!reveals.length) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("visible");
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
-    );
-    reveals.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <div className="landing-page font-body antialiased min-h-screen flex flex-col">
-      {/* Fixed Video Background */}
-      <div className="fixed inset-0 z-0 overflow-hidden">
-        <video
-          ref={videoRef}
-          className="w-full h-full object-cover"
-          style={{ opacity: 0.4 }}
-          autoPlay
-          muted
-          loop
-          playsInline
-        >
-          <source src="/images/banner.mp4" type="video/mp4" />
-        </video>
-        <div ref={overlayRef} className="absolute inset-0 bg-background-dark" style={{ opacity: 0.4 }} />
-        <div className="absolute inset-0 bg-gradient-to-b from-background-dark/30 via-transparent to-background-dark/60" />
-      </div>
+    <LandingLayout activePage="aurayale">
+      {/* ── Hero ──
+          影片只放在 hero 內，不再整頁 fixed：8MB 的 banner.mp4 掛在整個
+          捲動流程上，手機會一路解碼到底。poster 讓首屏立刻有畫面。 */}
+      <section className="relative z-10 flex min-h-[calc(100dvh-var(--mv-nav-h))] items-end overflow-hidden pt-24 pb-24 md:pb-28 lg:pb-36">
+        <HeroMedia src="/images/banner.mp4" poster="/images/aurayale_hero.jpg" />
 
-      <LandingNavbar activePage="aurayale" onOpenMobileMenu={() => setMobileMenuOpen(true)} />
-      <MobileMenu isOpen={mobileMenuOpen} activePage="aurayale" onClose={() => setMobileMenuOpen(false)} />
-
-      <main className="flex-grow relative z-10">
-        {/* Hero */}
-        {/* Hero：靠左對齊、壓在畫面下緣，讓背景影片本身成為主視覺。 */}
-        <section
-          ref={heroRef}
-          className="relative min-h-[100dvh] flex items-end overflow-hidden pt-24 pb-20"
-        >
-          <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6">
-            <div className="max-w-3xl">
-              <p className="hero-enter hero-badge text-primary font-bold tracking-[0.2em] text-xs uppercase mb-5">
-                {t("site.aurayale.hero.badge")}
-              </p>
-              <h1 className="hero-enter hero-title font-display text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter text-white mb-6 leading-[0.95]">
-                {t("site.aurayale.hero.titleLine1")}
-                <br />
-                <span className="text-gradient-landing">{t("site.aurayale.hero.titleLine2")}</span>
-              </h1>
-              <p className="hero-enter hero-stats text-lg text-slate-300 max-w-xl mb-10 leading-relaxed font-light">
-                {t("site.aurayale.hero.body")}
-              </p>
-              <div className="hero-enter hero-cta flex flex-col sm:flex-row gap-4">
-                <button
-                  onClick={handleStartAdventure}
-                  className="group w-full sm:w-auto px-10 py-4 bg-primary text-background-dark rounded-xl font-bold hover:bg-secondary transition-all active:scale-[0.98] flex items-center justify-center gap-2"
-                >
-                  {t("site.aurayale.hero.ctaPrimary")}
-                  <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                </button>
-                <button className="w-full sm:w-auto px-10 py-4 rounded-xl font-bold text-white border border-white/20 hover:bg-white/5 transition-all active:scale-[0.98] backdrop-blur-md">
-                  {t("site.aurayale.hero.ctaSecondary")}
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Home (game intro) */}
-        <section id="home" className="py-32 relative reveal scroll-mt-24">
-          <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary/5 to-transparent pointer-events-none" />
-          <div className="max-w-[1400px] mx-auto px-6">
-            <div className="grid lg:grid-cols-2 gap-20 items-center">
-              <div className="relative z-10 order-2 lg:order-1">
-                <div className="relative group">
-                  <div className="aspect-[4/3] rounded-[2rem] glass-card-deep p-2 relative overflow-visible transform rotate-[-2deg] hover:rotate-0 transition-transform duration-700">
-                    <div className="absolute -top-12 -right-12 w-32 h-32 bg-primary/20 rounded-full blur-[40px] z-0" />
-                    <div className="relative  w-full rounded-[1.5rem] overflow-hidden">
-                      <img
-                        alt="Aurayale Gem Universe"
-                        className="w-full h-full object-cover opacity-90 hover:scale-105 transition-transform duration-1000"
-                        src="/images/banner_02.jpg"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent opacity-60" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="relative z-10 order-1 lg:order-2">
-                <span className="text-primary font-bold tracking-[0.2em] text-xs uppercase mb-6 flex items-center gap-2">
-                  <span className="w-8 h-px bg-primary" /> {t("site.aurayale.home.eyebrow")}
-                </span>
-                <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-8 tracking-tight leading-tight">
-                  {t("site.aurayale.home.welcome")}{" "}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-slate-200">
-                    {t("site.aurayale.home.title")}
-                  </span>
-                </h2>
-                <p className="text-slate-400 text-lg leading-relaxed mb-6 font-light max-w-lg">
-                  {t("site.aurayale.home.body")}
-                </p>
-                <div className="flex gap-4">
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* HOT Games — 暫時隱藏 */}
-        <section id="hot-games" className="hidden py-32 reveal scroll-mt-24">
-          <div className="max-w-[1400px] mx-auto px-6">
-            <div className="flex items-center justify-between mb-10">
-              <div className="flex items-center space-x-4">
-                <div className="p-2.5 bg-gradient-to-r from-primary to-secondary rounded-xl shadow-lg shadow-primary/20">
-                  <span className="text-white material-symbols-outlined block">local_fire_department</span>
-                </div>
-                <h2 className="text-3xl font-bold text-white tracking-tight font-display">HOT Games</h2>
-              </div>
-              <a className="text-slate-400 text-sm hover:text-white flex items-center transition-all font-semibold group" href="#">
-                {t("site.aurayale.home.cta")}
-                <span className="material-symbols-outlined text-lg ml-2 transform group-hover:translate-x-1 transition-transform">arrow_forward</span>
+        <div className="mv-container relative z-10">
+          <div className="mv-inset max-w-[52rem]">
+            <p className="mv-chip mv-enter mb-7" style={{ ["--mv-d" as string]: "80ms" }}>
+              {t("site.aurayale.hero.badge")}
+            </p>
+            <h1 className="mv-display mv-enter mb-7" style={{ ["--mv-d" as string]: "180ms" }}>
+              {t("site.aurayale.hero.titleLine1")}
+              <br />
+              {t("site.aurayale.hero.titleLine2")}
+            </h1>
+            <p
+              className="mv-body mv-enter mb-10 max-w-[42ch]"
+              style={{ ["--mv-d" as string]: "300ms" }}
+            >
+              {t("site.aurayale.hero.body")}
+            </p>
+            <div
+              className="mv-enter flex flex-col gap-3 sm:flex-row"
+              style={{ ["--mv-d" as string]: "420ms" }}
+            >
+              <button onClick={handleStartAdventure} className="mv-btn mv-btn--accent">
+                {t("site.aurayale.hero.ctaPrimary")}
+                <ArrowRight className="mv-btn__arrow h-4 w-4" strokeWidth={2} />
+              </button>
+              <a
+                href={TRAILER_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mv-btn mv-btn--ghost"
+              >
+                {t("site.aurayale.hero.ctaSecondary")}
               </a>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 reveal-stagger reveal">
-              {/* Card 3: Full */}
-              <div className="glass-panel rounded-2xl p-7 hover:border-primary/50 transition-all duration-500 hover:scale-[1.02] group cursor-pointer relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-secondary to-primary opacity-30 group-hover:opacity-100 transition-opacity" />
-                <div className="flex justify-between items-start mb-6">
-                  <h3 className="font-bold text-xl text-slate-100 group-hover:text-white transition-colors leading-tight">
-                    Beginner&apos;s Arena
-                  </h3>
-                  <span className="bg-primary/10 text-primary border border-primary/30 text-xs px-3 py-1 rounded-full font-bold">Full</span>
-                </div>
-                <div className="flex items-center space-x-6 text-sm mb-10">
-                  <div className="flex items-center gap-2 text-slate-400 group-hover:text-slate-300">
-                    <span className="text-primary material-symbols-outlined text-xl">emoji_events</span>
-                    <span className="font-bold">100</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-slate-400 group-hover:text-slate-300">
-                    <span className="text-primary material-symbols-outlined text-xl">group</span>
-                    <span className="font-bold">20/20</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-slate-400 group-hover:text-slate-300">
-                    <span className="text-rose-500/80 material-symbols-outlined text-xl">favorite</span>
-                    <span className="font-bold">45</span>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center pt-6 border-t border-white/5">
-                  <div className="flex gap-2">
-                    <span className="bg-primary/10 text-primary border border-primary/20 text-[9px] px-2.5 py-1 rounded font-black uppercase tracking-[0.15em]">Novice</span>
-                    <span className="bg-primary/10 text-primary border border-primary/20 text-[9px] px-2.5 py-1 rounded font-black uppercase tracking-[0.15em]">Ranked</span>
-                  </div>
-                  <button className="bg-gradient-to-r from-primary to-secondary text-white text-xs font-bold py-2.5 px-6 rounded-xl transition-all shadow-lg shadow-primary/20 uppercase tracking-wider hover:brightness-110">
-                    Spectate
-                  </button>
-                </div>
-              </div>
-
-              {/* Card 1: Live */}
-              <div className="glass-panel rounded-2xl p-7 hover:border-primary/50 transition-all duration-500 hover:scale-[1.02] group cursor-pointer relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary opacity-30 group-hover:opacity-100 transition-opacity" />
-                <div className="flex justify-between items-start mb-6">
-                  <h3 className="font-bold text-xl text-slate-100 group-hover:text-white transition-colors leading-tight">
-                    Aurayale Season 1 Championship
-                  </h3>
-                  <span className="status-active">
-                    <span className="status-dot" /> Live
-                  </span>
-                </div>
-                <div className="flex items-center space-x-6 text-sm mb-10">
-                  <div className="flex items-center gap-2 text-slate-400 group-hover:text-slate-300">
-                    <span className="text-primary material-symbols-outlined text-xl">emoji_events</span>
-                    <span className="font-bold">6</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-slate-400 group-hover:text-slate-300">
-                    <span className="text-primary material-symbols-outlined text-xl">group</span>
-                    <span className="font-bold">7/12</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-slate-400 group-hover:text-slate-300">
-                    <span className="text-rose-500/80 material-symbols-outlined text-xl">favorite</span>
-                    <span className="font-bold">112</span>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center pt-6 border-t border-white/5">
-                  <div className="flex gap-2">
-                    <span className="bg-primary/10 text-primary border border-primary/20 text-[9px] px-2.5 py-1 rounded font-black uppercase tracking-[0.15em]">Hot</span>
-                    <span className="bg-primary/10 text-primary border border-primary/20 text-[9px] px-2.5 py-1 rounded font-black uppercase tracking-[0.15em]">Mining</span>
-                  </div>
-                  <button className="bg-primary/10 border border-primary/30 text-primary text-xs font-bold py-2.5 px-6 rounded-xl transition-all uppercase tracking-wider hover:bg-primary/20 hover:border-primary">
-                    Enter Room
-                  </button>
-                </div>
-              </div>
-
-              {/* Card 2: Ended */}
-              <div className="glass-panel rounded-2xl p-7 hover:border-slate-500/40 transition-all duration-500 group cursor-pointer relative overflow-hidden opacity-80 hover:opacity-100">
-                <div className="absolute top-0 left-0 w-full h-1 bg-slate-500/20 group-hover:opacity-100 transition-opacity" />
-                <div className="flex justify-between items-start mb-6">
-                  <h3 className="font-bold text-xl text-slate-100 transition-colors leading-tight">Weekly Speed Run Event</h3>
-                  <span className="bg-black/40 text-slate-500 border border-white/5 text-xs px-3 py-1 rounded-full font-bold">Ended</span>
-                </div>
-                <div className="flex items-center space-x-6 text-sm mb-10">
-                  <div className="flex items-center gap-2 text-slate-400">
-                    <span className="text-primary/50 material-symbols-outlined text-xl">emoji_events</span>
-                    <span className="font-bold">1,200</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-slate-400">
-                    <span className="text-primary/50 material-symbols-outlined text-xl">group</span>
-                    <span className="font-bold">50/50</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-slate-400">
-                    <span className="text-rose-500/40 material-symbols-outlined text-xl">favorite</span>
-                    <span className="font-bold">89</span>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center pt-6 border-t border-white/5">
-                  <div className="flex gap-2">
-                    <span className="bg-white/5 text-slate-500 border border-white/10 text-[9px] px-2.5 py-1 rounded font-black uppercase tracking-[0.15em]">Speedrun</span>
-                  </div>
-                  <button className="bg-white/5 text-slate-500 text-xs font-bold py-2.5 px-6 rounded-xl border border-white/5 cursor-not-allowed uppercase tracking-wider">
-                    Closed
-                  </button>
-                </div>
-              </div>
-            </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-
-        {/* Gem Cuts */}
-        <section id="gem-cuts" className="py-32 relative bg-white/[0.01] reveal scroll-mt-24">
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(99,102,241,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(99,102,241,0.02)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]" />
-          <div className="max-w-[1400px] mx-auto px-6 relative z-10">
-            <div className="text-center mb-6">
-              <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">
-                {t("site.aurayale.gemCuts.title")}
+      {/* ── 遊戲介紹 ── */}
+      <Section id="home" marker={t("site.aurayale.home.eyebrow")}>
+        {/* 影像鋪滿整段、往文字那側羽化掉，文字直接壓在同一個平面上 */}
+        <div className="relative overflow-hidden pt-12 md:pt-16">
+          <MosaicImage
+            src="/images/aurayale_home.jpg"
+            alt="Aurayale 寶石宇宙的星球場景"
+            className="mv-media--feather mv-media--feather-r relative z-0 h-60 w-full md:absolute md:inset-y-0 md:left-0 md:h-auto md:w-[62%]"
+            scan
+          />
+          <Reveal
+            direction="right"
+            className="relative z-10 -mt-10 grid grid-cols-1 items-center pb-16 md:mt-0 md:min-h-[26rem] md:grid-cols-12 md:py-24"
+          >
+            <div className="md:col-start-7 md:col-span-6">
+              <h2 className="mv-h2">
+                {t("site.aurayale.home.welcome")}
+                <br />
+                {t("site.aurayale.home.title")}
               </h2>
-              <p className="text-slate-400 max-w-xl mx-auto font-light">
-                {t("site.aurayale.gemCuts.deckLine")}
-              </p>
-              <p className="text-slate-400 max-w-xl mx-auto font-light">
-                {t("site.aurayale.gemCuts.comboLine")}
-              </p>
+              <p className="mv-body mt-6">{t("site.aurayale.home.body")}</p>
             </div>
-            <div className="flex justify-center items-end py-16 overflow-visible">
-              <div className="relative flex items-end justify-center w-full max-w-[700px] mx-auto" style={{ height: 300 }}>
-                {[
-                  { src: "/images/card_01.png", floatClass: "card-float-1", transform: "translateX(-50%) translateX(calc(-28vw + 40px)) rotate(-15deg)", z: 1 },
-                  { src: "/images/card_02.png", floatClass: "card-float-2", transform: "translateX(-50%) translateX(calc(-10vw + 10px)) rotate(-5deg)", z: 2 },
-                  { src: "/images/card_03.png", floatClass: "card-float-3", transform: "translateX(-50%) translateX(calc(10vw - 10px)) rotate(5deg)", z: 3 },
-                  { src: "/images/card_04.png", floatClass: "card-float-4", transform: "translateX(-50%) translateX(calc(28vw - 40px)) rotate(15deg)", z: 4 },
-                ].map((card, i) => (
-                  <div
-                    key={i}
-                    className="absolute left-1/2 bottom-0"
-                    style={{ transform: card.transform, transformOrigin: "bottom center", zIndex: card.z }}
-                  >
-                    <div className={`${card.floatClass} cursor-pointer`}>
-                      <img
-                        src={card.src}
-                        alt={`Card ${String(i + 1).padStart(2, "0")}`}
-                        className="fan-card w-[140px] sm:w-[170px] md:w-[220px] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
+          </Reveal>
+        </div>
+      </Section>
+
+      {/* HOT Games 區塊暫時隱藏（原本是 hidden 但仍會送到瀏覽器，
+          且內含尚未成真的房間數據；先收成註解，要恢復再展開）。 */}
+
+      {/* ── Gem Cuts ──
+          卡牌扇形放在一條基準線上，像攤在桌面上的手牌。
+          hover 會把該張抬起並讓灰階退開一點，用來表示卡牌本身可互動。 */}
+      <Section id="gem-cuts" tint texture="dots">
+        <Reveal className="pt-12 md:pt-16">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
+            <h2 className="mv-h2 md:col-span-5">{t("site.aurayale.gemCuts.title")}</h2>
+            <div className="md:col-start-8 md:col-span-5 md:self-end">
+              <p className="mv-label">{t("site.aurayale.gemCuts.deckLine")}</p>
+              <p className="mv-body mt-4">{t("site.aurayale.gemCuts.comboLine")}</p>
             </div>
           </div>
-        </section>
+        </Reveal>
 
-        {/* SwUp System */}
-        <section id="swup-system" className="py-32 relative overflow-hidden reveal scroll-mt-24">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-background-dark z-0" />
-          <div className="max-w-[1400px] mx-auto px-6 relative z-10">
-            <div className="glass-panel rounded-[3rem] p-12 md:p-20 border border-white/10 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3" />
-              <div className="grid lg:grid-cols-2 gap-16 items-center">
-                <div>
-                  <span className="accent-badge mb-6 inline-flex">{t("site.aurayale.swup.badge")}</span>
-                  <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6">
-                    {t("site.aurayale.swup.titleLine1")}<br /> {t("site.aurayale.swup.titleLine2")}
-                  </h2>
-                  <p className="text-slate-400 text-lg leading-relaxed mb-8 font-light">
-                    {t("site.aurayale.swup.body")}
-                  </p>
-                  <ul className="space-y-6">
-                    <li className="flex items-start gap-4">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 shrink-0 mt-1">
-                        <span className="material-symbols-outlined text-sm text-primary">check</span>
-                      </div>
-                      <div>
-                        <h4 className="text-white font-bold text-sm">{t("site.aurayale.swup.erc1155Title")}</h4>
-                        <p className="text-slate-500 text-xs mt-1">{t("site.aurayale.swup.erc1155Desc")}</p>
-                      </div>
-                    </li>
-                    <li className="flex items-start gap-4">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 shrink-0 mt-1">
-                        <span className="material-symbols-outlined text-sm text-primary">verified_user</span>
-                      </div>
-                      <div>
-                        <h4 className="text-white font-bold text-sm">{t("site.aurayale.swup.vrfTitle")}</h4>
-                        <p className="text-slate-500 text-xs mt-1">{t("site.aurayale.swup.vrfDesc")}</p>
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-                <div className="relative">
+        <Reveal delay={120} className="mt-16 md:mt-24">
+          <div className="flex items-end justify-center">
+            {FAN_CARDS.map((card, i) => (
+              <div
+                key={card.src}
+                className="mv-fan"
+                style={{
+                  zIndex: card.z,
+                  ["--mv-fan-r" as string]: `${card.rotate}deg`,
+                  ["--mv-fan-y" as string]: `${card.offsetY}px`,
+                  marginInline: "-2.5%",
+                }}
+              >
+                <div className="mv-fan__float" style={{ animationDelay: `${i * 0.65}s` }}>
                   <img
-                    src="/images/banner_03.png"
-                    alt="SwUp System"
-                    className="w-full h-auto rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.4)]"
+                    src={card.src}
+                    alt={`Aurayale 寶石卡牌 ${String(i + 1).padStart(2, "0")}`}
+                    className="mv-fan__img w-[22vw] min-w-[86px] max-w-[196px]"
+                    loading="lazy"
                   />
                 </div>
               </div>
-            </div>
+            ))}
           </div>
-        </section>
+          <Rule className="mv-rule--full mt-10" />
+        </Reveal>
+      </Section>
 
-        {/* Awards */}
-        <section id="awards" className="py-24 bg-white/[0.01] border-y border-white/5 reveal scroll-mt-24">
-          <div className="max-w-[1400px] mx-auto px-6 text-center">
-            <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em] mb-12">
-              {t("site.aurayale.awards.title")}
-            </h3>
-            <div className="flex flex-wrap justify-center items-center gap-16 md:gap-24 opacity-80">
-              {[
-                { icon: "diamond", name: "ETHGlobal", sub: "Finalist 2024" },
-                { icon: "rocket_launch", name: "BYBIT", nameSuffix: "Unleashed", sub: "Grant Recipient" },
-                { icon: "hexagon", name: "Avalanche", sub: "AVAX Ecosystem" },
-              ].map((award, i) => (
-                <div key={award.name} className="flex flex-col items-center gap-2 group cursor-default">
-                  {i > 0 && <div className="w-px h-12 bg-white/10 hidden md:block absolute -ml-[calc(50%+3rem)]" />}
-                  <span className="material-symbols-outlined text-4xl text-primary/40 group-hover:text-primary transition-colors">
-                    {award.icon}
-                  </span>
-                  <span className="font-display font-bold text-xl tracking-wide text-slate-400 group-hover:text-white transition-colors">
-                    {award.name}
-                    {award.nameSuffix && <span className="font-light"> {award.nameSuffix}</span>}
-                  </span>
-                  <span className="text-[9px] uppercase tracking-widest text-primary/60">{award.sub}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+      {/* ── SwUp System ──
+          技術面板：直角、四角定位標記，兩項規格用一條線隔開。 */}
+      <Section id="swup-system" texture="hatch">
+        <Reveal className="pt-12 md:pt-20">
+          <div className="mv-panel mv-marks relative overflow-hidden">
+            {/* 影像貼齊面板的三個邊，往左羽化，看起來就是面板本身而不是嵌在裡面的圖 */}
+            <MosaicImage
+              src="/images/swup_system.jpg"
+              alt="SwUp 交換與升級流程示意"
+              className="mv-media--feather mv-media--feather-l relative z-0 h-60 w-full md:absolute md:inset-y-0 md:right-0 md:h-auto md:w-[58%]"
+            />
+            <div className="relative z-10 -mt-10 grid grid-cols-1 items-center px-8 pb-8 md:mt-0 md:min-h-[30rem] md:grid-cols-12 md:p-14">
+              <div className="md:col-span-6">
+                <p className="mv-chip mb-7">{t("site.aurayale.swup.badge")}</p>
+                <h2 className="mv-h2">
+                  {t("site.aurayale.swup.titleLine1")}
+                  <br />
+                  {t("site.aurayale.swup.titleLine2")}
+                </h2>
+                <p className="mv-body mt-6">{t("site.aurayale.swup.body")}</p>
 
-        {/* CTA */}
-        <section className="py-32 relative reveal scale-up">
-          <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
-            <div className="glass-panel py-20 px-8 rounded-[3rem] border border-white/10 shadow-[0_0_100px_rgba(99,102,241,0.15)] bg-gradient-to-b from-white/[0.02] to-transparent">
-              <h2 className="font-display text-5xl md:text-7xl font-bold text-white mb-8 tracking-tighter">
-                {t("site.aurayale.cta.titleLine1")}<br />
-                <span className="text-gradient-landing">{t("site.aurayale.cta.titleLine2")}</span>
-              </h2>
-              <p className="text-slate-400 text-lg mb-12 max-w-lg mx-auto font-light">
-                {t("site.aurayale.cta.body")}
-              </p>
-              <div className="flex flex-col items-center">
-                <button
-                  onClick={handleStartAdventure}
-                  className="px-16 py-6 bg-gradient-to-r from-primary to-secondary text-white rounded-full font-bold text-lg uppercase tracking-widest hover:brightness-110 hover:scale-105 transition-all shadow-[0_0_40px_rgba(99,102,241,0.3)]"
-                >
-                  {t("site.aurayale.cta.button")}
-                </button>
-                <p className="mt-6 text-xs text-slate-500 uppercase tracking-wider">Browser &amp; VR Compatible</p>
+                <ul className="mt-10">
+                  {[
+                    {
+                      Icon: Check,
+                      title: t("site.aurayale.swup.erc1155Title"),
+                      desc: t("site.aurayale.swup.erc1155Desc"),
+                    },
+                    {
+                      Icon: ShieldCheck,
+                      title: t("site.aurayale.swup.vrfTitle"),
+                      desc: t("site.aurayale.swup.vrfDesc"),
+                    },
+                  ].map(({ Icon, title, desc }) => (
+                    <li key={title} className="mv-row flex items-start gap-4 py-5">
+                      <Icon className="mt-0.5 h-4 w-4 shrink-0 text-fg-3" strokeWidth={1.5} />
+                      <div>
+                        <h3 className="mv-h3 text-[0.9375rem]">{title}</h3>
+                        <p className="mv-body mv-body--sm mt-1.5">{desc}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           </div>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[800px] h-[400px] bg-primary/10 rounded-full blur-[120px] -z-10" />
-        </section>
-      </main>
+        </Reveal>
+      </Section>
 
-      <LandingFooter variant="aurayale" />
-    </div>
+      {/* ── 業界肯定 ──
+          三個獎項用垂直髮絲線分隔，去掉原本的鑽石／火箭圖示（太樣板）。 */}
+      <Section id="awards" marker={t("site.aurayale.awards.title")} tint>
+        <Reveal className="pt-10 md:pt-14">
+          <div className="grid grid-cols-1 sm:grid-cols-3">
+            {AWARDS.map((award, i) => (
+              <div
+                key={award.name}
+                className={`py-8 sm:py-4 ${
+                  i > 0
+                    ? "border-t border-line-1 sm:border-t-0 sm:border-l sm:pl-10"
+                    : ""
+                } ${i === 0 ? "sm:pr-10" : ""} ${i === 1 ? "sm:pr-10" : ""}`}
+              >
+                <p className="mv-h2 text-[clamp(1.5rem,2.4vw,2rem)]">
+                  {award.name}
+                  {award.nameSuffix ? (
+                    <span className="font-light text-fg-2"> {award.nameSuffix}</span>
+                  ) : null}
+                </p>
+                <p className="mv-label mt-3">{award.sub}</p>
+              </div>
+            ))}
+          </div>
+        </Reveal>
+      </Section>
+
+      {/* ── 收尾 CTA ── */}
+      <Section texture="hatch" contentClassName="pb-20 md:pb-32">
+        <Reveal className="pt-14 md:pt-20">
+          <div className="grid grid-cols-1 items-end gap-10 md:grid-cols-12">
+            <div className="md:col-span-8">
+              <h2 className="mv-h2 text-[clamp(2rem,4.4vw,3.5rem)]">
+                {t("site.aurayale.cta.titleLine1")}
+                <br />
+                {t("site.aurayale.cta.titleLine2")}
+              </h2>
+              <p className="mv-body mt-6">{t("site.aurayale.cta.body")}</p>
+            </div>
+            <div className="md:col-start-10 md:col-span-3 md:justify-self-end">
+              <button
+                onClick={handleStartAdventure}
+                className="mv-btn mv-btn--accent w-full sm:w-auto"
+              >
+                {t("site.aurayale.cta.button")}
+                <ArrowRight className="mv-btn__arrow h-4 w-4" strokeWidth={2} />
+              </button>
+              <p className="mv-label mt-4 md:text-right">Browser &amp; VR Compatible</p>
+            </div>
+          </div>
+        </Reveal>
+      </Section>
+    </LandingLayout>
   );
 }

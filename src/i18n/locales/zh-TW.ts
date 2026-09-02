@@ -80,6 +80,11 @@ export interface Translation {
     }
   }
   site: {
+    a11y: {
+      skipToContent: string
+      openMenu: string
+      closeMenu: string
+    }
     nav: {
       contact: string
       playNow: string
@@ -141,6 +146,12 @@ export interface Translation {
         message: string
         messagePlaceholder: string
         submit: string
+        required: string
+        invalidEmail: string
+        readyTitle: string
+        readyBody: string
+        openMailApp: string
+        editAgain: string
       }
       openForDeals: string
       communityTitle: string
@@ -300,6 +311,11 @@ const zhTW: Translation = {
     },
   },
   site: {
+    a11y: {
+      skipToContent: "跳到主要內容",
+      openMenu: "開啟選單",
+      closeMenu: "關閉選單",
+    },
     nav: {
       contact: "聯絡我們",
       playNow: "立即遊玩",
@@ -373,6 +389,12 @@ const zhTW: Translation = {
         message: "專案說明",
         messagePlaceholder: "簡單描述你的 IP 與想達成的目標⋯⋯",
         submit: "送出訊息",
+        required: "此欄為必填",
+        invalidEmail: "請輸入有效的電子郵件",
+        readyTitle: "訊息已準備好",
+        readyBody: "我們沒有把表單存在伺服器上。點下面的按鈕，內容會帶進你的信件軟體，確認後由你按下寄出。",
+        openMailApp: "開啟信件軟體",
+        editAgain: "回去修改",
       },
       openForDeals: "開放合作洽談",
       communityTitle: "加入我們的社群",

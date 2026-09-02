@@ -12,16 +12,9 @@ export default function Document() {
         <link rel="manifest" href="/site.webmanifest" />
         <meta name="theme-color" content="#15161a" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-        <link href="https://fonts.googleapis.com" rel="preconnect" />
-        <link crossOrigin="anonymous" href="https://fonts.gstatic.com" rel="preconnect" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-          rel="stylesheet"
-        />
+        {/* 字體改由 next/font 自架（見 pages/_app.tsx 的 Geist / Geist Mono），
+            Material Symbols 也一併移除 —— 行銷頁的圖示全部換成 lucide-react，
+            站上已無 .material-symbols-outlined 用法。省下三個外部 CSS 往返。 */}
         <title>Mustaverse Digital 邁思達數位</title>
         <meta
           name="description"

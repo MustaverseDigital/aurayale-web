@@ -1,19 +1,45 @@
 @import "tailwindcss";
 
 @theme {
-  /* 品牌主色取自遊戲端既有的金色 token（.card-item 邊框 / .border-gold） */
+  /* 品牌主色取自遊戲端既有的金色 token（.card-item 邊框 / .border-gold）。
+     行銷頁把它當「唯一強調色」：每頁只出現在一個主要 CTA、當前導覽項的
+     底線，以及真實狀態指示上。其餘全部走灰階。 */
   --color-primary: #c8a75a;
+  --color-primary-hi: #dcbd73;
   --color-secondary: #bba16d;
-  /* TCG 稀有度色階：用於行銷頁分層，語彙沿用卡牌社群慣例。 */
+  /* TCG 稀有度色階：遊戲端沿用；行銷頁已改為灰階分層，不再用彩色稀有度。 */
   --color-rarity-common: #8b94a3;
   --color-rarity-rare: #5b8fc9;
   --color-rarity-epic: #a071c6;
   --color-rarity-legendary: #c8a75a;
-  --color-background-dark: #0a0a0c;
+
+  /* ─── 行銷頁深色階（暖調 near-black）───
+     不用純黑：純黑吃層次，髮絲線也會無處可站。
+     整組往暖偏，白也是帶米的暖白 —— 對照 DesignRef 的 Noctra 配色，
+     純冷灰在深色底上會顯得偏藍、偏塑膠。 */
+  --color-background-dark: #0f0e0c;
+  --color-ink-1: #0f0e0c; /* 頁底 */
+  --color-ink-2: #141210; /* 區塊交替底 */
+  --color-ink-3: #191713; /* 面板 */
+  --color-ink-4: #201d18; /* 抬起面板 / hover */
+  --color-line-1: rgba(238, 230, 216, 0.08); /* 結構髮絲線 */
+  --color-line-2: rgba(238, 230, 216, 0.15); /* 強調 / hover */
+  --color-line-3: rgba(238, 230, 216, 0.3); /* active */
+  --color-fg-1: #efeae0; /* 標題（對 ink-1 約 16.2:1） */
+  --color-fg-2: #a8a29a; /* 內文（約 7.7:1） */
+  --color-fg-3: #827c72; /* 等寬微標籤（約 4.7:1，剛過 AA） */
+  --color-danger: #c9694a; /* 表單錯誤，語意色非第二強調色 */
   --color-surface-dark: rgba(255, 255, 255, 0.03);
   --color-glass-border: rgba(255, 255, 255, 0.08);
-  --font-display: "Plus Jakarta Sans", sans-serif;
-  --font-body: "Inter", sans-serif;
+
+  /* 字體由 next/font 注入（見 pages/_app.tsx），不再用 <link> 拉 Google Fonts。
+     中文交給系統字：載 Noto Sans TC 的體積不值得。 */
+  --font-display: var(--font-geist, system-ui), "PingFang TC", "Noto Sans TC",
+    "Microsoft JhengHei", sans-serif;
+  --font-body: var(--font-geist, system-ui), "PingFang TC", "Noto Sans TC",
+    "Microsoft JhengHei", sans-serif;
+  --font-mono: var(--font-geist-mono, ui-monospace), SFMono-Regular, Menlo,
+    monospace;
 }
 
 * {
@@ -43,6 +69,17 @@ body {
   padding-bottom: env(safe-area-inset-bottom);
   min-height: calc(100vh - env(safe-area-inset-bottom));
   min-height: calc(100dvh - env(safe-area-inset-bottom));
+}
+
+/* 行銷頁鋪在 body 之上，但 body 帶著遊戲端的淺色羊皮紙底圖與 fixed 背景。
+   同層蓋住看起來沒事，iOS 的 overscroll 回彈會露出米白色，而且那張 fixed
+   貼圖在行銷頁完全是白做的。
+   刻意「不」放進 @layer components：上面的 body 規則是無 layer 的，
+   無 layer 樣式在 cascade 上贏過所有 layer，包進去就會被蓋掉。 */
+body:has(.landing-page) {
+  color-scheme: dark;
+  background-color: #0f0e0c;
+  background-image: none;
 }
 .bgImg {
   background-image:
@@ -599,315 +636,8 @@ body {
   box-shadow: 0 0 0 2px rgba(137, 140, 210, 0.5);
 }
 
-/* ========== Landing Pages Styles ========== */
-
-.landing-page {
-  background-color: #0a0a0c;
-  color: #cbd5e1;
-  background-image:
-    radial-gradient(at 0% 0%, rgba(30, 27, 75, 0.3) 0, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(17, 24, 39, 0.3) 0, transparent 50%);
-  font-family: "Inter", sans-serif;
-}
-
-.glass-panel {
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-}
-
-.glass-card {
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  background: rgba(255, 255, 255, 0.01);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  transition: all 500ms;
-}
-.glass-card:hover {
-  border-color: rgba(255, 255, 255, 0.15);
-}
-
-.glass-card-deep {
-  backdrop-filter: blur(48px);
-  -webkit-backdrop-filter: blur(48px);
-  background: rgba(10, 10, 12, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
-}
-
-.text-gradient-landing {
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  background-image: linear-gradient(to bottom right, #fff, #fff, #64748b);
-}
-
-/* ─── 圓角尺度（行銷頁）───
-   規則：大型容器 24px、卡牌 16px、按鈕與輸入 12px、標籤膠囊全圓。
-   新增元件請沿用這四階，不要再引入 [2rem] / [2.5rem] / [3rem] 之類的任意值。 */
-.r-container {
-  border-radius: 24px;
-}
-.r-card {
-  border-radius: 16px;
-}
-.r-control {
-  border-radius: 12px;
-}
-
-/* ─── TCG 卡牌式區塊 ───
-   行銷頁用的卡牌處理：卡面比例、稀有度邊框、懸停微舉起。
-   稀有度顏色透過 --rarity 變數傳入，預設為 legendary（品牌金）。 */
-.tcg-card {
-  --rarity: var(--color-rarity-legendary);
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  overflow: hidden;
-  transition: transform 400ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 400ms ease;
-}
-/* 卡面頂部的稀有度飾條，取代彩色外光暈 */
-.tcg-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--rarity), transparent);
-  opacity: 0.7;
-  transition: opacity 400ms ease;
-}
-.tcg-card:hover {
-  transform: translateY(-6px);
-  /* 舊瀏覽器 fallback：直接用稀有度色，支援 color-mix 的則降透明度 */
-  border-color: var(--rarity);
-  border-color: color-mix(in srgb, var(--rarity) 45%, transparent);
-}
-.tcg-card:hover::before {
-  opacity: 1;
-}
-.tcg-card--rare {
-  --rarity: var(--color-rarity-rare);
-}
-.tcg-card--epic {
-  --rarity: var(--color-rarity-epic);
-}
-.tcg-card--legendary {
-  --rarity: var(--color-rarity-legendary);
-}
-/* 稀有度標籤：卡牌社群慣用的小型分類標記 */
-.tcg-rarity-label {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--rarity);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tcg-card,
-  .tcg-card:hover {
-    transform: none;
-    transition: none;
-  }
-}
-
-.glow-border {
-  position: relative;
-}
-.glow-border::after {
-  content: "";
-  position: absolute;
-  inset: -1px;
-  background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.1), transparent, rgba(255, 255, 255, 0.05));
-  z-index: -1;
-  border-radius: inherit;
-}
-
-.landing-nav-link {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #94a3b8;
-  transition: color 150ms;
-  position: relative;
-}
-.landing-nav-link:hover {
-  color: #fff;
-}
-
-.landing-nav-link-active {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #fff;
-  transition: color 150ms;
-  position: relative;
-}
-.landing-nav-link-active::after {
-  content: "";
-  position: absolute;
-  bottom: -8px;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background: #c8a75a;
-}
-
-.landing-input-field {
-  width: 100%;
-  border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 1rem 1.25rem;
-  color: #fff;
-  font-size: 0.875rem;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  outline: none;
-  transition: all 150ms;
-}
-.landing-input-field::placeholder {
-  color: #475569;
-}
-.landing-input-field:focus {
-  border-color: #c8a75a;
-  box-shadow: 0 0 0 1px #c8a75a;
-}
-
-.social-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-  border-radius: 1rem;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  background: rgba(255, 255, 255, 0.01);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  cursor: pointer;
-  transition: all 500ms;
-}
-.social-card:hover {
-  border-color: rgba(255, 255, 255, 0.15);
-}
-
-.accent-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.375rem 1rem;
-  border-radius: 9999px;
-  border: 1px solid rgba(200, 167, 90, 0.3);
-  background: rgba(200, 167, 90, 0.1);
-  font-size: 10px;
-  font-weight: 700;
-  color: #c8a75a;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-}
-
-.status-active {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.25rem 0.625rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  background: rgba(200, 167, 90, 0.1);
-  border: 1px solid rgba(200, 167, 90, 0.3);
-  color: #c8a75a;
-}
-
-.status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 9999px;
-  background: #c8a75a;
-  box-shadow: 0 0 8px #c8a75a;
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@keyframes cardFloat1 {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-12px); }
-}
-@keyframes cardFloat2 {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-@keyframes cardFloat3 {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-14px); }
-}
-@keyframes cardFloat4 {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-11px); }
-}
-.card-float-1 { animation: cardFloat1 3.5s ease-in-out 0s infinite; }
-.card-float-2 { animation: cardFloat2 4.0s ease-in-out 0.8s infinite; }
-.card-float-3 { animation: cardFloat3 3.8s ease-in-out 1.6s infinite; }
-.card-float-4 { animation: cardFloat4 4.2s ease-in-out 2.4s infinite; }
-
-.fan-card {
-  transition: filter 0.5s;
-}
-.fan-card:hover {
-  filter: brightness(1.15);
-}
-
-/* ========== Page Entrance Animations ========== */
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(40px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeInScale {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes fadeInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-60px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
+/* ========== 遊戲端動畫（battle.tsx 的獎勵 toast、InfoMenuModal 面板） ==========
+   這兩個 class 由遊戲頁使用，與行銷頁設計系統無關，保留原樣。 */
 
 @keyframes fadeInRight {
   from {
@@ -928,138 +658,999 @@ body {
   animation: fadeInRight 0.32s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes shimmer {
-  0% {
-    background-position: -200% center;
-  }
-  100% {
-    background-position: 200% center;
+/* 以下整段包在 @layer components 內。
+   Tailwind v4 把 utilities 放在 @layer utilities，而「沒有 layer」的樣式在
+   cascade 上會贏過所有 layer —— 不包起來的話 .mv-label 的 uppercase 會蓋掉
+   後面接的 normal-case，.mv-media 的 position:relative 也會蓋掉 absolute。 */
+@layer components {
+/* ==========================================================================
+   行銷頁設計系統 (/、/aurayale、/contact)
+   ==========================================================================
+
+   視覺骨架（對應 DesignRef）：
+   1. near-black 底 + 全灰階影像，主色（品牌金）只出現在三個地方：
+      每頁唯一的主要 CTA、當前導覽項底線、真實的狀態指示。
+   2. 版面由「髮絲線 + 定位十字」切格：頁面左右兩條 rail 固定貼齊
+      容器內容邊界（max-w 1400 扣掉 px-6），每個區塊上緣有一條 rule，
+      rule 兩端的十字剛好落在 rail 上。線是結構，不是裝飾。
+   3. 微標籤一律等寬大寫（.mv-label），數字用等寬。
+   4. 圓角鎖定為 0：按鈕、面板、輸入框、卡片全部直角。
+      新增元件請不要再引入 rounded-* ，會破壞整體調性。
+
+   z-index 級距（只有這五層，不要再自己加）：
+     0  hero 底層影像
+     10 內容
+     40 .mv-grain 顆粒
+     41 .mv-rails 頁面格線（畫在內容之上，像參考圖那樣直接跨過主視覺）
+     50 sticky 導覽列
+     60 行動版選單 / skip link
+   ========================================================================== */
+
+.landing-page {
+  /* 導覽列高度。它是 sticky，會實際佔掉版面高度，所以 hero 的滿版高度要扣掉它，
+     否則 hero 的下緣（含 padding）會被推到摺線以下，文字看起來就貼在畫面底部。 */
+  --mv-nav-h: 72px;
+  --mv-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --mv-dot-pitch: 3px;
+  --mv-inset: 1rem;
+  background-color: var(--color-ink-1);
+  color: var(--color-fg-2);
+  font-family: var(--font-body);
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+@media (min-width: 768px) {
+  .landing-page {
+    --mv-inset: clamp(1.75rem, 2.6vw, 3rem);
   }
 }
 
-@keyframes glowPulse {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(200, 167, 90, 0.1);
-  }
-  50% {
-    box-shadow: 0 0 40px rgba(200, 167, 90, 0.3);
+.landing-page ::selection {
+  background: rgba(200, 167, 90, 0.28);
+  color: #fff;
+}
+
+/* 鍵盤焦點：原本整站都沒有可見焦點框，補上。 */
+.landing-page :focus-visible {
+  outline: 1px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.landing-page ::-webkit-scrollbar {
+  width: 10px;
+}
+.landing-page ::-webkit-scrollbar-track {
+  background: var(--color-ink-1);
+}
+.landing-page ::-webkit-scrollbar-thumb {
+  background: #2a2621;
+}
+.landing-page ::-webkit-scrollbar-thumb:hover {
+  background: #3b352d;
+}
+
+/* ─── 容器 ───
+   所有區塊共用同一個容器寬度與內距，rail 才對得上。 */
+/* 外框：rail、區塊分隔線、定位十字都貼齊這個盒子的內容邊界。
+   內容不直接坐在這條邊上，另外用 .mv-inset 往內推 --mv-inset，
+   否則大標會緊貼格線，看起來像被切到。 */
+.mv-container {
+  width: 100%;
+  max-width: 1400px;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+@media (min-width: 768px) {
+  .mv-container {
+    padding-inline: 1.5rem;
   }
 }
 
-/* Hero entrance animation classes */
-.hero-enter {
+/* 內容欄：從外框再往內縮，讓文字與 rail 之間留出呼吸。 */
+.mv-inset {
+  padding-inline: var(--mv-inset);
+}
+/* 落在 .mv-inset 裡、但要撐回外框寬度的分隔線（十字才對得上 rail）。 */
+.mv-rule--full {
+  margin-inline: calc(var(--mv-inset) * -1);
+}
+/* 欄內的區域分隔線：不畫十字（它的兩端不在 rail 上）。 */
+.mv-rule--plain::before,
+.mv-rule--plain::after {
+  display: none;
+}
+
+/* ─── 頁面格線 rail ───
+   fixed 不隨捲動重繪；位置與 .mv-container 的內容邊界完全一致。 */
+.mv-rails {
+  position: fixed;
+  inset: 0;
+  z-index: 41;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+.mv-rails__inner {
+  width: 100%;
+  max-width: 1400px;
+  height: 100%;
+  padding-inline: 1rem;
+}
+@media (min-width: 768px) {
+  .mv-rails__inner {
+    padding-inline: 1.5rem;
+  }
+}
+.mv-rails__inner > span {
+  display: block;
+  height: 100%;
+  /* 這兩條線會跨過主視覺，比區塊分隔線稍亮一點才不會在亮部消失。 */
+  border-left: 1px solid var(--color-line-2);
+  border-right: 1px solid var(--color-line-2);
+}
+
+/* ─── 顆粒 ───
+   固定層 + pointer-events:none，捲動時不會觸發重繪。 */
+.mv-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ─── 區塊分隔線 + 定位十字 ───
+   .mv-rule 是定位容器（十字），.mv-rule__line 是會展開的那條線。
+   十字畫在 rule 兩端，剛好疊在頁面 rail 上，標示區塊起點。 */
+.mv-rule {
+  position: relative;
+  height: 1px;
+}
+.mv-rule__line {
+  display: block;
+  height: 1px;
+  background: var(--color-line-1);
+  transform-origin: left center;
+}
+.mv-rule::before,
+.mv-rule::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 11px;
+  height: 11px;
+  margin-top: -5px;
+  background-image:
+    linear-gradient(var(--color-line-2), var(--color-line-2)),
+    linear-gradient(var(--color-line-2), var(--color-line-2));
+  background-repeat: no-repeat;
+  background-size: 11px 1px, 1px 11px;
+  background-position: left center, center top;
+}
+.mv-rule::before {
+  left: -5px;
+}
+.mv-rule::after {
+  right: -5px;
+}
+
+/* ─── 面板四角定位標記 ─── */
+.mv-marks {
+  position: relative;
+}
+.mv-marks::before {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--color-line-2), var(--color-line-2)),
+    linear-gradient(var(--color-line-2), var(--color-line-2)),
+    linear-gradient(var(--color-line-2), var(--color-line-2)),
+    linear-gradient(var(--color-line-2), var(--color-line-2)),
+    linear-gradient(var(--color-line-2), var(--color-line-2)),
+    linear-gradient(var(--color-line-2), var(--color-line-2)),
+    linear-gradient(var(--color-line-2), var(--color-line-2)),
+    linear-gradient(var(--color-line-2), var(--color-line-2));
+  background-repeat: no-repeat;
+  background-size:
+    11px 1px, 1px 11px,
+    11px 1px, 1px 11px,
+    11px 1px, 1px 11px,
+    11px 1px, 1px 11px;
+  background-position:
+    left 0 top 5px, left 5px top 0,
+    right 0 top 5px, right 5px top 0,
+    left 0 bottom 5px, left 5px bottom 0,
+    right 0 bottom 5px, right 5px bottom 0;
+}
+
+/* ─── 文字尺度 ───
+   line-height 保留給中日韓字身高度，比參考圖略鬆一點，不會切到字。 */
+.mv-label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-fg-3);
+}
+.mv-label--fg {
+  color: var(--color-fg-1);
+}
+.mv-display {
+  font-family: var(--font-display);
+  font-weight: 500;
+  /* min 壓到 30px、係數壓到 5.6vw：中文標題常見的十個全形字，加上內容欄
+     再往內縮的 --mv-inset 之後，這組值在 375 到 1440 之間都排得進兩行。
+     調大任何一個數字都會在 1024 附近擠出只剩兩個字的第三行。 */
+  font-size: clamp(1.875rem, 5.6vw, 4.75rem);
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  color: var(--color-fg-1);
+  text-wrap: balance;
+}
+.mv-h2 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(1.875rem, 3.6vw, 2.875rem);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  color: var(--color-fg-1);
+  text-wrap: balance;
+}
+.mv-h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.0625rem;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--color-fg-1);
+}
+.mv-body {
+  color: var(--color-fg-2);
+  font-size: 1rem;
+  line-height: 1.7;
+  max-width: 62ch;
+  text-wrap: pretty;
+}
+.mv-body--sm {
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+.mv-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── 按鈕 ───
+   直角、無陰影。hover 用底色由下往上填，:active 下沉 1px 當觸感回饋。 */
+.mv-btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  min-height: 3rem;
+  padding-inline: 1.75rem;
+  border-radius: 0;
+  border: 1px solid transparent;
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.25s ease, background-color 0.25s ease,
+    border-color 0.25s ease, transform 0.12s ease;
+}
+.mv-btn:active {
+  transform: translateY(1px);
+}
+.mv-btn--accent {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-ink-1);
+}
+.mv-btn--accent:hover {
+  background: var(--color-primary-hi);
+  border-color: var(--color-primary-hi);
+}
+.mv-btn--ghost {
+  background: transparent;
+  border-color: var(--color-line-2);
+  color: var(--color-fg-1);
+}
+.mv-btn--ghost::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgba(255, 255, 255, 0.08);
+  transform: scaleY(0);
+  transform-origin: bottom center;
+  transition: transform 0.32s var(--mv-ease);
+}
+.mv-btn--ghost:hover {
+  border-color: var(--color-line-3);
+}
+.mv-btn--ghost:hover::after {
+  transform: scaleY(1);
+}
+.mv-btn--sm {
+  min-height: 2.375rem;
+  padding-inline: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.mv-btn[disabled],
+.mv-btn[aria-disabled="true"] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.mv-btn[disabled]:active,
+.mv-btn[aria-disabled="true"]:active {
+  transform: none;
+}
+
+/* CTA 內的箭頭：hover 往前推 3px。 */
+.mv-btn__arrow {
+  transition: transform 0.28s var(--mv-ease);
+}
+.mv-btn:hover .mv-btn__arrow {
+  transform: translateX(3px);
+}
+
+/* ─── 文字連結 ─── */
+.mv-link {
+  position: relative;
+  color: var(--color-fg-1);
+  transition: color 0.2s ease;
+}
+.mv-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.32s var(--mv-ease);
+}
+.mv-link:hover::after,
+.mv-link:focus-visible::after {
+  transform: scaleX(1);
+}
+
+/* ─── 影像處理 ───
+   灰階 + 提高對比後疊網點與掃描線，做出 DesignRef 的印刷網版質感。
+   用 mix-blend-mode 疊在自己的 isolation 內，不會影響頁面其他層；
+   全部是合成層，比 SVG halftone filter 便宜得多，手機也撐得住。 */
+.mv-media {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--color-ink-2);
+}
+.mv-media > img,
+.mv-media > video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.16) brightness(0.9);
+}
+.mv-media--dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background-image: radial-gradient(circle at center, #000 0 36%, transparent 41%);
+  background-size: var(--mv-dot-pitch) var(--mv-dot-pitch);
+  mix-blend-mode: multiply;
+  opacity: 0.6;
+}
+.mv-media--scan::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.5) 0 1px,
+    transparent 1px 3px
+  );
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+}
+/* ─── 主視覺的四周淡出 ───
+   影片與馬賽克共用同一個橢圓遮罩，中央實、四周淡到全黑，接回頁面底色。
+   色相偏差的權重也是照同一組數字算的，所以顏色剛好落在淡出的那一圈交界上。 */
+.mv-media--vignette {
+  --mv-vignette: radial-gradient(
+    ellipse var(--mv-vig-rx) var(--mv-vig-ry) at var(--mv-vig-cx) var(--mv-vig-cy),
+    #000 0,
+    #000 var(--mv-vig-solid),
+    transparent 100%
+  );
+}
+.mv-media--vignette > video,
+.mv-media--vignette > img {
+  -webkit-mask-image: var(--mv-vignette);
+  mask-image: var(--mv-vignette);
+}
+/* 網點與掃描線也要跟著淡掉，不然四周會留下一層浮在黑底上的網格 */
+.mv-media--vignette.mv-media--dot::after,
+.mv-media--vignette.mv-media--scan::before {
+  -webkit-mask-image: var(--mv-vignette);
+  mask-image: var(--mv-vignette);
+}
+
+/* 主視覺不再壓成全灰：留一點原本的顏色，和馬賽克的 MOSAIC_SATURATION 對齊。 */
+.mv-media--tint > video,
+.mv-media--tint > img {
+  filter: grayscale(0.7) contrast(1.12) brightness(0.9) saturate(1.05);
+}
+
+/* ─── 影像羽化 ───
+   讓影像不再是「貼在文字旁邊的一個方框」：往文字那一側把邊緣化掉，
+   影像就溶進卡片本身，文字可以直接壓在同一個平面上（參考 Titanfall 那種
+   影像即版面的處理）。上下也收一點，才不會在區塊交界切出硬邊。
+
+   遮罩下在外層 .mv-media 上，img、網點、掃描線、馬賽克會一起淡掉。 */
+.mv-media--feather {
+  --mv-feather-x: linear-gradient(#000, #000);
+  -webkit-mask-image: var(--mv-feather-x),
+    linear-gradient(to bottom, transparent 0, #000 10%, #000 90%, transparent 100%);
+  mask-image: var(--mv-feather-x),
+    linear-gradient(to bottom, transparent 0, #000 10%, #000 90%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+/* 左緣化掉：影像在右側，往左溶進文字區 */
+.mv-media--feather-l {
+  --mv-feather-x: linear-gradient(to right, transparent 0, #000 46%, #000 100%);
+}
+/* 右緣化掉：影像在左側，往右溶進文字區 */
+.mv-media--feather-r {
+  --mv-feather-x: linear-gradient(to left, transparent 0, #000 46%, #000 100%);
+}
+/* 手機沒有左右空間讓文字避開影像，把羽化轉成上下：影像在上、往下溶掉，
+   文字落在下方純底色的區域，可讀性才守得住。 */
+@media (max-width: 767px) {
+  .mv-media--feather-l,
+  .mv-media--feather-r {
+    --mv-feather-x: linear-gradient(#000, #000);
+  }
+  .mv-media--feather {
+    -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 40%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 0, #000 40%, transparent 100%);
+  }
+}
+
+/* 維持原本彩色的影像（自研作品的產品圖）。網點在彩圖上會變成彩色點陣，
+   壓一點透明度才不會把顏色打糊。 */
+.mv-media--color > img,
+.mv-media--color > video {
+  filter: contrast(1.05) saturate(1.02);
+}
+.mv-media--color.mv-media--dot::after {
+  opacity: 0.34;
+}
+
+/* 可點擊的影像：hover 時灰階退開一點並微推進，用來表示「這是連結」。 */
+.mv-media--hover > img {
+  transition: filter 0.6s ease, transform 0.9s var(--mv-ease);
+}
+.mv-media--hover:hover > img,
+a:hover .mv-media--hover > img,
+a:focus-visible .mv-media--hover > img,
+.mv-row:hover .mv-media--hover > img {
+  filter: grayscale(0.3) contrast(1.04) brightness(1);
+  transform: scale(1.035);
+}
+.mv-media--color.mv-media--hover:hover > img,
+a:hover .mv-media--color.mv-media--hover > img,
+a:focus-visible .mv-media--color.mv-media--hover > img {
+  filter: contrast(1.06) saturate(1.08) brightness(1.03);
+  transform: scale(1.035);
+}
+
+/* ─── Banner 馬賽克格（見 components/landing/HeroMedia.tsx） ───
+   canvas 本身只有幾十像素，放大時用 image-rendering: pixelated 保留硬邊，
+   得到真正的馬賽克（格子顏色 = 該區域平均色），不是貼一層假格線。
+   遮罩讓上半強、下半淡出，文字壓的那一段維持乾淨；
+   格線週期直接用格數算，永遠對得上 canvas 的格子。
+
+   .mv-media 內的層序：影片 → --scan(1) → 馬賽克(2) → --dot(3) → scrim(4) */
+.mv-mosaic {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0.58;
+  /* 與影片同一個橢圓暈影，格子才會跟著畫面一起在四周淡掉。
+     橢圓參數由 HeroMedia 以 --mv-vig-* 傳進來（見 mosaic.ts 的 VIGNETTE）。 */
+  -webkit-mask-image: var(--mv-vignette);
+  mask-image: var(--mv-vignette);
+}
+.mv-mosaic__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  /* 刻意不下 grayscale：去彩由 applyChroma 的 mono 處理，
+     在這裡轉灰階會把每格的色相偏差整個吃掉。 */
+  filter: contrast(1.2) brightness(0.92);
+}
+/* 內容圖：整張均勻鋪，不做 hero 那種上強下淡，透明度也再壓低 ——
+   這裡的角色是質感雜訊，不是主視覺。 */
+.mv-mosaic--still {
+  -webkit-mask-image: none;
+  mask-image: none;
+  opacity: 0.36;
+}
+
+.mv-mosaic::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0.55) 0 1px,
+      transparent 1px calc(100% / var(--mv-mosaic-cols, 32))
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.55) 0 1px,
+      transparent 1px calc(100% / var(--mv-mosaic-rows, 18))
+    );
+}
+
+/* ─── 幾何裝飾 ───
+   低對比的表面材質，用來讓大片留白不至於空泛。刻意做得比髮絲線更淡：
+   這是「材質」，不是版面結構，不該和 rail／rule 搶讀。
+
+   ::before 用 z-index:-1 —— 依 CSS 繪製順序，它會蓋在區塊自己的背景之上、
+   但在內容之下，所以 bg-ink-2 的交替底色不會被吃掉。
+   上下用遮罩淡出，避免在區塊交界處出現一條硬邊。 */
+.mv-texture::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 16%,
+    #000 84%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 16%,
+    #000 84%,
+    transparent 100%
+  );
+}
+/* 斜線網（對照 Axiom Zero 的 hero 底） */
+.mv-texture--hatch::before {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(238, 230, 216, 0.03) 0 1px,
+    transparent 1px 7px
+  );
+}
+/* 點陣格（對照 LANYUE 的底） */
+.mv-texture--dots::before {
+  background-image: radial-gradient(
+    circle at center,
+    rgba(238, 230, 216, 0.09) 0 1px,
+    transparent 1.7px
+  );
+  background-size: 34px 34px;
+}
+
+/* ─── 面板 / 列 ─── */
+.mv-panel {
+  position: relative;
+  background: var(--color-ink-3);
+  border: 1px solid var(--color-line-1);
+}
+.mv-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--color-line-2);
+  padding: 0.375rem 0.625rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  line-height: 1;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-fg-3);
+}
+/* 真實狀態才用主色：目前只有 /contact 的「開放合作洽談」。 */
+.mv-chip--live {
+  border-color: rgba(200, 167, 90, 0.4);
+  color: var(--color-primary);
+}
+.mv-chip--live > i {
+  width: 5px;
+  height: 5px;
+  background: var(--color-primary);
+  animation: mv-pulse 2.4s ease-in-out infinite;
+}
+@keyframes mv-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+/* 索引式列：列與列之間只有一條線，最後一列不畫。 */
+.mv-row {
+  position: relative;
+  transition: background-color 0.35s ease;
+}
+.mv-row::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--color-line-1);
+}
+.mv-row:last-child::after {
+  display: none;
+}
+.mv-row:hover {
+  background-color: rgba(255, 255, 255, 0.022);
+}
+.mv-row__title {
+  transition: transform 0.4s var(--mv-ease);
+}
+.mv-row:hover .mv-row__title {
+  transform: translateX(6px);
+}
+
+/* ─── 導覽 ─── */
+.mv-nav-link {
+  position: relative;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-fg-3);
+  transition: color 0.2s ease;
+  white-space: nowrap;
+}
+.mv-nav-link:hover {
+  color: var(--color-fg-1);
+}
+.mv-nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -7px;
+  height: 1px;
+  background: var(--color-line-2);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.3s var(--mv-ease);
+}
+.mv-nav-link:hover::after {
+  transform: scaleX(1);
+}
+.mv-nav-link--active {
+  color: var(--color-fg-1);
+}
+.mv-nav-link--active::after {
+  background: var(--color-primary);
+  transform: scaleX(1);
+}
+
+/* ─── 表單 ─── */
+.mv-field {
+  width: 100%;
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--color-line-1);
+  border-bottom-color: var(--color-line-2);
+  padding: 0.875rem 1rem;
+  color: var(--color-fg-1);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+.mv-field::placeholder {
+  color: #8d887f;
+}
+.mv-field:hover {
+  border-color: var(--color-line-2);
+}
+.mv-field:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.045);
+}
+.mv-field[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+.mv-error {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  color: var(--color-danger);
+}
+
+/* ─── 卡牌扇形（/aurayale 的 Gem Cuts） ───
+   分三層是為了讓三種動態各自佔用一個 transform：
+   外層放固定的旋轉與位移、中層跑漂浮動畫、圖片本身處理 hover 抬起。
+   擠在同一個元素上的話，animation 會蓋掉 hover 的 transition。 */
+.mv-fan {
+  --mv-fan-r: 0deg;
+  --mv-fan-y: 0px;
+  transform: rotate(var(--mv-fan-r)) translateY(var(--mv-fan-y));
+  transform-origin: bottom center;
+}
+.mv-fan:hover {
+  z-index: 10;
+}
+@keyframes mv-fan-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-9px); }
+}
+.mv-fan__float {
+  animation: mv-fan-float 5.4s ease-in-out infinite;
+}
+.mv-fan__img {
+  display: block;
+  filter: grayscale(1) contrast(1.12) brightness(0.95);
+  transition: transform 0.45s var(--mv-ease), filter 0.45s ease;
+}
+.mv-fan:hover .mv-fan__img {
+  transform: translateY(-16px) scale(1.03);
+  filter: grayscale(0.15) contrast(1.02) brightness(1.05);
+}
+
+/* ─── logo 跑馬燈（全站只有這一條） ───
+   保持灰階，hover 只提亮，不還原彩色，維持黑白調性。 */
+@keyframes mv-marquee {
+  to {
+    transform: translate3d(calc(-100% / 3), 0, 0);
+  }
+}
+.mv-marquee {
+  position: relative;
+  overflow: hidden;
+}
+.mv-marquee::before,
+.mv-marquee::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  /* 手機上 12% 只有 45px，遮不住被切一半的 logo，會看起來像壞版。 */
+  width: clamp(64px, 12%, 168px);
+  z-index: 2;
+  pointer-events: none;
+}
+.mv-marquee::before {
+  left: 0;
+  background: linear-gradient(to right, var(--color-ink-1), transparent);
+}
+.mv-marquee::after {
+  right: 0;
+  background: linear-gradient(to left, var(--color-ink-1), transparent);
+}
+.mv-marquee__track {
+  display: flex;
+  align-items: center;
+  gap: 5rem;
+  width: max-content;
+  will-change: transform;
+  animation: mv-marquee 46s linear infinite;
+}
+.mv-marquee:hover .mv-marquee__track {
+  animation-play-state: paused;
+}
+.mv-marquee__logo {
+  display: block;
+  height: 84px;
+  width: auto;
+  flex-shrink: 0;
+  opacity: 0.32;
+  filter: grayscale(1) brightness(1.75);
+  transition: opacity 0.45s ease, filter 0.45s ease;
+}
+.mv-marquee__logo:hover {
+  opacity: 0.95;
+  filter: grayscale(1) brightness(2.2);
+}
+@media (max-width: 767px) {
+  .mv-marquee__track {
+    gap: 3rem;
+  }
+  .mv-marquee__logo {
+    height: 56px;
+  }
+}
+
+/* ─── 捲動進場 ───
+   IntersectionObserver 加上 .is-in（見 hooks/useScrollReveal）。
+   --mv-d 控制同一組元素的錯開延遲。 */
+.mv-reveal {
   opacity: 0;
-  animation-fill-mode: forwards;
-  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translate3d(0, 26px, 0);
+  transition: opacity 0.75s var(--mv-ease) var(--mv-d, 0ms),
+    transform 0.75s var(--mv-ease) var(--mv-d, 0ms);
 }
-
-.hero-badge {
-  animation: fadeInDown 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+.mv-reveal--left {
+  transform: translate3d(-28px, 0, 0);
 }
-
-.hero-title {
-  animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
+.mv-reveal--right {
+  transform: translate3d(28px, 0, 0);
 }
-
-.hero-stats {
-  animation: fadeInUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards;
+.mv-reveal--still {
+  transform: none;
 }
-
-.hero-stat-item {
-  opacity: 0;
-}
-.hero-stat-item:nth-child(1) {
-  animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1.0s forwards;
-}
-.hero-stat-item:nth-child(2) {
-  animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1.15s forwards;
-}
-.hero-stat-item:nth-child(3) {
-  animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1.3s forwards;
-}
-
-.hero-cta {
-  animation: fadeInUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 1.3s forwards;
-}
-
-.hero-cta-shimmer {
-  background-size: 200% auto;
-  animation: shimmer 3s linear 2.5s infinite;
-}
-
-/* Scroll-reveal animations for sections */
-.reveal {
-  opacity: 0;
-  transform: translateY(50px);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.reveal.visible {
+.mv-reveal.is-in {
   opacity: 1;
-  transform: translateY(0);
+  transform: none;
 }
-
-.reveal.from-left {
-  transform: translateX(-60px);
+/* 區塊線隨進場往右展開，十字後到。 */
+.mv-reveal .mv-rule__line {
+  transform: scaleX(0);
+  transition: transform 0.9s var(--mv-ease) var(--mv-d, 0ms);
 }
-.reveal.from-left.visible {
-  transform: translateX(0);
+.mv-reveal.is-in .mv-rule__line {
+  transform: scaleX(1);
 }
-
-.reveal.from-right {
-  transform: translateX(60px);
-}
-.reveal.from-right.visible {
-  transform: translateX(0);
-}
-
-.reveal.scale-up {
-  transform: scale(0.92);
-}
-.reveal.scale-up.visible {
-  transform: scale(1);
-}
-
-/* Stagger children within revealed sections */
-.reveal-stagger > * {
+.mv-reveal .mv-rule::before,
+.mv-reveal .mv-rule::after {
   opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.45s ease 0.55s;
+}
+.mv-reveal.is-in .mv-rule::before,
+.mv-reveal.is-in .mv-rule::after {
+  opacity: 1;
 }
 
-.reveal-stagger.visible > *:nth-child(1) { transition-delay: 0s; opacity: 1; transform: translateY(0); }
-.reveal-stagger.visible > *:nth-child(2) { transition-delay: 0.1s; opacity: 1; transform: translateY(0); }
-.reveal-stagger.visible > *:nth-child(3) { transition-delay: 0.2s; opacity: 1; transform: translateY(0); }
-.reveal-stagger.visible > *:nth-child(4) { transition-delay: 0.3s; opacity: 1; transform: translateY(0); }
-.reveal-stagger.visible > *:nth-child(5) { transition-delay: 0.4s; opacity: 1; transform: translateY(0); }
-.reveal-stagger.visible > *:nth-child(6) { transition-delay: 0.5s; opacity: 1; transform: translateY(0); }
+/* ─── Hero 視差 ───
+   用 CSS scroll-driven animation，不掛 scroll listener。
+   不支援的瀏覽器（目前 Firefox）直接維持靜態，其餘互動不受影響。 */
+@keyframes mv-hero-sink {
+  to {
+    transform: translate3d(0, 7%, 0) scale(1.07);
+  }
+}
+@keyframes mv-hero-dim {
+  to {
+    opacity: 1;
+  }
+}
+.mv-hero-media {
+  transform: translate3d(0, 0, 0) scale(1.01);
+}
+/* 文字壓在畫面下緣，那一段必須接近實色才過得了 AA；上半保持半透明讓影像透出來。 */
+.mv-hero-scrim {
+  opacity: 0.9;
+  background-image: linear-gradient(
+    to top,
+    var(--color-ink-1) 0%,
+    rgba(15, 14, 12, 0.94) 32%,
+    rgba(15, 14, 12, 0.5) 58%,
+    rgba(15, 14, 12, 0.2) 100%
+  );
+}
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .mv-hero-media {
+      animation: mv-hero-sink linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 100vh;
+    }
+    .mv-hero-scrim {
+      animation: mv-hero-dim linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 100vh;
+    }
+  }
+}
 
-/* Reduce motion for accessibility */
+/* ─── 進場（首屏，不等捲動） ─── */
+@keyframes mv-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 22px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.mv-enter {
+  opacity: 0;
+  animation: mv-rise 0.85s var(--mv-ease) var(--mv-d, 0ms) both;
+}
+
+/* ─── skip link ─── */
+.mv-skip {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.mv-skip:focus {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 60;
+  width: auto;
+  height: auto;
+  clip-path: none;
+  padding: 0.75rem 1rem;
+  background: var(--color-fg-1);
+  color: var(--color-ink-1);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ─── 降低動態 ─── */
 @media (prefers-reduced-motion: reduce) {
-  .hero-enter,
-  .hero-badge,
-  .hero-title,
-  .hero-stats,
-  .hero-stat-item,
-  .hero-cta {
+  .landing-page *,
+  .landing-page *::before,
+  .landing-page *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .mv-reveal,
+  .mv-enter {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .mv-reveal .mv-rule__line {
+    transform: none !important;
+  }
+  .mv-reveal .mv-rule::before,
+  .mv-reveal .mv-rule::after {
+    opacity: 1 !important;
+  }
+  .mv-marquee__track,
+  .mv-fan__float {
     animation: none !important;
-    opacity: 1 !important;
-  }
-  .reveal {
-    transition: none !important;
-    opacity: 1 !important;
-    transform: none !important;
-  }
-  .reveal-stagger > * {
-    transition: none !important;
-    opacity: 1 !important;
-    transform: none !important;
   }
 }
 
-.landing-page ::-webkit-scrollbar { width: 8px; }
-.landing-page ::-webkit-scrollbar-track { background: #0a0a0c; }
-.landing-page ::-webkit-scrollbar-thumb { background: #222; border-radius: 4px; }
-.landing-page ::-webkit-scrollbar-thumb:hover { background: #c8a75a; }
+/* ─── 降低透明度偏好：導覽列改為實色 ─── */
+@media (prefers-reduced-transparency: reduce) {
+  .mv-nav {
+    background: var(--color-ink-1) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+}
