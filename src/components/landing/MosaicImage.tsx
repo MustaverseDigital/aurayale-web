@@ -1,13 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  applyChroma,
-  buildHues,
-  computeGrid,
-  drawCover,
-  sameGrid,
-  seedFrom,
-  type Grid,
-} from "./mosaic";
+import { applySaturation, computeGrid, drawCover, sameGrid, type Grid } from "./mosaic";
 
 /**
  * 內容圖用的馬賽克格。與 hero 同一套格線與色偏規則，差別只在這裡是靜態的：
@@ -17,10 +9,13 @@ import {
  * <img> 照常輸出（LCP、alt、右鍵另存都要靠它），馬賽克只是疊在上面的一層。
  */
 
-/** 灰階圖：色偏可以下重一點，暗底才浮得出粉綠粉紫的格子 */
-const CHROMA_MONO = 26;
-/** 彩色產品圖：只加一點點，不然原本的顏色會被染糊 */
-const CHROMA_COLOR = 14;
+/**
+ * 非彩色模式保留多少來源色。0 會把來源的雙色調洗成灰，等於白算了那組色票。
+ *
+ * 這裡刻意不做每格的隨機色偏（主視覺才有）—— 配圖是用來說明內容的，
+ * 撒上來源沒有的綠紫斑點只會讓圖變髒。
+ */
+const TONE_SATURATION = 0.8;
 
 export function MosaicImage({
   src,
@@ -77,17 +72,13 @@ export function MosaicImage({
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
     if (!ctx) return;
 
-    const hues = buildHues(grid.cols, grid.rows, seedFrom(src));
-
     const paint = () => {
       if (!img.complete || !img.naturalWidth) return false;
       const box = wrap.getBoundingClientRect();
       if (!box.width || !box.height) return false;
       drawCover(ctx, img, img.naturalWidth, img.naturalHeight, box.width, box.height, grid);
       const frame = ctx.getImageData(0, 0, grid.cols, grid.rows);
-      applyChroma(frame.data, hues, color ? CHROMA_COLOR : CHROMA_MONO, {
-        saturation: color ? 1 : 0,
-      });
+      applySaturation(frame.data, color ? 1 : TONE_SATURATION);
       ctx.putImageData(frame, 0, 0);
       return true;
     };

@@ -86,7 +86,7 @@ export default function LandingPage() {
                 {t("site.hero.titleLine2")}
               </h1>
               <p
-                className="mv-body mv-enter mb-10 max-w-[34rem]"
+                className="mv-lead mv-enter mb-10 max-w-[34rem]"
                 style={{ ["--mv-d" as string]: "300ms" }}
               >
                 {t("site.hero.body")}
@@ -112,7 +112,7 @@ export default function LandingPage() {
           logo 牆貼在 hero 正下方。全站唯一一條跑馬燈，維持灰階，
           hover 只提亮不還原彩色。 */}
       <Section texture="dots">
-        <Reveal direction="still">
+        <Reveal direction="still" className="pt-12 md:pt-16">
           <p className="mv-label mb-10 text-center">{t("site.partners")}</p>
           <div className="mv-marquee">
             <div className="mv-marquee__track">
@@ -135,7 +135,7 @@ export default function LandingPage() {
           中間用一條線切開。整頁只有這一個區塊沒有影像。 */}
       <Section marker={t("site.philosophy.eyebrow")} texture="hatch">
         <Reveal className="pt-12 md:pt-16">
-          <h2 className="mv-h2 max-w-[18ch] md:text-[clamp(2.25rem,5vw,4rem)]">
+          <h2 className="mv-h1 max-w-[18ch]">
             {t("site.philosophy.titleLine1")}
             <br />
             {t("site.philosophy.titleLine2")}
@@ -160,7 +160,7 @@ export default function LandingPage() {
       <Section tint>
         <Reveal className="pt-12 md:pt-16">
           <h2 className="mv-h2 max-w-[20ch]">{t("site.services.title")}</h2>
-          <p className="mv-body mt-5">{t("site.services.subtitle")}</p>
+          <p className="mv-lead mt-5">{t("site.services.subtitle")}</p>
         </Reveal>
         <div className="mt-12 md:mt-16">
           {services.map((item, i) => (
@@ -197,7 +197,7 @@ export default function LandingPage() {
       <Section texture="dots">
         <Reveal className="pt-12 md:pt-16">
           <h2 className="mv-h2 max-w-[16ch]">{t("site.titles.heading")}</h2>
-          <p className="mv-body mt-5">{t("site.titles.subtitle")}</p>
+          <p className="mv-lead mt-5">{t("site.titles.subtitle")}</p>
         </Reveal>
 
         <div className="mt-14 grid grid-cols-1 gap-14 md:mt-20 md:grid-cols-12 md:gap-8">
@@ -216,7 +216,7 @@ export default function LandingPage() {
                   {/* 分類標籤與標題同一條基線，不疊在標題上方（避免每張卡都長出一個
                       小標籤的樣板節奏） */}
                   <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
-                    <h3 className="mv-h2 text-[clamp(1.75rem,2.6vw,2.25rem)]">Aurayale</h3>
+                    <h3 className="mv-h3">Aurayale</h3>
                     <p className="mv-label">{t("site.titles.aurayaleLabel")}</p>
                   </div>
                   <p className="mv-body mv-body--sm mt-4 max-w-[42ch]">
@@ -228,7 +228,7 @@ export default function LandingPage() {
                   strokeWidth={1.5}
                 />
               </div>
-              <span className="mv-link mt-6 inline-block text-sm font-semibold text-fg-1">
+              <span className="mv-link mt-6 inline-block text-caption font-semibold text-fg-1">
                 {t("site.titles.aurayaleCta")}
               </span>
             </Link>
@@ -251,7 +251,7 @@ export default function LandingPage() {
               <div className="flex items-start justify-between gap-6 pt-6">
                 <div>
                   <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
-                    <h3 className="mv-h2 text-[clamp(1.5rem,2.2vw,1.875rem)]">DEAL</h3>
+                    <h3 className="mv-h3">DEAL</h3>
                     <p className="mv-label">{t("site.titles.dealLabel")}</p>
                   </div>
                   <p className="mv-body mv-body--sm mt-4">{t("site.titles.dealDesc")}</p>
@@ -261,7 +261,7 @@ export default function LandingPage() {
                   strokeWidth={1.5}
                 />
               </div>
-              <span className="mv-link mt-6 inline-block text-sm font-semibold text-fg-1">
+              <span className="mv-link mt-6 inline-block text-caption font-semibold text-fg-1">
                 {t("site.titles.dealCta")}
               </span>
             </a>
@@ -275,12 +275,12 @@ export default function LandingPage() {
         <Reveal className="pt-12 md:pt-16">
           <div className="grid grid-cols-1 items-end gap-10 md:grid-cols-12">
             <div className="md:col-span-8">
-              <h2 className="mv-h2 max-w-[20ch]">
+              <h2 className="mv-h1 max-w-[20ch]">
                 {t("site.cta.titleLine1")}
                 <br />
                 {t("site.cta.titleLine2")}
               </h2>
-              <p className="mv-body mt-6">{t("site.cta.body")}</p>
+              <p className="mv-lead mt-6">{t("site.cta.body")}</p>
             </div>
             <div className="md:col-start-10 md:col-span-3 md:justify-self-end">
               <Link href="/contact" className="mv-btn mv-btn--accent w-full sm:w-auto">

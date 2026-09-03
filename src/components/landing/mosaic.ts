@@ -191,6 +191,27 @@ const THIRD_TURN = (Math.PI * 2) / 3;
  *             中間值就是「還原一部分原本色彩」。
  * weights：每格的色偏權重，用來讓顏色只出現在特定區域（主視覺的淡出交界）。
  */
+/**
+ * 只做去彩度，不加色偏。
+ *
+ * 內容圖用這個：applyChroma 的隨機色相會在圖上撒出來源本來沒有的綠紫斑點，
+ * 那在主視覺上是刻意的質感，但套在說明用的配圖上只會顯得髒。
+ *
+ * saturation：0 = 全灰，1 = 完全保留來源的顏色。
+ */
+export function applySaturation(data: Uint8ClampedArray, saturation: number) {
+  if (saturation === 1) return;
+  for (let p = 0; p < data.length; p += 4) {
+    const r = data[p];
+    const g = data[p + 1];
+    const b = data[p + 2];
+    const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    data[p] = lum + (r - lum) * saturation;
+    data[p + 1] = lum + (g - lum) * saturation;
+    data[p + 2] = lum + (b - lum) * saturation;
+  }
+}
+
 export function applyChroma(
   data: Uint8ClampedArray,
   hues: Float32Array,

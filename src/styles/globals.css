@@ -32,6 +32,47 @@
   --color-surface-dark: rgba(255, 255, 255, 0.03);
   --color-glass-border: rgba(255, 255, 255, 0.08);
 
+  /* ─── 字級規範 ───
+     每一個尺寸對應一個角色，頁面不再自己寫 text-[clamp(...)]。
+     刻意避開 Tailwind 內建的名稱（sm/base/lg…）：覆寫那些會連遊戲頁一起改到。
+
+     四個標題級的 clamp 下限是一起調的：只壓 display 的話，手機上
+     display 與 h1 會擠到只差 2px，階層等於塌掉。現在兩端都成立 ——
+     375px 是 30/26/22/20，1440px 是 72/56/40/30，級距都在 1.1 到 1.4 之間。
+
+     內文級不隨視窗縮放：同樣的 px，中文比拉丁字母難讀得多，
+     12px 是等寬微標籤的可讀性下限，再小就不要用了。 */
+  --text-display: clamp(1.875rem, 5.4vw, 4.5rem); /* 30→72 首屏主標，每頁一次 */
+  --text-display--line-height: 1.06;
+  --text-display--letter-spacing: -0.03em;
+
+  --text-h1: clamp(1.625rem, 4.2vw, 3.5rem); /* 26→56 宣言、收尾 CTA */
+  --text-h1--line-height: 1.1;
+  --text-h1--letter-spacing: -0.028em;
+
+  --text-h2: clamp(1.375rem, 3vw, 2.5rem); /* 22→40 區塊標題 */
+  --text-h2--line-height: 1.14;
+  --text-h2--letter-spacing: -0.024em;
+
+  --text-h3: clamp(1.25rem, 2.2vw, 1.875rem); /* 20→30 卡片與列標題 */
+  --text-h3--line-height: 1.28;
+  --text-h3--letter-spacing: -0.016em;
+
+  --text-lead: 1.125rem; /* 18 導語 */
+  --text-lead--line-height: 1.68;
+
+  --text-copy: 1rem; /* 16 內文；表單也用這級，低於 16 iOS 聚焦會自動放大 */
+  --text-copy--line-height: 1.75;
+
+  /* 14。次要說明與 UI 文字（按鈕、行內連結）共用這一級：
+     原本 15 與 14 各佔一級，差 1px 沒有辨識意義，只會讓規範失去一致性。 */
+  --text-caption: 0.875rem;
+  --text-caption--line-height: 1.7;
+
+  --text-label: 0.75rem; /* 12 等寬微標籤，這是可讀性下限 */
+  --text-label--line-height: 1.1;
+  --text-label--letter-spacing: 0.18em;
+
   /* 字體由 next/font 注入（見 pages/_app.tsx），不再用 <link> 拉 Google Fonts。
      中文交給系統字：載 Noto Sans TC 的體積不值得。 */
   --font-display: var(--font-geist, system-ui), "PingFang TC", "Noto Sans TC",
@@ -869,57 +910,77 @@ body:has(.landing-page) {
 }
 
 /* ─── 文字尺度 ───
-   line-height 保留給中日韓字身高度，比參考圖略鬆一點，不會切到字。 */
+   尺寸一律取自 @theme 的字級 token，這裡只負責綁定「角色 → 尺寸」，
+   各頁不應該再出現 text-[clamp(...)] 之類的一次性覆寫。
+
+   階層優先用字重與顏色拉開，其次才是字級：相鄰兩級差 1-2px 沒有辨識意義，
+   只會讓規範失去一致性。 */
 .mv-label {
   font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  line-height: 1;
-  letter-spacing: 0.2em;
+  font-size: var(--text-label);
+  line-height: var(--text-label--line-height);
+  letter-spacing: var(--text-label--letter-spacing);
   text-transform: uppercase;
   color: var(--color-fg-3);
 }
 .mv-label--fg {
   color: var(--color-fg-1);
 }
-.mv-display {
-  font-family: var(--font-display);
-  font-weight: 500;
-  /* min 壓到 30px、係數壓到 5.6vw：中文標題常見的十個全形字，加上內容欄
-     再往內縮的 --mv-inset 之後，這組值在 375 到 1440 之間都排得進兩行。
-     調大任何一個數字都會在 1024 附近擠出只剩兩個字的第三行。 */
-  font-size: clamp(1.875rem, 5.6vw, 4.75rem);
-  line-height: 1.04;
-  letter-spacing: -0.03em;
-  color: var(--color-fg-1);
-  text-wrap: balance;
-}
-.mv-h2 {
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: clamp(1.875rem, 3.6vw, 2.875rem);
-  line-height: 1.1;
-  letter-spacing: -0.025em;
-  color: var(--color-fg-1);
-  text-wrap: balance;
-}
+.mv-display,
+.mv-h1,
+.mv-h2,
 .mv-h3 {
   font-family: var(--font-display);
   font-weight: 500;
-  font-size: 1.0625rem;
-  line-height: 1.35;
-  letter-spacing: -0.01em;
   color: var(--color-fg-1);
+  text-wrap: balance;
+}
+.mv-display {
+  font-size: var(--text-display);
+  line-height: var(--text-display--line-height);
+  letter-spacing: var(--text-display--letter-spacing);
+}
+.mv-h1 {
+  font-size: var(--text-h1);
+  line-height: var(--text-h1--line-height);
+  letter-spacing: var(--text-h1--letter-spacing);
+}
+.mv-h2 {
+  font-size: var(--text-h2);
+  line-height: var(--text-h2--line-height);
+  letter-spacing: var(--text-h2--letter-spacing);
+}
+.mv-h3 {
+  font-size: var(--text-h3);
+  line-height: var(--text-h3--line-height);
+  letter-spacing: var(--text-h3--letter-spacing);
+  text-wrap: pretty;
+}
+/* 導語：hero 與區塊開頭的那一段，比內文大一級 */
+.mv-lead {
+  color: var(--color-fg-2);
+  font-size: var(--text-lead);
+  line-height: var(--text-lead--line-height);
+  max-width: 46ch;
+  text-wrap: pretty;
 }
 .mv-body {
   color: var(--color-fg-2);
-  font-size: 1rem;
-  line-height: 1.7;
+  font-size: var(--text-copy);
+  line-height: var(--text-copy--line-height);
   max-width: 62ch;
   text-wrap: pretty;
 }
 .mv-body--sm {
-  font-size: 0.875rem;
-  line-height: 1.7;
+  font-size: var(--text-caption);
+  line-height: var(--text-caption--line-height);
+}
+/* 清單項目標題之類的「強調內文」：不另外開一級字，用字重與顏色拉階層。 */
+.mv-strong {
+  color: var(--color-fg-1);
+  font-size: var(--text-copy);
+  line-height: 1.5;
+  font-weight: 500;
 }
 .mv-num {
   font-family: var(--font-mono);
@@ -941,7 +1002,8 @@ body:has(.landing-page) {
   border-radius: 0;
   border: 1px solid transparent;
   font-family: var(--font-body);
-  font-size: 0.8125rem;
+  font-size: var(--text-caption);
+  line-height: 1.4;
   font-weight: 600;
   letter-spacing: 0.04em;
   white-space: nowrap;
@@ -986,7 +1048,7 @@ body:has(.landing-page) {
   min-height: 2.375rem;
   padding-inline: 1rem;
   font-family: var(--font-mono);
-  font-size: 0.6875rem;
+  font-size: var(--text-label);
   font-weight: 500;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -1048,7 +1110,9 @@ body:has(.landing-page) {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: grayscale(1) contrast(1.16) brightness(0.9);
+  /* 不再壓成全灰：內容圖是照 docs/design/image-brief.md 的冷青暖琥珀雙色調算的，
+     grayscale(1) 會把那組色票整個洗掉，等於白算。只留一點去彩度收斂彩度。 */
+  filter: grayscale(0.22) contrast(1.14) brightness(0.92);
 }
 .mv-media--dot::after {
   content: "";
@@ -1098,10 +1162,12 @@ body:has(.landing-page) {
   mask-image: var(--mv-vignette);
 }
 
-/* 主視覺不再壓成全灰：留一點原本的顏色，和馬賽克的 MOSAIC_SATURATION 對齊。 */
+/* 主視覺不壓成全灰：透出格子縫隙的影片本身保留較多原色，
+   與 halftone.ts 的 MARK_SOURCE_MIX 搭配 —— 標記與底圖都帶色，
+   整幅 banner 才不會只有網版是彩的、底下是灰的。 */
 .mv-media--tint > video,
 .mv-media--tint > img {
-  filter: grayscale(0.7) contrast(1.12) brightness(0.9) saturate(1.05);
+  filter: grayscale(0.32) contrast(1.1) brightness(0.94) saturate(1.18);
 }
 
 /* ─── 影像羽化 ───
@@ -1175,6 +1241,47 @@ a:focus-visible .mv-media--color.mv-media--hover > img {
    格線週期直接用格數算，永遠對得上 canvas 的格子。
 
    .mv-media 內的層序：影片 → --scan(1) → 馬賽克(2) → --dot(3) → scrim(4) */
+/* 主視覺的網版層（圓點／十字／抖動，見 halftone.ts）。
+   與影片同一個橢圓暈影，標記才會跟著畫面一起在四周淡掉。
+   橢圓參數由 HeroMedia 以 --mv-vig-* 傳進來（見 mosaic.ts 的 VIGNETTE）。 */
+.mv-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0.92;
+  mix-blend-mode: screen;
+  -webkit-mask-image: var(--mv-vignette);
+  mask-image: var(--mv-vignette);
+}
+/* 大格線層（見 gridOverlay.ts）。可見度的衰減是在 canvas 裡逐段算的，
+   所以這一層不再套暈影遮罩，避免同一件事被做兩次而整個消失。 */
+.mv-grid-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* dither 的 canvas 已經含有原影像，直接當主影像疊上去，不做 screen 提亮 */
+.mv-screen--flat {
+  opacity: 1;
+  mix-blend-mode: normal;
+}
+.mv-screen__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* 抖動是把每格畫成一個像素再放大，要硬邊才有 1-bit 的味道 */
+.mv-screen__canvas.is-pixelated {
+  image-rendering: pixelated;
+}
+
 .mv-mosaic {
   position: absolute;
   inset: 0;
@@ -1182,8 +1289,6 @@ a:focus-visible .mv-media--color.mv-media--hover > img {
   overflow: hidden;
   pointer-events: none;
   opacity: 0.58;
-  /* 與影片同一個橢圓暈影，格子才會跟著畫面一起在四周淡掉。
-     橢圓參數由 HeroMedia 以 --mv-vig-* 傳進來（見 mosaic.ts 的 VIGNETTE）。 */
   -webkit-mask-image: var(--mv-vignette);
   mask-image: var(--mv-vignette);
 }
@@ -1280,9 +1385,9 @@ a:focus-visible .mv-media--color.mv-media--hover > img {
   border: 1px solid var(--color-line-2);
   padding: 0.375rem 0.625rem;
   font-family: var(--font-mono);
-  font-size: 0.625rem;
-  line-height: 1;
-  letter-spacing: 0.18em;
+  font-size: var(--text-label);
+  line-height: var(--text-label--line-height);
+  letter-spacing: var(--text-label--letter-spacing);
   text-transform: uppercase;
   color: var(--color-fg-3);
 }
@@ -1333,7 +1438,7 @@ a:focus-visible .mv-media--color.mv-media--hover > img {
 .mv-nav-link {
   position: relative;
   font-family: var(--font-mono);
-  font-size: 0.6875rem;
+  font-size: var(--text-label);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--color-fg-3);
@@ -1376,7 +1481,7 @@ a:focus-visible .mv-media--color.mv-media--hover > img {
   padding: 0.875rem 1rem;
   color: var(--color-fg-1);
   font-family: var(--font-body);
-  font-size: 0.9375rem;
+  font-size: var(--text-copy);
   transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 .mv-field::placeholder {
@@ -1395,9 +1500,8 @@ a:focus-visible .mv-media--color.mv-media--hover > img {
 }
 .mv-error {
   display: block;
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0.06em;
+  font-size: var(--text-caption);
+  line-height: var(--text-caption--line-height);
   color: var(--color-danger);
 }
 
@@ -1613,7 +1717,7 @@ a:focus-visible .mv-media--color.mv-media--hover > img {
   background: var(--color-fg-1);
   color: var(--color-ink-1);
   font-family: var(--font-mono);
-  font-size: 0.6875rem;
+  font-size: var(--text-label);
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }

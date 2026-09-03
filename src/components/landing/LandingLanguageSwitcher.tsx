@@ -47,7 +47,7 @@ export function LandingLanguageSwitcher({ className }: Props) {
       >
         EN
       </button>
-      <span className="text-fg-3/60 text-[10px] leading-none">/</span>
+      <span className="text-fg-3/60 text-label leading-none">/</span>
       <button
         type="button"
         onClick={() => setLocale("zh-TW")}

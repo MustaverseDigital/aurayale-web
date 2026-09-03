@@ -80,7 +80,7 @@ export default function AurayalePage() {
               {t("site.aurayale.hero.titleLine2")}
             </h1>
             <p
-              className="mv-body mv-enter mb-10 max-w-[42ch]"
+              className="mv-lead mv-enter mb-10 max-w-[42ch]"
               style={{ ["--mv-d" as string]: "300ms" }}
             >
               {t("site.aurayale.hero.body")}
@@ -126,7 +126,7 @@ export default function AurayalePage() {
                 <br />
                 {t("site.aurayale.home.title")}
               </h2>
-              <p className="mv-body mt-6">{t("site.aurayale.home.body")}</p>
+              <p className="mv-lead mt-6">{t("site.aurayale.home.body")}</p>
             </div>
           </Reveal>
         </div>
@@ -196,7 +196,7 @@ export default function AurayalePage() {
                   <br />
                   {t("site.aurayale.swup.titleLine2")}
                 </h2>
-                <p className="mv-body mt-6">{t("site.aurayale.swup.body")}</p>
+                <p className="mv-lead mt-6">{t("site.aurayale.swup.body")}</p>
 
                 <ul className="mt-10">
                   {[
@@ -214,7 +214,7 @@ export default function AurayalePage() {
                     <li key={title} className="mv-row flex items-start gap-4 py-5">
                       <Icon className="mt-0.5 h-4 w-4 shrink-0 text-fg-3" strokeWidth={1.5} />
                       <div>
-                        <h3 className="mv-h3 text-[0.9375rem]">{title}</h3>
+                        <h3 className="mv-strong">{title}</h3>
                         <p className="mv-body mv-body--sm mt-1.5">{desc}</p>
                       </div>
                     </li>
@@ -240,7 +240,7 @@ export default function AurayalePage() {
                     : ""
                 } ${i === 0 ? "sm:pr-10" : ""} ${i === 1 ? "sm:pr-10" : ""}`}
               >
-                <p className="mv-h2 text-[clamp(1.5rem,2.4vw,2rem)]">
+                <p className="mv-h3">
                   {award.name}
                   {award.nameSuffix ? (
                     <span className="font-light text-fg-2"> {award.nameSuffix}</span>
@@ -258,12 +258,12 @@ export default function AurayalePage() {
         <Reveal className="pt-14 md:pt-20">
           <div className="grid grid-cols-1 items-end gap-10 md:grid-cols-12">
             <div className="md:col-span-8">
-              <h2 className="mv-h2 text-[clamp(2rem,4.4vw,3.5rem)]">
+              <h2 className="mv-h1">
                 {t("site.aurayale.cta.titleLine1")}
                 <br />
                 {t("site.aurayale.cta.titleLine2")}
               </h2>
-              <p className="mv-body mt-6">{t("site.aurayale.cta.body")}</p>
+              <p className="mv-lead mt-6">{t("site.aurayale.cta.body")}</p>
             </div>
             <div className="md:col-start-10 md:col-span-3 md:justify-self-end">
               <button

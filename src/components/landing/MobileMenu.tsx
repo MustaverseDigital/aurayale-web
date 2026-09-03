@@ -67,7 +67,7 @@ export function MobileMenu({
 
         <nav className="flex flex-grow flex-col overflow-y-auto">
           <Link
-            className={`flex items-center border-b border-line-1 px-6 py-5 text-sm font-semibold tracking-tight transition-colors ${
+            className={`flex items-center border-b border-line-1 px-6 py-5 text-lead font-medium tracking-tight transition-colors ${
               activePage === "aurayale"
                 ? "border-l-2 border-l-primary text-fg-1"
                 : "text-fg-2 hover:bg-white/[0.03] hover:text-fg-1"
@@ -96,7 +96,7 @@ export function MobileMenu({
           {navItems.map((item) => (
             <Link
               key={item.key}
-              className={`flex items-center border-b border-line-1 px-6 py-5 text-sm font-semibold tracking-tight transition-colors ${
+              className={`flex items-center border-b border-line-1 px-6 py-5 text-lead font-medium tracking-tight transition-colors ${
                 activePage === item.key
                   ? "border-l-2 border-l-primary text-fg-1"
                   : "text-fg-2 hover:bg-white/[0.03] hover:text-fg-1"

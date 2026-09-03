@@ -67,7 +67,7 @@ export function LandingFooter({ variant = "default" }: { variant?: FooterVariant
           <div className="md:col-span-4 md:border-l md:border-line-1 md:pl-10">
             <h2 className="mv-label mb-5">{t("site.footer.contact")}</h2>
             <a
-              className="mv-link inline-flex items-center gap-2 text-sm whitespace-nowrap"
+              className="mv-link inline-flex items-center gap-2 text-caption whitespace-nowrap"
               href={`mailto:${CONTACT_EMAIL}`}
             >
               <Mail className="h-4 w-4 shrink-0 text-fg-3" strokeWidth={1.5} />
@@ -98,7 +98,7 @@ export function LandingFooter({ variant = "default" }: { variant?: FooterVariant
               {OFFICES.map((office) => (
                 <a
                   key={office.name}
-                  className="group flex items-start gap-2 text-sm"
+                  className="group flex items-start gap-2 text-caption"
                   href={office.map}
                   target="_blank"
                   rel="noopener noreferrer"

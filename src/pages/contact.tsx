@@ -136,14 +136,14 @@ export default function ContactPage() {
                 {/* 強調字用同一套字的最亮階，不另外上色，把金色留給下方的送出按鈕。
                     中文不需要詞間空格（"遊戲的未來" 前後補空白會在句號前留一個洞），
                     只有拉丁語系才插入分隔空白。 */}
-                <h1 className="mv-display text-[clamp(2.25rem,4.6vw,3.5rem)] text-fg-3">
+                <h1 className="mv-h1 text-fg-3">
                   {t("site.contact.titlePre")}
                   {gap}
                   <span className="text-fg-1">{t("site.contact.titleAccent")}</span>
                   {gap}
                   {t("site.contact.titlePost")}
                 </h1>
-                <p className="mv-body mt-7">{t("site.contact.body")}</p>
+                <p className="mv-lead mt-7">{t("site.contact.body")}</p>
               </Reveal>
 
               <Reveal delay={120} className="mt-12">
@@ -271,7 +271,7 @@ export default function ContactPage() {
                               strokeWidth={1.5}
                             />
                           )}
-                          <span className="mv-row__title text-sm font-medium text-fg-1">
+                          <span className="mv-row__title mv-strong">
                             {social.label}
                           </span>
                         </span>
