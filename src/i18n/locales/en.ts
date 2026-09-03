@@ -99,6 +99,11 @@ const en: Translation = {
     },
   },
   site: {
+    a11y: {
+      skipToContent: "Skip to main content",
+      openMenu: "Open menu",
+      closeMenu: "Close menu",
+    },
     nav: {
       contact: "Contact",
       playNow: "Play Now",
@@ -172,6 +177,12 @@ const en: Translation = {
         message: "About the project",
         messagePlaceholder: "Tell us about your IP and what you want to build...",
         submit: "Send message",
+        required: "This field is required",
+        invalidEmail: "Enter a valid email address",
+        readyTitle: "Your message is ready",
+        readyBody: "We do not store this form on a server. The button below hands the content to your mail app, and you send it from there.",
+        openMailApp: "Open mail app",
+        editAgain: "Back to editing",
       },
       openForDeals: "Open for deals",
       communityTitle: "Join our community",

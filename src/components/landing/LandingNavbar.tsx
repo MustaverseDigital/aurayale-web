@@ -2,12 +2,20 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Menu } from "lucide-react";
 import { useLogin, POST_LOGIN_BATTLE_ROUTE } from "../../hooks/useLogin";
 import { LandingLanguageSwitcher } from "./LandingLanguageSwitcher";
 import { AURAYALE_SECTIONS, scrollToAurayaleSection } from "./aurayaleSections";
 
 type ActivePage = "home" | "aurayale" | "contact";
 
+/**
+ * 行銷頁導覽列。
+ *
+ * 72px 高（上限 80px），單行不折行，底部一條髮絲線接住頁面格線。
+ * 導覽項目走等寬大寫並帶一個 "/" 前綴當分隔，主色只用在「當前頁」的底線；
+ * 登入 / 進入應用都是描邊按鈕，把金色留給各頁唯一的主要 CTA。
+ */
 export function LandingNavbar({
   activePage,
   onOpenMobileMenu,
@@ -26,39 +34,48 @@ export function LandingNavbar({
   const [aurayaleOpen, setAurayaleOpen] = useState(false);
 
   const navItems: { label: string; href: string; key: ActivePage }[] = [
-    // { label: "Home", href: "/landing", key: "home" },
     { label: t("site.nav.contact"), href: "/contact", key: "contact" },
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full glass-panel border-b border-white/5 h-20 flex items-center">
-      <div className="w-full max-w-[1400px] mx-auto px-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-16">
-            <Link className="flex items-center gap-3 group" href="/landing">
-              <img src="/images/Logo.svg" alt="Mustaverse" style={{ width: 150 }} />
+    <header className="mv-nav sticky top-0 z-50 w-full border-b border-line-1 bg-ink-1/80 backdrop-blur-xl">
+      <div className="mv-container">
+        <div className="mv-inset flex h-[var(--mv-nav-h)] items-center justify-between gap-6">
+          <div className="flex items-center gap-10 lg:gap-16">
+            <Link className="flex shrink-0 items-center" href="/landing">
+              <img
+                src="/images/Logo.svg"
+                alt="Mustaverse"
+                className="h-6 w-auto md:h-7"
+              />
             </Link>
-            <nav className="hidden md:flex items-center gap-10">
-              {/* Aurayale：hover 彈出選單，列出頁面各 section */}
+
+            <nav className="hidden items-center gap-8 md:flex">
+              {/* Aurayale：hover 展開頁內 section 清單 */}
               <div
                 className="relative"
                 onMouseEnter={() => setAurayaleOpen(true)}
                 onMouseLeave={() => setAurayaleOpen(false)}
               >
                 <Link
-                  className={activePage === "aurayale" ? "landing-nav-link-active" : "landing-nav-link"}
+                  className={
+                    activePage === "aurayale"
+                      ? "mv-nav-link mv-nav-link--active"
+                      : "mv-nav-link"
+                  }
                   href="/aurayale"
                 >
+                  <span className="mr-1.5 text-fg-3">/</span>
                   Aurayale
                 </Link>
                 <div
-                  className={`absolute left-0 top-full pt-3 w-52 transition-all duration-200 ${
+                  className={`absolute left-0 top-full w-56 pt-4 transition-all duration-200 ${
                     aurayaleOpen
-                      ? "opacity-100 visible translate-y-0"
-                      : "opacity-0 invisible -translate-y-1 pointer-events-none"
+                      ? "visible translate-y-0 opacity-100"
+                      : "invisible -translate-y-1 opacity-0 pointer-events-none"
                   }`}
                 >
-                  <div className="glass-panel border border-white/10 rounded-xl py-2 shadow-2xl shadow-black/40">
+                  <div className="border border-line-2 bg-ink-3/95 backdrop-blur-xl">
                     {AURAYALE_SECTIONS.map((s) => (
                       <button
                         key={s.id}
@@ -67,7 +84,7 @@ export function LandingNavbar({
                           setAurayaleOpen(false);
                           scrollToAurayaleSection(router, s.id);
                         }}
-                        className="w-full text-left px-4 py-2.5 text-sm text-slate-300 hover:text-white hover:bg-white/5 transition-colors"
+                        className="mv-label block w-full cursor-pointer px-4 py-3 text-left transition-colors hover:bg-white/5 hover:text-fg-1"
                       >
                         {s.label}
                       </button>
@@ -75,30 +92,37 @@ export function LandingNavbar({
                   </div>
                 </div>
               </div>
+
               {navItems.map((item) => (
                 <Link
                   key={item.key}
-                  className={activePage === item.key ? "landing-nav-link-active" : "landing-nav-link"}
+                  className={
+                    activePage === item.key
+                      ? "mv-nav-link mv-nav-link--active"
+                      : "mv-nav-link"
+                  }
                   href={item.href}
                 >
+                  <span className="mr-1.5 text-fg-3">/</span>
                   {item.label}
                 </Link>
               ))}
             </nav>
           </div>
-          <div className="flex items-center gap-6">
-            <LandingLanguageSwitcher className="hidden md:flex mr-2" />
+
+          <div className="flex items-center gap-5">
+            <LandingLanguageSwitcher className="hidden md:flex" />
             {ready && authenticated ? (
               <>
                 <button
                   onClick={() => router.push(POST_LOGIN_BATTLE_ROUTE)}
-                  className="cursor-pointer hidden md:flex items-center justify-center px-6 py-2.5 text-xs font-bold uppercase tracking-widest bg-gradient-to-r from-primary to-secondary text-white rounded-lg hover:brightness-110 transition-all shadow-lg shadow-primary/25"
+                  className="mv-btn mv-btn--ghost mv-btn--sm hidden md:inline-flex"
                 >
                   {t("site.nav.enterApp")}
                 </button>
                 <button
                   onClick={() => logout()}
-                  className="cursor-pointer hidden md:flex items-center justify-center px-6 py-2.5 text-xs font-bold uppercase tracking-widest border border-white/20 text-white/70 rounded-lg hover:bg-white/5 transition-all"
+                  className="mv-label hidden cursor-pointer transition-colors hover:text-fg-1 md:block"
                 >
                   {t("site.nav.logout")}
                 </button>
@@ -106,16 +130,17 @@ export function LandingNavbar({
             ) : (
               <button
                 onClick={() => login()}
-                className="cursor-pointer hidden md:flex items-center justify-center px-6 py-2.5 text-xs font-bold uppercase tracking-widest bg-gradient-to-r from-primary to-secondary text-white rounded-lg hover:brightness-110 transition-all shadow-lg shadow-primary/25"
+                className="mv-btn mv-btn--ghost mv-btn--sm hidden md:inline-flex"
               >
                 {t("site.nav.login")}
               </button>
             )}
             <button
               onClick={onOpenMobileMenu}
-              className="md:hidden p-2 text-slate-400 hover:text-white transition-colors"
+              aria-label={t("site.a11y.openMenu")}
+              className="-mr-2 cursor-pointer p-2 text-fg-3 transition-colors hover:text-fg-1 md:hidden"
             >
-              <span className="material-symbols-outlined text-2xl">menu</span>
+              <Menu className="h-5 w-5" strokeWidth={1.5} />
             </button>
           </div>
         </div>

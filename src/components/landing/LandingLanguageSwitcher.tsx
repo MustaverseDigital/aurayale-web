@@ -31,12 +31,13 @@ export function LandingLanguageSwitcher({ className }: Props) {
     }
   }
 
-  const base = "px-1 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
-  const active = "text-primary"
-  const inactive = "text-slate-500 hover:text-white"
+  // 主色留給每頁唯一的主要 CTA，語系切換的 active 只用最亮的灰階表示。
+  const base = "mv-label cursor-pointer px-1 transition-colors"
+  const active = "text-fg-1"
+  const inactive = "hover:text-fg-1"
 
   return (
-    <div className={`flex items-center gap-1 select-none ${className ?? ""}`}>
+    <div className={`flex items-center gap-1.5 select-none ${className ?? ""}`}>
       <button
         type="button"
         onClick={() => setLocale("en")}
@@ -46,7 +47,7 @@ export function LandingLanguageSwitcher({ className }: Props) {
       >
         EN
       </button>
-      <span className="text-white/20 text-xs leading-none">|</span>
+      <span className="text-fg-3/60 text-label leading-none">/</span>
       <button
         type="button"
         onClick={() => setLocale("zh-TW")}

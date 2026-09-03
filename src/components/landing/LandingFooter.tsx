@@ -2,6 +2,7 @@ import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { Mail, MapPin } from "lucide-react";
 import { LandingLanguageSwitcher } from "./LandingLanguageSwitcher";
+import { Rule } from "./primitives";
 
 type FooterVariant = "default" | "aurayale" | "contact";
 
@@ -20,6 +21,7 @@ const OFFICES = [
   },
 ];
 
+// 品牌標記沒有圖示庫版本（lucide 不收商標），維持內嵌路徑。
 const SOCIAL_LINKS = [
   {
     label: "X",
@@ -38,20 +40,23 @@ const SOCIAL_LINKS = [
   },
 ];
 
+/**
+ * 頁尾。與各區塊同一套骨架：上緣一條帶定位十字的線，欄位靠 12 欄格線切，
+ * 欄與欄之間用垂直髮絲線分隔（桌機才畫，手機收成單欄）。
+ */
 export function LandingFooter({ variant = "default" }: { variant?: FooterVariant }) {
   const { t } = useTranslation();
   return (
-    <footer className="relative z-10 bg-background-dark pt-20 pb-10 border-t border-white/5">
-      <div className="max-w-[1400px] mx-auto px-6">
-        {/* 品牌欄吸收剩餘空間，Contact / Offices 依內容寬度收合並靠右對齊，
-            避免固定欄寬讓最右欄出現大片空白。 */}
-        <div className="flex flex-col gap-12 md:flex-row md:gap-16 lg:gap-24">
+    <footer className="relative z-10 bg-ink-1">
+      <div className="mv-container">
+        <Rule />
+        <div className="mv-inset grid grid-cols-1 gap-12 pt-14 pb-12 md:grid-cols-12 md:gap-0">
           {/* 品牌 */}
-          <div className="md:flex-1">
-            <Link className="inline-block mb-5" href="/landing">
-              <img src="/images/Logo.svg" alt="Mustaverse Studio" style={{ width: 140 }} />
+          <div className="md:col-span-5 md:pr-10">
+            <Link className="mb-6 inline-block" href="/landing">
+              <img src="/images/Logo.svg" alt="Mustaverse Studio" className="h-7 w-auto" />
             </Link>
-            <p className="text-slate-400 max-w-xs leading-relaxed font-light text-sm">
+            <p className="mv-body mv-body--sm max-w-[36ch]">
               {variant === "aurayale"
                 ? t("site.footer.taglineAurayale")
                 : t("site.footer.taglineDefault")}
@@ -59,26 +64,26 @@ export function LandingFooter({ variant = "default" }: { variant?: FooterVariant
           </div>
 
           {/* 聯絡 */}
-          <div className="md:shrink-0">
-            <h2 className="text-white text-xs font-bold uppercase tracking-wider mb-4">{t("site.footer.contact")}</h2>
+          <div className="md:col-span-4 md:border-l md:border-line-1 md:pl-10">
+            <h2 className="mv-label mb-5">{t("site.footer.contact")}</h2>
             <a
-              className="text-slate-400 hover:text-primary transition-colors text-sm inline-flex items-center gap-2 whitespace-nowrap"
+              className="mv-link inline-flex items-center gap-2 text-caption whitespace-nowrap"
               href={`mailto:${CONTACT_EMAIL}`}
             >
-              <Mail className="w-4 h-4 shrink-0" />
+              <Mail className="h-4 w-4 shrink-0 text-fg-3" strokeWidth={1.5} />
               {CONTACT_EMAIL}
             </a>
-            <div className="flex items-center gap-5 mt-6">
+            <div className="mt-7 flex items-center gap-4">
               {SOCIAL_LINKS.map((social) => (
                 <a
                   key={social.label}
-                  className="text-slate-400 hover:text-white transition-colors"
+                  className="flex h-9 w-9 items-center justify-center border border-line-1 text-fg-3 transition-colors hover:border-line-3 hover:text-fg-1"
                   href={social.href}
                   aria-label={social.label}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d={social.path} />
                   </svg>
                 </a>
@@ -87,23 +92,26 @@ export function LandingFooter({ variant = "default" }: { variant?: FooterVariant
           </div>
 
           {/* 據點 */}
-          <div className="md:shrink-0">
-            <h2 className="text-white text-xs font-bold uppercase tracking-wider mb-4">{t("site.footer.offices")}</h2>
-            <address className="not-italic flex flex-col gap-4">
+          <div className="md:col-span-3 md:border-l md:border-line-1 md:pl-10">
+            <h2 className="mv-label mb-5">{t("site.footer.offices")}</h2>
+            <address className="flex flex-col gap-5 not-italic">
               {OFFICES.map((office) => (
                 <a
                   key={office.name}
-                  className="group flex items-start gap-2 text-sm"
+                  className="group flex items-start gap-2 text-caption"
                   href={office.map}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <MapPin className="w-4 h-4 shrink-0 mt-0.5 text-slate-500 group-hover:text-primary transition-colors" />
+                  <MapPin
+                    className="mt-0.5 h-4 w-4 shrink-0 text-fg-3 transition-colors group-hover:text-fg-1"
+                    strokeWidth={1.5}
+                  />
                   <span>
-                    <span className="block text-slate-400 group-hover:text-primary transition-colors">
+                    <span className="block text-fg-2 transition-colors group-hover:text-fg-1">
                       {office.name}
                     </span>
-                    <span className="block text-slate-500 text-xs mt-0.5">{office.city}</span>
+                    <span className="mv-label mt-1 block">{office.city}</span>
                   </span>
                 </a>
               ))}
@@ -111,19 +119,21 @@ export function LandingFooter({ variant = "default" }: { variant?: FooterVariant
           </div>
         </div>
 
-        <div className="border-t border-white/5 mt-16 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-5">
+        <Rule />
+        <div className="mv-inset flex flex-col items-start justify-between gap-5 py-7 sm:flex-row sm:items-center">
+          {/* 手機上語系切換與版權各自佔一行：擠在同一行會讓版權文字斷在「版權所／有」。 */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
             <LandingLanguageSwitcher />
-            <p className="text-slate-500 text-xs font-light">
+            <p className="mv-label normal-case tracking-[0.06em]">
               {t("site.footer.rights")}
             </p>
           </div>
           {variant === "aurayale" || variant === "contact" ? (
             <div className="flex gap-8">
-              <a className="text-slate-500 hover:text-white text-xs font-light transition-colors" href="#">
+              <a className="mv-label transition-colors hover:text-fg-1" href="#">
                 {t("site.footer.privacy")}
               </a>
-              <a className="text-slate-500 hover:text-white text-xs font-light transition-colors" href="#">
+              <a className="mv-label transition-colors hover:text-fg-1" href="#">
                 {t("site.footer.terms")}
               </a>
             </div>
