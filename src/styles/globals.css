@@ -1139,36 +1139,6 @@ body:has(.landing-page) {
   mix-blend-mode: multiply;
   opacity: 0.5;
 }
-/* ─── 主視覺的四周淡出 ───
-   影片與馬賽克共用同一個橢圓遮罩，中央實、四周淡到全黑，接回頁面底色。
-   色相偏差的權重也是照同一組數字算的，所以顏色剛好落在淡出的那一圈交界上。 */
-.mv-media--vignette {
-  --mv-vignette: radial-gradient(
-    ellipse var(--mv-vig-rx) var(--mv-vig-ry) at var(--mv-vig-cx) var(--mv-vig-cy),
-    #000 0,
-    #000 var(--mv-vig-solid),
-    transparent 100%
-  );
-}
-.mv-media--vignette > video,
-.mv-media--vignette > img {
-  -webkit-mask-image: var(--mv-vignette);
-  mask-image: var(--mv-vignette);
-}
-/* 網點與掃描線也要跟著淡掉，不然四周會留下一層浮在黑底上的網格 */
-.mv-media--vignette.mv-media--dot::after,
-.mv-media--vignette.mv-media--scan::before {
-  -webkit-mask-image: var(--mv-vignette);
-  mask-image: var(--mv-vignette);
-}
-
-/* 主視覺不壓成全灰：透出格子縫隙的影片本身保留較多原色，
-   與 halftone.ts 的 MARK_SOURCE_MIX 搭配 —— 標記與底圖都帶色，
-   整幅 banner 才不會只有網版是彩的、底下是灰的。 */
-.mv-media--tint > video,
-.mv-media--tint > img {
-  filter: grayscale(0.32) contrast(1.1) brightness(0.94) saturate(1.18);
-}
 
 /* ─── 影像羽化 ───
    讓影像不再是「貼在文字旁邊的一個方框」：往文字那一側把邊緣化掉，
@@ -1241,46 +1211,6 @@ a:focus-visible .mv-media--color.mv-media--hover > img {
    格線週期直接用格數算，永遠對得上 canvas 的格子。
 
    .mv-media 內的層序：影片 → --scan(1) → 馬賽克(2) → --dot(3) → scrim(4) */
-/* 主視覺的網版層（圓點／十字／抖動，見 halftone.ts）。
-   與影片同一個橢圓暈影，標記才會跟著畫面一起在四周淡掉。
-   橢圓參數由 HeroMedia 以 --mv-vig-* 傳進來（見 mosaic.ts 的 VIGNETTE）。 */
-.mv-screen {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  overflow: hidden;
-  pointer-events: none;
-  opacity: 0.92;
-  mix-blend-mode: screen;
-  -webkit-mask-image: var(--mv-vignette);
-  mask-image: var(--mv-vignette);
-}
-/* 大格線層（見 gridOverlay.ts）。可見度的衰減是在 canvas 裡逐段算的，
-   所以這一層不再套暈影遮罩，避免同一件事被做兩次而整個消失。 */
-.mv-grid-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  display: block;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-/* dither 的 canvas 已經含有原影像，直接當主影像疊上去，不做 screen 提亮 */
-.mv-screen--flat {
-  opacity: 1;
-  mix-blend-mode: normal;
-}
-.mv-screen__canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-/* 抖動是把每格畫成一個像素再放大，要硬邊才有 1-bit 的味道 */
-.mv-screen__canvas.is-pixelated {
-  image-rendering: pixelated;
-}
 
 .mv-mosaic {
   position: absolute;
@@ -1654,9 +1584,40 @@ a:focus-visible .mv-media--color.mv-media--hover > img {
 .mv-hero-media {
   transform: translate3d(0, 0, 0) scale(1.01);
 }
+
+/* ─── 主視覺：極座標隧道（見 tunnel.ts）───
+   整個效果在一支 fragment shader 裡 —— 暈影、掃描線、顆粒、調色都在 GPU 上做，
+   所以這裡只要把 canvas 鋪滿，不再需要任何 CSS 濾鏡或遮罩層。 */
+/* .mv-media 的預設底是 ink-2，但 shader 的外緣是淡到 ink-1。
+   第一幀畫出來之前會閃一下比較亮的底，所以這裡對齊過來。 */
+.mv-tunnel {
+  background: var(--color-ink-1);
+}
+.mv-tunnel__canvas,
+.mv-tunnel__fallback {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* <video> 只是解碼來源，不顯示。但不能 display:none 也不能移出 DOM ——
+   那樣瀏覽器會停止解碼，貼圖就永遠停在第一格。 */
+.mv-tunnel__source {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  width: 2px;
+  height: 2px;
+  opacity: 0.01;
+  pointer-events: none;
+}
 /* 文字壓在畫面下緣，那一段必須接近實色才過得了 AA；上半保持半透明讓影像透出來。 */
 .mv-hero-scrim {
-  opacity: 0.9;
+  opacity: var(--mv-scrim-o, 0.9);
   background-image: linear-gradient(
     to top,
     var(--color-ink-1) 0%,

@@ -68,9 +68,10 @@ export default function LandingPage() {
   return (
     <LandingLayout activePage="home">
       {/* ── Hero ──
-          影片本身就是主視覺：灰階 + 馬賽克格 + 網點 + 掃描線（見 HeroMedia）。
-          文字壓在畫面下緣靠左，右半留給影像。捲動時的下沉由 CSS
-          scroll-driven animation 處理（.mv-hero-media），不掛 scroll listener。 */}
+          影片被重新映射成極座標隧道（見 tunnel.ts）：五重對稱、緩慢自轉、
+          深度霧與環線，整個效果在一支 fragment shader 裡。
+          文字壓在畫面下緣靠左。捲動時的下沉由 CSS scroll-driven animation
+          處理（.mv-hero-media），不掛 scroll listener。 */}
       <section className="relative z-10 flex min-h-[calc(100dvh-var(--mv-nav-h))] items-end overflow-hidden pt-24 pb-24 md:pb-28 lg:pb-36">
         <HeroMedia src="/images/home_banner.mp4" poster="/images/home_hero.jpg" />
 
