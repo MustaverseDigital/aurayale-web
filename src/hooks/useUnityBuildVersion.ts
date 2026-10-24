@@ -36,14 +36,16 @@ export function useUnityBuildVersion(): State {
 
     // cache: "no-store" 是這整套機制的關鍵：這個檔案一旦被快取，
     // 玩家就會繼續被指向舊的 buildId，等於白做。
-    fetch("/Build/version.json", { cache: "no-store" })
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20_000);
+    fetch("/Build/version.json", { cache: "no-store", signal: controller.signal })
       .then((res) => {
         if (!res.ok) throw new Error(`version.json responded ${res.status}`);
         return res.json() as Promise<UnityBuildVersion>;
       })
       .then((version) => {
         if (cancelled) return;
-        if (!version?.buildId) throw new Error("version.json is missing buildId");
+        if (!/^\d{8}-\d{4}-[a-z0-9]+$/.test(version?.buildId || "")) throw new Error("version.json has an invalid buildId");
         setState({ status: "ready", version, error: null });
       })
       .catch((err: unknown) => {
@@ -53,10 +55,13 @@ export function useUnityBuildVersion(): State {
           version: null,
           error: err instanceof Error ? err.message : String(err),
         });
-      });
+      })
+      .finally(() => clearTimeout(timeout));
 
     return () => {
       cancelled = true;
+      clearTimeout(timeout);
+      controller.abort();
     };
   }, []);
 

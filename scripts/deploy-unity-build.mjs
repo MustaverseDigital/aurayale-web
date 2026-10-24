@@ -1,110 +1,108 @@
 #!/usr/bin/env node
-/**
- * 把 Unity WebGL build 產物搬進 public/Build/<buildId>/，並寫出 version.json。
- *
- * 為什麼要帶版本目錄：四個檔案（loader / data / framework / wasm）是四個獨立的
- * 快取項目，檔名固定時各自的過期時間不同 —— 玩家可能拿到新 loader + 舊 wasm，
- * 版本錯配就會在 90% 炸成 "Maximum call stack size exceeded"。
- * 換成每次 build 一個新目錄後，四個檔案要嘛全新、要嘛全舊，不可能混搭。
- *
- * 用法：
- *   node scripts/deploy-unity-build.mjs <unity-build-output-dir> [--keep 3]
- *
- * <unity-build-output-dir> 是 Unity 吐出來的那個 Build/ 資料夾，裡面應有：
- *   Build.loader.js / Build.data.unityweb（或 .data）/ Build.framework.js.unityweb / Build.wasm.unityweb
- */
-import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { createHash } from "node:crypto";
+import { pathToFileURL } from "node:url";
+import { brotliCompressSync, brotliDecompressSync, gunzipSync, constants } from "node:zlib";
 
-const PUBLIC_BUILD = path.join(process.cwd(), "public", "Build");
-
-function fail(msg) {
-  console.error(`\n✗ ${msg}\n`);
-  process.exit(1);
+// Accept the complete Unity output directory or its nested Build directory.
+// Normalise every supported Unity compression mode to the Brotli HTTP contract.
+function brotliAsset(file, kind) {
+  const source = fs.readFileSync(file);
+  let decoded;
+  let encoded;
+  if (/\.(br|unityweb)$/.test(file)) {
+    try {
+      decoded = brotliDecompressSync(source);
+      encoded = source;
+    } catch (cause) {
+      if (file.endsWith(".br")) throw cause;
+      decoded = gunzipSync(source);
+    }
+  } else if (file.endsWith(".gz")) {
+    decoded = gunzipSync(source);
+  } else {
+    decoded = source;
+  }
+  if (kind === "wasm" && !decoded.subarray(0, 8).equals(Buffer.from([0, 97, 115, 109, 1, 0, 0, 0]))) {
+    throw new Error(`Invalid WebAssembly: ${file}`);
+  }
+  if (kind === "data" && !decoded.subarray(0, 16).toString().startsWith("UnityWebData1.0")) {
+    throw new Error(`Invalid Unity data archive: ${file}`);
+  }
+  return encoded || brotliCompressSync(decoded, { params: { [constants.BROTLI_PARAM_QUALITY]: 9 } });
 }
 
-// --- 參數 -----------------------------------------------------------------
-const args = process.argv.slice(2);
-const srcDir = args.find((a) => !a.startsWith("--"));
-if (!srcDir) fail("請指定 Unity build 輸出目錄：node scripts/deploy-unity-build.mjs <dir>");
-if (!fs.existsSync(srcDir)) fail(`找不到目錄：${srcDir}`);
+export function deployUnityBuild(source, { publicBuild = path.resolve("public/Build"), keep = 3 } = {}) {
+  if (!Number.isInteger(keep) || keep < 1) throw new Error("--keep must be a positive integer");
+  const root = path.resolve(source);
+  const srcDir = fs.existsSync(path.join(root, "Build")) ? path.join(root, "Build") : root;
+  const files = fs.readdirSync(srcDir);
+  const loaders = files.filter((file) => file.endsWith(".loader.js"));
+  if (loaders.length !== 1) throw new Error("Expected exactly one Unity .loader.js file");
+  const stem = loaders[0].slice(0, -".loader.js".length);
+  const assets = [[loaders[0], "Build.loader.js", "loader"]];
+  for (const [kind, suffix] of [["data", "data"], ["framework", "framework.js"], ["wasm", "wasm"]]) {
+    const candidates = files.filter((file) => ["", ".br", ".gz", ".unityweb"].some((ext) => file === `${stem}.${suffix}${ext}` || (kind === "framework" && file === `${stem}.framework${ext}`)));
+    if (candidates.length !== 1) throw new Error(`Expected exactly one ${kind} artifact, got ${candidates.length}`);
+    assets.push([candidates[0], `Build.${kind}.unityweb`, kind]);
+  }
 
-const keepIdx = args.indexOf("--keep");
-const keep = keepIdx !== -1 ? Number(args[keepIdx + 1]) : 3;
-if (!Number.isInteger(keep) || keep < 1) fail("--keep 需為 >= 1 的整數");
-
-// --- 找出四個產物 ---------------------------------------------------------
-// Unity 依 compressionFormat / decompressionFallback 會產生不同副檔名，
-// 這裡用前綴比對，不寫死尾巴。
-const srcFiles = fs.readdirSync(srcDir);
-const pick = (re, label) => {
-  const hit = srcFiles.filter((f) => re.test(f));
-  if (hit.length === 0) fail(`在 ${srcDir} 找不到 ${label}（比對 ${re}）`);
-  if (hit.length > 1) fail(`${label} 找到多個，無法判斷要用哪個：${hit.join(", ")}`);
-  return hit[0];
-};
-
-const loader = pick(/^Build\.loader\.js$/, "loader");
-const data = pick(/^Build\.data(\.|$)/, "data");
-const framework = pick(/^Build\.framework(\.|$)/, "framework");
-const wasm = pick(/^Build\.wasm(\.|$)/, "wasm");
-
-// --- buildId：git sha + 時間，可讀又唯一 ----------------------------------
-let sha = "nogit";
-try {
-  sha = execFileSync("git", ["rev-parse", "--short=7", "HEAD"], { encoding: "utf8" }).trim();
-} catch {
-  /* 不在 git repo 也能跑 */
-}
-const now = new Date();
-const p2 = (n) => String(n).padStart(2, "0");
-const stamp =
-  `${now.getFullYear()}${p2(now.getMonth() + 1)}${p2(now.getDate())}` +
-  `-${p2(now.getHours())}${p2(now.getMinutes())}`;
-const buildId = `${stamp}-${sha}`;
-
-const destDir = path.join(PUBLIC_BUILD, buildId);
-if (fs.existsSync(destDir)) fail(`${destDir} 已存在，請先刪除或等一分鐘再跑`);
-fs.mkdirSync(destDir, { recursive: true });
-
-// --- 複製並正規化檔名 -----------------------------------------------------
-// framework / wasm / data 一律落地為 .unityweb：
-// Vercel CDN 會依副檔名推導 Content-Type，含 .js 會被判為 javascript、
-// .wasm 會被判為 application/wasm —— 兩者都在 CDN 自動壓縮的 MIME 清單內，
-// 會在我們已經是 Brotli 的內容上再壓一層，瀏覽器解一層後仍是壓縮資料。
-// .unityweb 不在清單內，Vercel 原樣送出。
-const copies = [
-  [loader, "Build.loader.js"],
-  [data, "Build.data.unityweb"],
-  [framework, "Build.framework.unityweb"],
-  [wasm, "Build.wasm.unityweb"],
-];
-
-for (const [from, to] of copies) {
-  fs.copyFileSync(path.join(srcDir, from), path.join(destDir, to));
-  const mb = (fs.statSync(path.join(destDir, to)).size / 1024 / 1024).toFixed(1);
-  console.log(`  ${from}  →  ${buildId}/${to}  (${mb} MB)`);
+  // Validate all input before publishing anything or updating version.json.
+  const payloads = assets.map(([from, to, kind]) => [to, kind === "loader" ? fs.readFileSync(path.join(srcDir, from)) : brotliAsset(path.join(srcDir, from), kind)]);
+  const hash = createHash("sha256");
+  payloads.forEach(([name, bytes]) => { hash.update(name); hash.update(bytes); });
+  const outputRoot = path.dirname(srcDir);
+  const streamingSource = path.join(outputRoot, "StreamingAssets");
+  function hashTree(dir) {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+      const full = path.join(dir, entry.name);
+      if (entry.isSymbolicLink()) throw new Error(`Symlinks are not supported: ${full}`);
+      hash.update(path.relative(outputRoot, full));
+      if (entry.isDirectory()) hashTree(full);
+      else hash.update(fs.readFileSync(full));
+    }
+  }
+  if (fs.existsSync(streamingSource)) hashTree(streamingSource);
+  const metadataFile = path.join(outputRoot, "aurayale-build.json");
+  const metadata = fs.existsSync(metadataFile) ? JSON.parse(fs.readFileSync(metadataFile, "utf8")) : {};
+  if (metadata.exhibition === true) throw new Error("Cannot deploy an exhibition player to the account-based battle page");
+  const now = new Date();
+  const stamp = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Taipei", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(now).replace(/[-: ]/g, "");
+  const buildId = `${stamp.slice(0, 8)}-${stamp.slice(8)}-${hash.digest("hex").slice(0, 12)}`;
+  const destination = path.join(publicBuild, buildId);
+  const staging = path.join(publicBuild, `.staging-${process.pid}`);
+  fs.mkdirSync(publicBuild, { recursive: true });
+  try {
+    if (!fs.existsSync(destination)) {
+      fs.mkdirSync(staging);
+      for (const [name, bytes] of payloads) fs.writeFileSync(path.join(staging, name), bytes);
+      if (fs.existsSync(streamingSource)) fs.cpSync(streamingSource, path.join(staging, "StreamingAssets"), { recursive: true });
+      fs.writeFileSync(path.join(staging, "manifest.json"), JSON.stringify({ ...metadata, buildId, compression: "brotli", files: Object.fromEntries(payloads.map(([name, bytes]) => [name, { bytes: bytes.length, sha256: createHash("sha256").update(bytes).digest("hex") }])) }, null, 2) + "\n");
+      fs.renameSync(staging, destination);
+    }
+    const version = { buildId, builtAt: now.toISOString(), authMode: metadata.authMode || "website" };
+    const versionTemp = path.join(publicBuild, `.version-${process.pid}.json`);
+    fs.writeFileSync(versionTemp, JSON.stringify(version, null, 2) + "\n");
+    fs.renameSync(versionTemp, path.join(publicBuild, "version.json"));
+    const previous = fs.readdirSync(publicBuild, { withFileTypes: true }).filter((e) => e.isDirectory() && /^\d{8}-\d{4}-[a-z0-9]+$/.test(e.name) && e.name !== buildId).map((e) => e.name).sort().reverse();
+    for (const name of previous.slice(keep - 1)) fs.rmSync(path.join(publicBuild, name), { recursive: true });
+    console.log(`Unity deployed to public/Build/${buildId}`);
+    return version;
+  } finally {
+    fs.rmSync(staging, { recursive: true, force: true });
+  }
 }
 
-// --- version.json：唯一一個 no-store 的檔案 -------------------------------
-fs.writeFileSync(
-  path.join(PUBLIC_BUILD, "version.json"),
-  JSON.stringify({ buildId, builtAt: now.toISOString() }, null, 2) + "\n",
-);
-
-// --- 清掉過舊的版本目錄（保留最近 N 個，含這次） --------------------------
-const versionDirs = fs
-  .readdirSync(PUBLIC_BUILD, { withFileTypes: true })
-  .filter((e) => e.isDirectory() && /^\d{8}-\d{4}-/.test(e.name))
-  .map((e) => e.name)
-  .sort();
-
-const stale = versionDirs.slice(0, Math.max(0, versionDirs.length - keep));
-for (const dir of stale) {
-  fs.rmSync(path.join(PUBLIC_BUILD, dir), { recursive: true, force: true });
-  console.log(`  🗑  移除舊版本 ${dir}`);
+if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
+  try {
+    const args = process.argv.slice(2);
+    const source = args[0];
+    if (!source || source.startsWith("--")) throw new Error("Usage: node scripts/deploy-unity-build.mjs <Unity output or Build directory> [--keep N]");
+    if (args.length > 1 && (args[1] !== "--keep" || args.length !== 3)) throw new Error("Usage: <source> [--keep N]");
+    deployUnityBuild(source, { keep: args[1] === "--keep" ? Number(args[2]) : 3 });
+  } catch (cause) {
+    console.error(cause instanceof Error ? cause.message : cause);
+    process.exitCode = 1;
+  }
 }
-
-console.log(`\n✓ buildId = ${buildId}`);
-console.log(`  下一步：git add public/Build && git commit && push\n`);

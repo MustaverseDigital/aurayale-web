@@ -8,6 +8,14 @@ export interface Translation {
     rewardClaimFailed: string
     loading: string
     versionFailed: string
+    signingIn: string
+    loginTitle: string
+    loginDescription: string
+    login: string
+    retry: string
+    switchAccount: string
+    backToWebsite: string
+    loadFailed: string
   }
   floatingMenu: {
     openAriaLabel: string
@@ -222,6 +230,14 @@ const zhTW: Translation = {
     rewardClaimFailed: "領獎流程失敗：{{message}}",
     loading: "Loading Game...",
     versionFailed: "無法取得遊戲版本：{{message}}",
+    signingIn: "正在連線至遊戲帳號…",
+    loginTitle: "登入後開始遊玩",
+    loginDescription: "使用 Email、Google 或錢包登入，同步你的牌組與遊戲進度。",
+    login: "登入 / 註冊",
+    retry: "重試",
+    switchAccount: "切換帳號",
+    backToWebsite: "返回官網",
+    loadFailed: "遊戲載入失敗，請重試。",
   },
   floatingMenu: {
     openAriaLabel: "開啟資訊選單",

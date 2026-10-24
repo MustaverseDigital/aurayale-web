@@ -119,6 +119,8 @@ public/
 
 ## Usage
 
+The account-based game is available at `/battle`. Sign in with email, Google, or a wallet; the page restores the game session on reload and passes the account identity and backend JWT into the current Unity player. See [WebGL build and deployment](docs/WEBGL_DEPLOYMENT.md) for the complete build/release workflow (`corepack pnpm build:unity`).
+
 1. **Connect Wallet**: Click "Connect Wallet" and authorize with MetaMask
 2. **Manage Cards**: Select/deselect cards to build your 10-card deck
 3. **Play Game**: Your deck will sync to the Unity game automatically

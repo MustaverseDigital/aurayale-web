@@ -6,7 +6,6 @@ import { LandingLayout } from "../components/landing/LandingLayout";
 import { HeroMedia } from "../components/landing/HeroMedia";
 import { MosaicImage } from "../components/landing/MosaicImage";
 import { Reveal, Rule, Section } from "../components/landing/primitives";
-import { useLogin } from "../hooks/useLogin";
 
 const TRAILER_URL = "https://youtu.be/UFAOxXTXFuo";
 
@@ -30,13 +29,6 @@ const AWARDS = [
 export default function AurayalePage() {
   const { t } = useTranslation();
   const router = useRouter();
-  // autoProcess 讓 Privy 登入完成後接著跑 processLogin（換取 Aura token、
-  // 抓寶石與牌組）。
-  //
-  // 目前刻意「不」自動跳轉：useLogin 的 redirectTo 預設為 null。
-  // 本頁同時掛載了 LandingNavbar 與 MobileMenu，三個 useLogin 實例會各自
-  // 跳一次，跳轉行為互相打架。要恢復自動跳轉時，只在「一個」實例傳 redirectTo。
-  const { login, authenticated, ready } = useLogin({ autoProcess: true });
 
   // 從別頁帶 hash 進來時（例如導覽選單點某 section），載入後滾動到對應錨點。
   useEffect(() => {
@@ -51,14 +43,9 @@ export default function AurayalePage() {
     return () => clearTimeout(timer);
   }, [router.isReady, router.asPath]);
 
-  // 登入後的導向交給 useLogin（等 processLogin 完成才跳）。
-  // 這裡只處理「已經登入、再點一次按鈕」的情況。
+  // /battle owns login and session recovery, including direct links and reloads.
   const handleStartAdventure = () => {
-    if (ready && authenticated) {
-      router.push("/battle");
-    } else {
-      login();
-    }
+    void router.push("/battle");
   };
 
   return (

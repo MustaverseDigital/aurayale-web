@@ -28,7 +28,10 @@ import type {
 // 重新導出 GemItem 以保持向後兼容
 export type { GemItem } from '../types/auraServer';
 
-const BASE_URL = 'https://aura-server.zeabur.app/api';
+// Matches GameServerApi.DefaultBaseUrl and the Title scene in gemfi-gaming.
+// Use a new variable so a legacy NEXT_PUBLIC_API_URL cannot silently select
+// the old server, whose sessions/progress belong to a different deployment.
+const BASE_URL = (process.env.NEXT_PUBLIC_GAME_API_URL || 'https://aurayale.mustaversegames.xyz/api').replace(/\/$/, '');
 
 export async function loginWithPassword(
   username: string,
@@ -112,6 +115,7 @@ export async function unbindWallet(jwt: string): Promise<UnbindWalletResponse> {
 
 export async function getUserGems(jwt: string): Promise<UserGemsResponse> {
   const response = await fetch(`${BASE_URL}/user/gems`, {
+    signal: AbortSignal.timeout(30_000),
     headers: { Authorization: `Bearer ${jwt}` },
   });
   const data = await response.json();
@@ -121,6 +125,7 @@ export async function getUserGems(jwt: string): Promise<UserGemsResponse> {
 
 export async function getUserDeck(jwt: string): Promise<number[]> {
   const response = await fetch(`${BASE_URL}/user/gem-deck`, {
+    signal: AbortSignal.timeout(30_000),
     headers: { Authorization: `Bearer ${jwt}` },
   });
   const data = await response.json();
@@ -161,6 +166,7 @@ export async function loginWithPrivy(
   };
 
   const response = await fetch(`${BASE_URL}/privy-login`, {
+    signal: AbortSignal.timeout(30_000),
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(requestBody),
