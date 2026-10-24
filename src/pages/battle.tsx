@@ -13,6 +13,8 @@ import { ExitGameButton } from "../components/ExitGameButton";
 import { useInfoPanelLayout } from "../hooks/useInfoPanelLayout";
 import { useUnityBuildVersion } from "../hooks/useUnityBuildVersion";
 import { useRouter } from "next/router";
+import Link from "next/link";
+import { useLogin } from "../hooks/useLogin";
 
 type RewardToastData = {
   claimed: ClaimedReward[];
@@ -69,6 +71,37 @@ const EXIT_GAME_ROUTE = "/aurayale";
  */
 export default function BattlePage() {
   const { t } = useTranslation();
+  const { user, ready, authenticated, login, retry, logout, error, isProcessing } = useLogin();
+
+  if (!ready || isProcessing || (authenticated && !user?.token && !error)) {
+    return <BattleBackdrop>{t("battle.signingIn")}</BattleBackdrop>;
+  }
+
+  if (!user?.token || user.token === "privy-auth-token") {
+    return (
+      <BattleBackdrop>
+        <div className="mx-5 flex max-w-md flex-col items-center gap-5 rounded-2xl border border-white/15 bg-black/65 p-8 text-center backdrop-blur-lg">
+          <img src="/img/logo.png" width={220} alt="Aurayale" />
+          <h1 className="text-xl">{t("battle.loginTitle")}</h1>
+          <p className="text-sm font-normal text-white/75">{t("battle.loginDescription")}</p>
+          {error && <p role="alert" className="text-sm font-normal text-red-300">{error}</p>}
+          <button type="button" className="rounded-lg bg-indigo-600 px-8 py-3 text-base hover:bg-indigo-500" onClick={authenticated ? retry : login}>
+            {t(authenticated ? "battle.retry" : "battle.login")}
+          </button>
+          {authenticated && <button type="button" className="text-sm font-normal underline" onClick={() => void logout()}>{t("battle.switchAccount")}</button>}
+          <Link href={EXIT_GAME_ROUTE} className="text-sm font-normal text-white/65 underline">{t("battle.backToWebsite")}</Link>
+        </div>
+      </BattleBackdrop>
+    );
+  }
+
+  // Unmount the entire player on logout/account changes. Reloading the route
+  // first restores Privy and exchanges a fresh Aura JWT before downloading Unity.
+  return <AuthenticatedBattle key={user.userId} />;
+}
+
+function AuthenticatedBattle() {
+  const { t } = useTranslation();
   const { status, version, error } = useUnityBuildVersion();
 
   if (status === "loading") {
@@ -80,6 +113,7 @@ export default function BattlePage() {
     return (
       <BattleBackdrop>
         <span className="text-red-300">{t("battle.versionFailed", { message: error })}</span>
+        <button className="mt-5 block text-base underline" onClick={() => window.location.reload()}>{t("battle.retry")}</button>
       </BattleBackdrop>
     );
   }
@@ -113,8 +147,7 @@ function BattleBackdrop({ children }: { children: React.ReactNode }) {
 function UnityGame({ buildId }: { buildId: string }) {
   const { t } = useTranslation();
   const router = useRouter();
-  const [pendingDeck, setPendingDeck] = useState<string | null>(null);
-  const { unityProvider, isLoaded, loadingProgression, sendMessage } = useUnityContext({
+  const { unityProvider, isLoaded, loadingProgression, sendMessage, initialisationError } = useUnityContext({
     // 四個檔案都放在 /Build/<buildId>/ 底下，隨每次 build 換一個新目錄。
     // 這是「卡在 90%、清快取才能玩」的解法：檔名固定時，loader / data /
     // framework / wasm 是四個各自過期的快取項目，可能湊出「新 loader + 舊 wasm」，
@@ -133,6 +166,7 @@ function UnityGame({ buildId }: { buildId: string }) {
     dataUrl: `/Build/${buildId}/Build.data.unityweb`,
     frameworkUrl: `/Build/${buildId}/Build.framework.unityweb`,
     codeUrl: `/Build/${buildId}/Build.wasm.unityweb`,
+    streamingAssetsUrl: `/Build/${buildId}/StreamingAssets`,
 
     // Unity loader 內建的 IndexedDB 快取（webGLDataCaching）用
     // companyName + productName + productVersion 當作 cache 命名空間，並在
@@ -210,36 +244,23 @@ function UnityGame({ buildId }: { buildId: string }) {
   const { isAllowed, viewportHeight, safeAreaInsetBottom } = useViewportRequirements();
   const canvasWidth = useCanvasWidth(viewportHeight);
 
-  // 取得 battleDeck。
-  //
-  // 只在「從 platform 按 Battle 進來」時才有值 —— 那條路徑會先把選定的牌組
-  // 寫進 localStorage。直接進 /battle（登入後導向）時沒有這筆資料，也不需要：
-  // Unity 收到 SetAuthToken 後會跑 DeckSyncStep（GET /user/gem-deck）自行取得
-  // 並套用牌組，網頁不必代勞。
-  useEffect(() => {
-    const stored = localStorage.getItem("battleDeck");
-    if (stored) setPendingDeck(stored);
-  }, []);
-
-  // Unity 載入完成後傳送 deck
-  useEffect(() => {
-    if (isLoaded && pendingDeck) {
-      sendMessage("WebBridge", "SetCardDeck", pendingDeck);
-      setPendingDeck(null);
-    }
-  }, [isLoaded, pendingDeck, sendMessage]);
-
-  // Unity 載入完成後傳送 JWT token
-  // 僅傳送後端核發的 token，忽略未完成登入流程的 placeholder
+  // Send the account identity with the JWT. SetPlayerInfoJson triggers the new
+  // PlayerSessionService / PostLoginPipeline, which fetches this account's deck.
+  // Old localStorage.battleDeck is not authoritative across account switches.
   useEffect(() => {
     if (!isLoaded) return;
     const token = user?.token;
     if (!token || token === "privy-auth-token") return;
     if (sentTokenRef.current === token) return;
 
-    sendMessage("WebBridge", "SetAuthToken", token);
+    sendMessage("WebBridge", "SetPlayerInfoJson", JSON.stringify({
+      playerId: String(user.userId),
+      userName: user.name || "",
+      walletAddress: user.walletAddress || "",
+      token,
+    }));
     sentTokenRef.current = token;
-  }, [isLoaded, user?.token, sendMessage]);
+  }, [isLoaded, user, sendMessage]);
 
   // 登出後清除已送出的 token 紀錄，避免下次登入無法重送
   useEffect(() => {
@@ -312,10 +333,16 @@ function UnityGame({ buildId }: { buildId: string }) {
           backgroundColor: "#1a0a2b",
         }}
       >
-        {!isLoaded && (
+        {initialisationError ? (
+          <div role="alert" className="absolute inset-0 z-50 flex flex-col items-center justify-center gap-5 p-6 text-center">
+            <p>{t("battle.loadFailed")}</p>
+            <button className="rounded-lg bg-indigo-600 px-6 py-3" onClick={() => window.location.reload()}>{t("battle.retry")}</button>
+            <Link href={EXIT_GAME_ROUTE} className="underline">{t("battle.backToWebsite")}</Link>
+          </div>
+        ) : !isLoaded && (
           <div className="absolute inset-0 flex flex-col items-center justify-center z-50">
             <div className="text-white text-2xl font-bold mb-2 flex items-center" style={{ textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
-              <span className="ml-2 animate-bounce">Loading Game...</span>
+              <span className="ml-2 animate-bounce">{t("battle.loading")}</span>
             </div>
             <div className="text-white text-lg font-mono tracking-widest animate-pulse" style={{ textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
               {Math.round(loadingProgression * 100)}%
@@ -380,4 +407,4 @@ function UnityGame({ buildId }: { buildId: string }) {
       />
     </div>
   );
-} 
+}
