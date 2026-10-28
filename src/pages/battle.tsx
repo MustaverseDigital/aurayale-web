@@ -3,6 +3,7 @@ import { Unity, useUnityContext } from "react-unity-webgl";
 import { useTranslation } from "react-i18next";
 import { useViewportRequirements } from "../context/ViewportRequirementsContext";
 import { useCanvasWidth } from "../hooks/useCanvasWidth";
+import { useUnityDevicePixelRatio } from "../hooks/useUnityDevicePixelRatio";
 import { useRewardAd } from "../hooks/useRewardAd";
 import type { RewardAdEventPayload } from "../hooks/useRewardAd";
 import { useUser } from "../context/UserContext";
@@ -236,13 +237,14 @@ function UnityGame({ buildId }: { buildId: string }) {
       delete w.claimReward;
     };
   }, [showRewardAd, claimReward]);
-  // devicePixelRatio 狀態初始化
-  const [devicePixelRatio, setDevicePixelRatio] = useState(
-    typeof window !== "undefined" ? window.devicePixelRatio : 1
-  );
   const audioRef = useRef<HTMLAudioElement>(null);
-  const { isAllowed, viewportHeight, safeAreaInsetBottom } = useViewportRequirements();
+  const unityCanvasRef = useRef<HTMLCanvasElement>(null);
+  const { viewportHeight, safeAreaInsetBottom } = useViewportRequirements();
   const canvasWidth = useCanvasWidth(viewportHeight);
+  const unityDpr = useUnityDevicePixelRatio({
+    canvasWidth,
+    canvasHeight: viewportHeight,
+  });
 
   // Send the account identity with the JWT. SetPlayerInfoJson triggers the new
   // PlayerSessionService / PostLoginPipeline, which fetches this account's deck.
@@ -269,18 +271,55 @@ function UnityGame({ buildId }: { buildId: string }) {
     }
   }, [user?.token]);
 
-  // 動態追蹤 devicePixelRatio
+  // Keep a small, privacy-safe breadcrumb that survives a normal tab reload.
+  // If iOS kills the whole WebContent process this is not guaranteed to flush,
+  // but when it does it distinguishes render-target pressure from app logic.
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const updateDevicePixelRatio = () => setDevicePixelRatio(window.devicePixelRatio);
-      updateDevicePixelRatio();
-      const mediaMatcher = window.matchMedia(`screen and (resolution: ${window.devicePixelRatio}dppx)`);
-      mediaMatcher.addEventListener("change", updateDevicePixelRatio);
-      return () => {
-        mediaMatcher.removeEventListener("change", updateDevicePixelRatio);
-      };
+    const diagnostic = {
+      buildId,
+      recordedAt: new Date().toISOString(),
+      ...unityDpr,
+    };
+    console.info("[Aurayale WebGL] render budget", diagnostic);
+    try {
+      sessionStorage.setItem("aurayale:webgl:last-render-budget", JSON.stringify(diagnostic));
+    } catch {
+      // Storage can be unavailable in private/restricted browsing modes.
     }
-  }, [devicePixelRatio]);
+  }, [buildId, unityDpr]);
+
+  useEffect(() => {
+    const canvas = unityCanvasRef.current;
+    if (canvas == null) return;
+
+    const recordContextEvent = (eventName: "webglcontextlost" | "webglcontextrestored") => {
+      const diagnostic = {
+        event: eventName,
+        buildId,
+        recordedAt: new Date().toISOString(),
+        ...unityDpr,
+      };
+      if (eventName === "webglcontextlost") {
+        console.error("[Aurayale WebGL] context lost", diagnostic);
+      } else {
+        console.info("[Aurayale WebGL] context restored", diagnostic);
+      }
+      try {
+        sessionStorage.setItem("aurayale:webgl:last-context-event", JSON.stringify(diagnostic));
+      } catch {
+        // Diagnostic storage is best-effort only.
+      }
+    };
+
+    const onContextLost = () => recordContextEvent("webglcontextlost");
+    const onContextRestored = () => recordContextEvent("webglcontextrestored");
+    canvas.addEventListener("webglcontextlost", onContextLost);
+    canvas.addEventListener("webglcontextrestored", onContextRestored);
+    return () => {
+      canvas.removeEventListener("webglcontextlost", onContextLost);
+      canvas.removeEventListener("webglcontextrestored", onContextRestored);
+    };
+  }, [buildId, unityDpr]);
 
 
 
@@ -350,6 +389,7 @@ function UnityGame({ buildId }: { buildId: string }) {
           </div>
         )}
         <Unity
+          ref={unityCanvasRef}
           unityProvider={unityProvider}
           className="unity-viewport"
           style={{
@@ -366,7 +406,7 @@ function UnityGame({ buildId }: { buildId: string }) {
             // 確保在不支援 CSS env() 的瀏覽器中有備用值
             marginBottom: safeAreaInsetBottom > 0 ? `${safeAreaInsetBottom}px` : '0',
           }}
-          devicePixelRatio={devicePixelRatio}
+          devicePixelRatio={unityDpr.effectiveDevicePixelRatio}
         />
       </div>
 
