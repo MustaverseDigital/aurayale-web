@@ -56,6 +56,7 @@ test("the authenticated player receives its identity and JWT without an old acco
   render(<UserProvider><BattlePage /></UserProvider>);
   await waitFor(() => expect(screen.getByTestId("unity")).toBeTruthy());
   expect(mocks.sendMessage).toHaveBeenCalledWith("WebBridge", "SetPlayerInfoJson", JSON.stringify({ playerId: "42", userName: "Current Player", walletAddress: "0xabc", token: "aura-jwt" }));
+  expect(mocks.sendMessage.mock.calls.some((call) => call[1] === "SetLowMemorySceneTransitions")).toBe(false);
   expect(mocks.sendMessage.mock.calls.some((call) => call[1] === "SetCardDeck")).toBe(false);
 });
 
