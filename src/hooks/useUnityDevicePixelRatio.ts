@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 
-export const MOBILE_UNITY_DPR_CAP = 1.5;
-export const MOBILE_UNITY_PIXEL_BUDGET = 1_000_000;
+// ASTC reduces mobile texture pressure enough to trial a clearer framebuffer.
+// Keep a pixel budget for larger phones/tablets rather than always forcing 2x.
+export const MOBILE_UNITY_DPR_CAP = 2;
+export const MOBILE_UNITY_PIXEL_BUDGET = 1_500_000;
 
 const MIN_DIAGNOSTIC_DPR = 0.75;
 const MAX_DIAGNOSTIC_DPR = 3;
