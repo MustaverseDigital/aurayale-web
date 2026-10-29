@@ -13,6 +13,7 @@ import { InfoMenuModal } from "../components/InfoMenuModal";
 import { ExitGameButton } from "../components/ExitGameButton";
 import { useInfoPanelLayout } from "../hooks/useInfoPanelLayout";
 import { useUnityBuildVersion } from "../hooks/useUnityBuildVersion";
+import type { UnityBuildVersion } from "../hooks/useUnityBuildVersion";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { useLogin } from "../hooks/useLogin";
@@ -119,7 +120,7 @@ function AuthenticatedBattle() {
     );
   }
 
-  return <UnityGame key={version.buildId} buildId={version.buildId} />;
+  return <UnityGame key={version.buildId} version={version} />;
 }
 
 /** 遊戲載入 / 錯誤時共用的滿版底圖。 */
@@ -145,7 +146,8 @@ function BattleBackdrop({ children }: { children: React.ReactNode }) {
   );
 }
 
-function UnityGame({ buildId }: { buildId: string }) {
+function UnityGame({ version }: { version: UnityBuildVersion }) {
+  const { buildId } = version;
   const { t } = useTranslation();
   const router = useRouter();
   const { unityProvider, isLoaded, loadingProgression, sendMessage, initialisationError } = useUnityContext({
@@ -277,6 +279,9 @@ function UnityGame({ buildId }: { buildId: string }) {
   useEffect(() => {
     const diagnostic = {
       buildId,
+      buildVariant: version.variant,
+      textureCompression: version.textureCompression,
+      buildSelectionReason: version.selectionReason,
       recordedAt: new Date().toISOString(),
       ...unityDpr,
     };
@@ -286,7 +291,7 @@ function UnityGame({ buildId }: { buildId: string }) {
     } catch {
       // Storage can be unavailable in private/restricted browsing modes.
     }
-  }, [buildId, unityDpr]);
+  }, [buildId, unityDpr, version]);
 
   useEffect(() => {
     const canvas = unityCanvasRef.current;
@@ -296,6 +301,8 @@ function UnityGame({ buildId }: { buildId: string }) {
       const diagnostic = {
         event: eventName,
         buildId,
+        buildVariant: version.variant,
+        textureCompression: version.textureCompression,
         recordedAt: new Date().toISOString(),
         ...unityDpr,
       };
@@ -319,7 +326,7 @@ function UnityGame({ buildId }: { buildId: string }) {
       canvas.removeEventListener("webglcontextlost", onContextLost);
       canvas.removeEventListener("webglcontextrestored", onContextRestored);
     };
-  }, [buildId, unityDpr]);
+  }, [buildId, unityDpr, version]);
 
 
 
