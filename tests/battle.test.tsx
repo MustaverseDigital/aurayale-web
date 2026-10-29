@@ -28,7 +28,16 @@ beforeEach(() => {
   cleanup();
   vi.clearAllMocks();
   mocks.exchange.mockResolvedValue({ token: "aura-jwt", userId: 42, name: "Current Player", walletAddress: "0xabc" });
-  mocks.version.mockReturnValue({ status: "ready", version: { buildId: "20261024-2200-test" }, error: null });
+  mocks.version.mockReturnValue({
+    status: "ready",
+    version: {
+      buildId: "20261024-2200-test",
+      variant: "desktop",
+      textureCompression: "dxt",
+      selectionReason: "test",
+    },
+    error: null,
+  });
   window.matchMedia = vi.fn().mockReturnValue({ addEventListener: vi.fn(), removeEventListener: vi.fn() });
   localStorage.clear();
 });

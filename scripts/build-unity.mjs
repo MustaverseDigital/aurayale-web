@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
-import { deployUnityBuild } from "./deploy-unity-build.mjs";
+import { deployUnityBuildVariants } from "./deploy-unity-build.mjs";
 
 const webRoot = fileURLToPath(new URL("../", import.meta.url));
 const project = path.resolve(process.argv[2] || path.join(webRoot, "../gemfi-gaming"));
@@ -20,10 +20,10 @@ const output = path.join(project, "Builds/AurayaleWeb");
 const log = path.join(project, "Logs/aurayale-webgl-build.log");
 fs.mkdirSync(path.dirname(log), { recursive: true });
 console.log(`Building Unity ${version}. Log: ${log}`);
-const result = spawnSync(editor, ["-batchmode", "-nographics", "-quit", "-projectPath", project, "-buildTarget", "WebGL", "-executeMethod", "Aurayale.Editor.WebGLBuild.Build", "-aurayaleBuildPath", output, "-logFile", log], { stdio: "inherit" });
+const result = spawnSync(editor, ["-batchmode", "-nographics", "-quit", "-projectPath", project, "-buildTarget", "WebGL", "-executeMethod", "Aurayale.Editor.WebGLBuild.BuildVariants", "-aurayaleBuildPath", output, "-logFile", log], { stdio: "inherit" });
 if (result.error || result.status !== 0) {
   console.error(result.error?.message || `Unity exited with ${result.status}. See ${log}`);
   process.exitCode = 1;
 } else {
-  deployUnityBuild(output, { publicBuild: path.join(webRoot, "public/Build") });
+  deployUnityBuildVariants(output, { publicBuild: path.join(webRoot, "public/Build") });
 }

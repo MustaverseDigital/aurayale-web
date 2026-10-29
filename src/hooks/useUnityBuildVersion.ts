@@ -17,7 +17,124 @@ export type UnityBuildVersion = {
   /** 例：20260902-0951-bd10359 */
   buildId: string;
   builtAt?: string;
+  variant: "desktop" | "mobile-astc" | "legacy";
+  textureCompression: "dxt" | "astc" | "unknown";
+  selectionReason: string;
 };
+
+type UnityBuildVariantEntry = {
+  buildId: string;
+  textureCompression: "dxt" | "astc";
+  requiresExtension?: string;
+  maxTextureSize?: number;
+};
+
+export type UnityBuildVersionManifest = {
+  buildId: string;
+  builtAt?: string;
+  variants?: {
+    desktop: UnityBuildVariantEntry;
+    mobileAstc: UnityBuildVariantEntry;
+  };
+};
+
+type UnityBuildCapabilities = {
+  isMobile: boolean;
+  supportsAstc: boolean;
+  override?: "desktop" | "mobile-astc" | null;
+};
+
+const BUILD_ID_PATTERN = /^\d{8}-\d{4}-[a-z0-9]+$/;
+const ASTC_EXTENSION = "WEBGL_compressed_texture_astc";
+
+export function parseUnityBuildOverride(search: string): "desktop" | "mobile-astc" | null {
+  const value = new URLSearchParams(search).get("unityBuild");
+  return value === "desktop" || value === "mobile-astc" ? value : null;
+}
+
+export function selectUnityBuildVersion(
+  manifest: UnityBuildVersionManifest,
+  { isMobile, supportsAstc, override = null }: UnityBuildCapabilities,
+): UnityBuildVersion {
+  if (!BUILD_ID_PATTERN.test(manifest?.buildId || ""))
+    throw new Error("version.json has an invalid buildId");
+
+  const variants = manifest.variants;
+  if (variants == null) {
+    return {
+      buildId: manifest.buildId,
+      builtAt: manifest.builtAt,
+      variant: "legacy",
+      textureCompression: "unknown",
+      selectionReason: "legacy manifest",
+    };
+  }
+  if (!BUILD_ID_PATTERN.test(variants.desktop?.buildId || ""))
+    throw new Error("version.json has an invalid desktop buildId");
+  if (!BUILD_ID_PATTERN.test(variants.mobileAstc?.buildId || ""))
+    throw new Error("version.json has an invalid mobile ASTC buildId");
+  if (variants.desktop.textureCompression !== "dxt"
+    || variants.mobileAstc.textureCompression !== "astc"
+    || variants.mobileAstc.requiresExtension !== ASTC_EXTENSION)
+    throw new Error("version.json has invalid texture variant declarations");
+
+  const mobileRequested = override === "mobile-astc" || (override == null && isMobile);
+  if (mobileRequested && supportsAstc) {
+    return {
+      buildId: variants.mobileAstc.buildId,
+      builtAt: manifest.builtAt,
+      variant: "mobile-astc",
+      textureCompression: "astc",
+      selectionReason: override === "mobile-astc" ? "diagnostic override with ASTC support" : "mobile browser with ASTC support",
+    };
+  }
+
+  return {
+    buildId: variants.desktop.buildId,
+    builtAt: manifest.builtAt,
+    variant: "desktop",
+    textureCompression: "dxt",
+    selectionReason: override === "desktop"
+      ? "diagnostic override"
+      : mobileRequested ? "ASTC extension unavailable; desktop fallback" : "desktop browser",
+  };
+}
+
+function isMobileBrowser(): boolean {
+  const userAgent = window.navigator.userAgent || "";
+  if (/Android|iPhone|iPad|iPod|Mobile/i.test(userAgent)) return true;
+
+  const shortSide = Math.min(window.innerWidth || 1, window.innerHeight || 1);
+  const hasTouch = (window.navigator.maxTouchPoints || 0) > 0;
+  let coarsePointer = false;
+  try {
+    coarsePointer = window.matchMedia("(pointer: coarse)").matches;
+  } catch {
+    // Older WebKit can rely on maxTouchPoints.
+  }
+  return shortSide <= 1024 && (coarsePointer || hasTouch);
+}
+
+export function browserSupportsAstc(): boolean {
+  const canvas = document.createElement("canvas");
+  const options: WebGLContextAttributes = {
+    alpha: false,
+    antialias: false,
+    depth: false,
+    stencil: false,
+  };
+  let gl: WebGL2RenderingContext | null = null;
+  try {
+    // Unity's player uses WebGL2; a WebGL1-only result isn't sufficient.
+    gl = canvas.getContext("webgl2", options);
+    return gl?.getExtension(ASTC_EXTENSION) != null;
+  } catch {
+    return false;
+  } finally {
+    try { gl?.getExtension("WEBGL_lose_context")?.loseContext(); } catch { /* best effort */ }
+    canvas.width = canvas.height = 1;
+  }
+}
 
 type State =
   | { status: "loading"; version: null; error: null }
@@ -41,11 +158,19 @@ export function useUnityBuildVersion(): State {
     fetch("/Build/version.json", { cache: "no-store", signal: controller.signal })
       .then((res) => {
         if (!res.ok) throw new Error(`version.json responded ${res.status}`);
-        return res.json() as Promise<UnityBuildVersion>;
+        return res.json() as Promise<UnityBuildVersionManifest>;
       })
-      .then((version) => {
+      .then((manifest) => {
         if (cancelled) return;
-        if (!/^\d{8}-\d{4}-[a-z0-9]+$/.test(version?.buildId || "")) throw new Error("version.json has an invalid buildId");
+        const isMobile = isMobileBrowser();
+        const override = parseUnityBuildOverride(window.location.search);
+        const needsProbe = manifest.variants != null && override !== "desktop"
+          && (isMobile || override === "mobile-astc");
+        const version = selectUnityBuildVersion(manifest, {
+          isMobile,
+          supportsAstc: needsProbe && browserSupportsAstc(),
+          override,
+        });
         setState({ status: "ready", version, error: null });
       })
       .catch((err: unknown) => {

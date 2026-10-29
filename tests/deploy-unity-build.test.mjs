@@ -4,7 +4,8 @@ import os from "node:os";
 import path from "node:path";
 import { brotliCompressSync, brotliDecompressSync, gzipSync } from "node:zlib";
 import { afterEach, beforeEach, expect, test } from "vitest";
-import { deployUnityBuild } from "../scripts/deploy-unity-build.mjs";
+import { deployUnityBuild, deployUnityBuildVariants } from "../scripts/deploy-unity-build.mjs";
+import { textureArchive } from "./unity-texture-fixture.mjs";
 
 let root;
 let source;
@@ -24,6 +25,19 @@ function fixture(ext = "", compress = (bytes) => bytes) {
   for (const [name, bytes] of [["wasm", wasm], ["data", data], ["framework.js", framework]]) {
     fs.writeFileSync(path.join(source, `Build/NewGame.${name}${ext}`), compress(bytes));
   }
+}
+function variantFixture(directory, metadata, marker) {
+  fs.mkdirSync(path.join(directory, "Build"), { recursive: true });
+  fs.writeFileSync(path.join(directory, "Build/Aurayale.loader.js"), `function createUnityInstance() { return ${JSON.stringify(marker)}; }`);
+  fs.writeFileSync(path.join(directory, "Build/Aurayale.data"), textureArchive(metadata.textureCompression === "astc" ? 50 : 10));
+  fs.writeFileSync(path.join(directory, "Build/Aurayale.framework.js"), framework);
+  fs.writeFileSync(path.join(directory, "Build/Aurayale.wasm"), wasm);
+  fs.writeFileSync(path.join(directory, "aurayale-build.json"), JSON.stringify({
+    authMode: "website",
+    exhibition: false,
+    unityVersion: "6000.3.1f1",
+    ...metadata,
+  }));
 }
 for (const [name, ext, compress] of [["raw", "", (b) => b], ["gzip", ".gz", gzipSync], ["Brotli", ".br", brotliCompressSync], ["Brotli fallback", ".unityweb", brotliCompressSync], ["gzip fallback", ".unityweb", gzipSync]]) {
   test(`normalises ${name} Unity output to the exact Brotli serving contract`, () => {
@@ -59,5 +73,56 @@ test("refuses exhibition builds on the account-based site", () => {
   fixture();
   fs.writeFileSync(path.join(source, "aurayale-build.json"), '{"exhibition":true}');
   expect(() => deployUnityBuild(source, { publicBuild })).toThrow("exhibition player");
+  expect(fs.existsSync(path.join(publicBuild, "version.json"))).toBe(false);
+});
+
+test("publishes an atomic desktop and mobile ASTC version manifest", () => {
+  const variants = path.join(root, "Variants");
+  variantFixture(path.join(variants, "Desktop"), {
+    variant: "desktop",
+    textureCompression: "dxt",
+    maxTextureSize: 0,
+  }, "desktop");
+  variantFixture(path.join(variants, "MobileASTC"), {
+    variant: "mobile-astc",
+    textureCompression: "astc",
+    maxTextureSize: 1024,
+    convertedDxtOverrides: 315,
+  }, "mobile-astc");
+
+  const version = deployUnityBuildVariants(variants, { publicBuild });
+  expect(version.buildId).toBe(version.variants.desktop.buildId);
+  expect(version.variants.mobileAstc).toMatchObject({
+    textureCompression: "astc",
+    requiresExtension: "WEBGL_compressed_texture_astc",
+    maxTextureSize: 1024,
+  });
+  expect(version.variants.mobileAstc.buildId).not.toBe(version.variants.desktop.buildId);
+  for (const entry of Object.values(version.variants)) {
+    expect(fs.existsSync(path.join(publicBuild, entry.buildId, "manifest.json"))).toBe(true);
+  }
+});
+
+test("an invalid mobile variant cannot replace the selected version", () => {
+  fixture();
+  const previous = deployUnityBuild(source, { publicBuild });
+  const variants = path.join(root, "Variants");
+  variantFixture(path.join(variants, "Desktop"), {
+    variant: "desktop",
+    textureCompression: "dxt",
+  }, "desktop");
+  variantFixture(path.join(variants, "MobileASTC"), {
+    variant: "mobile-astc",
+    textureCompression: "dxt",
+  }, "invalid-mobile");
+
+  expect(() => deployUnityBuildVariants(variants, { publicBuild })).toThrow("Mobile texture audit failed");
+  expect(JSON.parse(fs.readFileSync(path.join(publicBuild, "version.json"), "utf8"))).toEqual(previous);
+});
+
+test("cannot publish ASTC as the default player for all desktops", () => {
+  const mobile = path.join(root, "MobileASTC");
+  variantFixture(mobile, { variant: "mobile-astc", textureCompression: "astc" }, "mobile");
+  expect(() => deployUnityBuild(mobile, { publicBuild })).toThrow("Desktop companion");
   expect(fs.existsSync(path.join(publicBuild, "version.json"))).toBe(false);
 });
