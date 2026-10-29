@@ -58,3 +58,25 @@ test("the authenticated player receives its identity and JWT without an old acco
   expect(mocks.sendMessage).toHaveBeenCalledWith("WebBridge", "SetPlayerInfoJson", JSON.stringify({ playerId: "42", userName: "Current Player", walletAddress: "0xabc", token: "aura-jwt" }));
   expect(mocks.sendMessage.mock.calls.some((call) => call[1] === "SetCardDeck")).toBe(false);
 });
+
+test("mobile ASTC player enables low-memory scene transitions before account delivery", async () => {
+  mocks.authenticated = true;
+  mocks.version.mockReturnValue({
+    status: "ready",
+    version: {
+      buildId: "20261029-1628-ea29cad2ffd2",
+      variant: "mobile-astc",
+      textureCompression: "astc",
+      selectionReason: "test",
+    },
+    error: null,
+  });
+  render(<UserProvider><BattlePage /></UserProvider>);
+  await waitFor(() => expect(mocks.sendMessage).toHaveBeenCalledWith(
+    "WebBridge", "SetLowMemorySceneTransitions", 1,
+  ));
+  await waitFor(() => expect(mocks.sendMessage.mock.calls.some((call) => call[1] === "SetPlayerInfoJson")).toBe(true));
+  const calls = mocks.sendMessage.mock.calls;
+  expect(calls.findIndex((call) => call[1] === "SetLowMemorySceneTransitions"))
+    .toBeLessThan(calls.findIndex((call) => call[1] === "SetPlayerInfoJson"));
+});

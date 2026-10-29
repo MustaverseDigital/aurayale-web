@@ -226,6 +226,11 @@ function UnityGame({ version }: { version: UnityBuildVersion }) {
   const sentTokenRef = useRef<string | null>(null);
 
   useEffect(() => {
+    if (!isLoaded) return;
+    sendMessage("WebBridge", "SetLowMemorySceneTransitions", version.variant === "mobile-astc" ? 1 : 0);
+  }, [isLoaded, sendMessage, version.variant]);
+
+  useEffect(() => {
     const w = window as unknown as {
       showRewardAd?: () => void;
       claimReward?: () => void;
