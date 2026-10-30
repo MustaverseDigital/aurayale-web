@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 
-// ASTC reduces mobile texture pressure enough to trial a clearer framebuffer.
-// Keep a pixel budget for larger phones/tablets rather than always forcing 2x.
-export const MOBILE_UNITY_DPR_CAP = 2;
-export const MOBILE_UNITY_PIXEL_BUDGET = 1_500_000;
+// The iPhone 12 ASTC build remained stable through repeated scene switches at
+// DPR 3. Bound larger mobile viewports by total framebuffer pixels.
+export const MOBILE_UNITY_DPR_CAP = 3;
+export const MOBILE_UNITY_PIXEL_BUDGET = 3_000_000;
 
 const MIN_DIAGNOSTIC_DPR = 0.75;
 const MAX_DIAGNOSTIC_DPR = 3;

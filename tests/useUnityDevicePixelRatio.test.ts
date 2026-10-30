@@ -20,7 +20,7 @@ describe("calculateUnityDpr", () => {
     expect(result.renderHeight).toBe(1600);
   });
 
-  test("caps an iPhone 12-sized viewport at DPR 2 within the mobile pixel budget", () => {
+  test("caps an iPhone 12-sized viewport at DPR 3 within the mobile pixel budget", () => {
     const result = calculateUnityDpr({
       rawDevicePixelRatio: 3,
       isMobileViewport: true,
@@ -29,14 +29,14 @@ describe("calculateUnityDpr", () => {
     });
 
     expect(result.effectiveDevicePixelRatio).toBe(MOBILE_UNITY_DPR_CAP);
-    expect(result.renderWidth).toBe(780);
-    expect(result.renderHeight).toBe(1688);
-    expect(result.renderPixels).toBe(1_316_640);
+    expect(result.renderWidth).toBe(1170);
+    expect(result.renderHeight).toBe(2532);
+    expect(result.renderPixels).toBe(2_962_440);
   });
 
   test("reduces larger mobile viewports to the pixel budget", () => {
     const result = calculateUnityDpr({
-      rawDevicePixelRatio: 2,
+      rawDevicePixelRatio: 3,
       isMobileViewport: true,
       cssWidth: 820,
       cssHeight: 1180,
@@ -65,6 +65,7 @@ describe("parseUnityDprOverride", () => {
     ["?unityDpr=1", 1],
     ["?foo=bar&unityDpr=1.5", 1.5],
     ["?unityDpr=2", 2],
+    ["?unityDpr=3", 3],
     ["?unityDpr=0.75", 0.75],
   ])("parses %s", (search, expected) => {
     expect(parseUnityDprOverride(search)).toBe(expected);

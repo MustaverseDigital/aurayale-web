@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { brotliCompressSync, brotliDecompressSync, gzipSync } from "node:zlib";
 import { afterEach, beforeEach, expect, test } from "vitest";
-import { deployUnityBuild, deployUnityBuildVariants } from "../scripts/deploy-unity-build.mjs";
+import { deployUnityBuild, deployUnityBuildVariants, deployUnityMobileAstc } from "../scripts/deploy-unity-build.mjs";
 import { textureArchive } from "./unity-texture-fixture.mjs";
 
 let root;
@@ -101,6 +101,25 @@ test("publishes an atomic desktop and mobile ASTC version manifest", () => {
   for (const entry of Object.values(version.variants)) {
     expect(fs.existsSync(path.join(publicBuild, entry.buildId, "manifest.json"))).toBe(true);
   }
+});
+
+test("mobile-only update retains the deployed desktop and rejects an invalid replacement", () => {
+  const variants = path.join(root, "Variants");
+  variantFixture(path.join(variants, "Desktop"), { variant: "desktop", textureCompression: "dxt" }, "desktop");
+  variantFixture(path.join(variants, "MobileASTC"), { variant: "mobile-astc", textureCompression: "astc" }, "mobile-v1");
+  const original = deployUnityBuildVariants(variants, { publicBuild });
+  const mobileV2 = path.join(root, "MobileV2");
+  variantFixture(mobileV2, { variant: "mobile-astc", textureCompression: "astc", maxTextureSize: 1024 }, "mobile-v2");
+
+  const updated = deployUnityMobileAstc(mobileV2, { publicBuild });
+  expect(updated.buildId).toBe(original.buildId);
+  expect(updated.variants.desktop).toEqual(original.variants.desktop);
+  expect(updated.variants.mobileAstc.buildId).not.toBe(original.variants.mobileAstc.buildId);
+  expect(fs.existsSync(path.join(publicBuild, original.buildId, "manifest.json"))).toBe(true);
+
+  fs.writeFileSync(path.join(mobileV2, "Build/Aurayale.wasm"), "broken");
+  expect(() => deployUnityMobileAstc(mobileV2, { publicBuild })).toThrow("Invalid WebAssembly");
+  expect(JSON.parse(fs.readFileSync(path.join(publicBuild, "version.json"), "utf8"))).toEqual(updated);
 });
 
 test("an invalid mobile variant cannot replace the selected version", () => {
