@@ -1,6 +1,6 @@
 {
   "buildId": "20261029-1628-5c39c992a24c",
-  "builtAt": "2026-10-29T08:28:57.328Z",
+  "builtAt": "2026-10-30T06:01:28.468Z",
   "authMode": "website",
   "variants": {
     "desktop": {
@@ -8,7 +8,7 @@
       "textureCompression": "dxt"
     },
     "mobileAstc": {
-      "buildId": "20261029-1628-ea29cad2ffd2",
+      "buildId": "20261030-1401-d194ed665e69",
       "textureCompression": "astc",
       "requiresExtension": "WEBGL_compressed_texture_astc",
       "maxTextureSize": 1024

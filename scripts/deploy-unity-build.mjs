@@ -180,16 +180,58 @@ export function deployUnityBuildVariants(source, { publicBuild = path.resolve("p
   return version;
 }
 
+/** Publish a mobile-only Unity fix while retaining the already verified desktop player. */
+export function deployUnityMobileAstc(source, { publicBuild = path.resolve("public/Build"), keep = 3 } = {}) {
+  validateKeep(keep);
+  const versionPath = path.join(publicBuild, "version.json");
+  if (!fs.existsSync(versionPath)) throw new Error("Mobile-only update requires an existing paired version manifest");
+  const previous = JSON.parse(fs.readFileSync(versionPath, "utf8"));
+  const desktop = previous.variants?.desktop;
+  if (!desktop?.buildId || desktop.textureCompression !== "dxt"
+    || previous.buildId !== desktop.buildId
+    || !fs.existsSync(path.join(publicBuild, desktop.buildId, "manifest.json"))) {
+    throw new Error("Mobile-only update requires an intact desktop companion");
+  }
+
+  const now = new Date();
+  const mobile = inspectUnityBuild(source, { publicBuild, now });
+  if (mobile.metadata.variant !== "mobile-astc" || mobile.metadata.textureCompression !== "astc")
+    throw new Error("Mobile-only update requires variant=mobile-astc and textureCompression=astc");
+  materialiseUnityBuild(mobile, publicBuild);
+  const version = {
+    ...previous,
+    builtAt: now.toISOString(),
+    variants: {
+      ...previous.variants,
+      mobileAstc: {
+        buildId: mobile.buildId,
+        textureCompression: "astc",
+        requiresExtension: "WEBGL_compressed_texture_astc",
+        maxTextureSize: mobile.metadata.maxTextureSize,
+      },
+    },
+  };
+  publishVersion(version, { publicBuild, keep, activeBuildIds: new Set([desktop.buildId, mobile.buildId]) });
+  console.log(`Unity mobile ASTC updated: desktop=${desktop.buildId}, mobileAstc=${mobile.buildId}`);
+  return version;
+}
+
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
   try {
     const args = process.argv.slice(2);
     const source = args[0];
     if (!source || source.startsWith("--")) throw new Error("Usage: node scripts/deploy-unity-build.mjs <Unity output or Build directory> [--keep N]");
-    if (args.length > 1 && (args[1] !== "--keep" || args.length !== 3)) throw new Error("Usage: <source> [--keep N]");
-    const options = { keep: args[1] === "--keep" ? Number(args[2]) : 3 };
+    const mobileOnly = args.includes("--mobile-only");
+    const keepIndex = args.indexOf("--keep");
+    if (args.some((arg, index) => index > 0 && arg !== "--mobile-only" && arg !== "--keep" && index !== keepIndex + 1)
+      || (keepIndex >= 0 && (keepIndex + 1 >= args.length || !/^\d+$/.test(args[keepIndex + 1])))
+      || (mobileOnly && args.filter((arg) => arg === "--mobile-only").length !== 1))
+      throw new Error("Usage: <source> [--mobile-only] [--keep N]");
+    const options = { keep: keepIndex >= 0 ? Number(args[keepIndex + 1]) : 3 };
     const hasVariants = fs.existsSync(path.join(path.resolve(source), "Desktop"))
       && fs.existsSync(path.join(path.resolve(source), "MobileASTC"));
-    if (hasVariants) deployUnityBuildVariants(source, options);
+    if (mobileOnly) deployUnityMobileAstc(source, options);
+    else if (hasVariants) deployUnityBuildVariants(source, options);
     else deployUnityBuild(source, options);
   } catch (cause) {
     console.error(cause instanceof Error ? cause.message : cause);

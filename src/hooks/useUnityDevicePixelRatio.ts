@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 
-export const MOBILE_UNITY_DPR_CAP = 1.5;
-export const MOBILE_UNITY_PIXEL_BUDGET = 1_000_000;
+// The iPhone 12 ASTC build remained stable through repeated scene switches at
+// DPR 3. Bound larger mobile viewports by total framebuffer pixels.
+export const MOBILE_UNITY_DPR_CAP = 3;
+export const MOBILE_UNITY_PIXEL_BUDGET = 3_000_000;
 
 const MIN_DIAGNOSTIC_DPR = 0.75;
 const MAX_DIAGNOSTIC_DPR = 3;
