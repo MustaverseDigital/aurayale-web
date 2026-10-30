@@ -1,5 +1,7 @@
 # Unity WebGL → /battle
 
+For mobile scene reloads, ASTC overrides, DPR/URP tuning, or card stencil/name-label artifacts, read the sibling project's [mobile WebGL runbook](../../gemfi-gaming/Assets/AuraBattle/Documentation/WEBGL_MOBILE_RENDERING_RUNBOOK.md). It records the current settings, failed fixes, rendering regression, and the iPhone acceptance sequence. The 2026-10-30 mobile build `20261030-1618-cdeb226a464a` was deployed in PR #92; the user confirmed the gem-name flicker was resolved. Keep later build/device results with that runbook rather than inferring them from historical optimization notes.
+
 Requirements: Unity **6000.3.1f1** with WebGL Build Support, Node >=20 (22 recommended), pnpm 9.15.4. Keep the two repositories as sibling directories and close the Unity Editor before running a batch build.
 
 ```sh
@@ -26,6 +28,14 @@ corepack pnpm deploy:unity ../gemfi-gaming/Builds/AurayaleWeb
 
 The importer accepts either the two-variant root or a legacy single-player output. It validates both variants before publishing the pair, converts gzip/raw builds to Brotli, normalises filenames, includes versioned StreamingAssets, writes asset hashes in manifest.json, and atomically switches version.json. With two variants, `--keep 3` retains up to six player directories, always protecting both selected builds. Build IDs contain Taipei time and a hash of the player, StreamingAssets, and variant identity. Commit the new directories and version.json together. Vercel deploys pushes to main to the existing production site.
 
+For a mobile-only Unity fix, retain the verified desktop companion with:
+
+```sh
+node scripts/deploy-unity-build.mjs <MobileASTC-output> --mobile-only --keep 3
+```
+
+This requires an existing paired version manifest and desktop companion, audits the new mobile archive, and updates only `variants.mobileAstc`. Retention can remove older local player directories; inspect uncommitted artifacts before choosing `--keep`.
+
 The mobile import gate parses the actual Unity 6000.3 release `.data` archive and its Texture2D headers. It rejects a mobile player with zero ASTC textures, any DXT/BC texture, or a texture dimension above 1024. The result is saved as `textureAudit` in its manifest. Unsupported archive schemas fail closed. This is an asset-format check, not a measurement of browser or GPU memory.
 
 ```sh
@@ -35,6 +45,8 @@ node scripts/audit-unity-textures.mjs ../gemfi-gaming/Builds/AurayaleWeb/MobileA
 `version.json` retains a desktop `buildId` for old clients and adds `variants.desktop` and `variants.mobileAstc`. Before mounting Unity, mobile browsers probe `WEBGL_compressed_texture_astc` on a disposable WebGL2 context. Supported phones select MobileASTC; desktop browsers and unsupported devices use Desktop. The probe context is released immediately. Fallback avoids an unsupported ASTC format but does not guarantee low memory on a phone without ASTC.
 
 For diagnostics, `/battle?unityBuild=desktop` selects Desktop, and `?unityBuild=mobile-astc` requests MobileASTC only when the extension is available. Combine with `unityDpr=1.5`, `2`, or `3` for controlled comparisons. The selected build, format and DPR are recorded in the privacy-safe `aurayale:webgl:last-render-budget` sessionStorage entry; no account tokens are logged. After the ASTC release, the iPhone 12 remained stable through repeated scene switches at DPR 3. The mobile default therefore uses a DPR cap of 3 and a 3-million-pixel budget. On a 390×844 canvas this is 1170×2532 pixels; larger viewports are limited by the pixel budget. `?unityDpr=1.5` can reproduce the earlier rendering budget.
+
+An explicit `unityDpr` diagnostic override bypasses the default mobile cap and pixel budget. Unity's combat URP also uses renderScale 0.8, so canvas size is not the same as the internal 3D resolution. Change one scaling factor at a time. The current production website does not call `WebBridge.SetLowMemorySceneTransitions(1)`; the Unity capability is opt-in, and website PR #90 remains a draft as of 2026-10-30. Do not attribute the ASTC/DPR device results to that transition mode.
 
 Keep next.config.js and vercel.json in sync: `.unityweb` requires `Content-Encoding: br`; version directories are immutable; version.json uses no-store. Keep the neutral `.unityweb` filenames to avoid Vercel recompressing JavaScript or WebAssembly.
 
@@ -56,3 +68,5 @@ The test suite checks concurrent login controls under StrictMode, retries after 
 Before release, verify a real account at `/battle`, refresh the page, click Unity's Start button, and check the correct deck/name and tutorial/lobby routing. Never use a Privy access token or a placeholder as the Unity Bearer token; only the Aura backend JWT is valid.
 
 On the affected iPhone 12, verify both Safari and Chrome: cold launch → OutGame → InGame → return to OutGame, repeat several battles, then reload and repeat with cached assets. Also test reopening after a previous crash: the failure point can vary with process/resource pressure. Confirm the selected build is `mobile-astc`; successful download or entry into OutGame alone is not sufficient. If a reload persists, collect the matching Jetsam/browser event before deciding whether scene-transition unloading or lightweight lobby data is the next fix.
+
+For label/stencil fixes, close the old game tab and reopen after deployment. Verify the live mobile build ID, artifact SHA-256 and Brotli headers, then inspect idle sway, selected/deselected cards, dragging, overlap, NOXCAT, and the detail popup. Queue-only build `20261030-1401-d194ed665e69` still flickered; the final Unity fix uses explicit label depth mode Always with ZWrite off and retains the per-card stencil. Higher DPR alone did not resolve the glyph holes. Run `Aurayale.EditorTools.CardNameRenderingCheck.Run` in a graphics-enabled Unity batch process before publishing further changes to that path.
