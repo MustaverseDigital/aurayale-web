@@ -1,0 +1,37 @@
+{
+  "unityVersion": "6000.3.1f1",
+  "builtAt": "2026-11-11T06:43:04.662Z",
+  "authMode": "website",
+  "exhibition": false,
+  "variant": "desktop",
+  "textureCompression": "dxt",
+  "maxTextureSize": 0,
+  "convertedDxtOverrides": 0,
+  "scenes": [
+    "Assets/AuraBattle/Scenes/Title.unity",
+    "Assets/AuraBattle/Scenes/InGameTutorial.unity",
+    "Assets/AuraBattle/Scenes/InGame.unity",
+    "Assets/AuraBattle/Scenes/OutGame.unity"
+  ],
+  "source": "manual Unity Editor WebGL build (Generic subtarget), imported by hand; built without AURAYALE_WEB_AUTH",
+  "buildId": "20261111-1500-aaeb2g3a46f9",
+  "compression": "brotli",
+  "files": {
+    "Build.loader.js": {
+      "bytes": 117893,
+      "sha256": "0958e1735cc235bd5b32627e113cf8d436e197eabfbe760a51bae6fc2e5a4775"
+    },
+    "Build.data.unityweb": {
+      "bytes": 54582885,
+      "sha256": "4ebb045db1b1f0d7da87cd5cf21dce79f5fe9c4d4f2ca34c217245ac3f58d4ea"
+    },
+    "Build.framework.unityweb": {
+      "bytes": 85050,
+      "sha256": "8a0861d0033a675751b5e5e137b0bd23fc4c9d5dfaa2b98c5379c06204fa3dc1"
+    },
+    "Build.wasm.unityweb": {
+      "bytes": 11273085,
+      "sha256": "9bbff4a517c6bed15080e97c5bed1849db2adede00e0cc423294c6d713c06acd"
+    }
+  }
+}
