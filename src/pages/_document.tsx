@@ -47,22 +47,6 @@ export default function Document() {
           content="Mustaverse Digital (邁思達數位科技) turns brands and characters into trading card games, with the on-chain ownership and XR layers around them."
         />
         <meta name="twitter:image" content="https://www.mustaversegames.xyz/images/og-cover.png" />
-        <script
-          async
-          // data-adbreak-test="on"
-          data-ad-frequency-hint="30s"
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8888583692821895"
-          crossOrigin="anonymous"
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.adsbygoogle = window.adsbygoogle || [];
-              var adBreak = adConfig = function(o) {adsbygoogle.push(o);}
-              adConfig({ preloadAdBreaks: 'on' });
-            `,
-          }}
-        />
       </Head>
       <body>
         <Main />

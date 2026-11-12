@@ -36,7 +36,7 @@ function brotliAsset(file, kind) {
 
 const BUILD_ID_PATTERN = /^\d{8}-\d{4}-[a-z0-9]+$/;
 
-function inspectUnityBuild(source, { publicBuild, now }) {
+function inspectUnityBuild(source, { publicBuild, now, exhibition = false }) {
   const root = path.resolve(source);
   const srcDir = fs.existsSync(path.join(root, "Build")) ? path.join(root, "Build") : root;
   const files = fs.readdirSync(srcDir);
@@ -68,13 +68,17 @@ function inspectUnityBuild(source, { publicBuild, now }) {
   if (fs.existsSync(streamingSource)) hashTree(streamingSource);
   const metadataFile = path.join(outputRoot, "aurayale-build.json");
   const metadata = fs.existsSync(metadataFile) ? JSON.parse(fs.readFileSync(metadataFile, "utf8")) : {};
-  if (metadata.exhibition === true) throw new Error("Cannot deploy an exhibition player to the account-based battle page");
+  if (exhibition) {
+    if (metadata.exhibition !== true || metadata.authMode !== "local")
+      throw new Error("Exhibition builds must declare exhibition=true and authMode=local");
+  } else if (metadata.exhibition === true) throw new Error("Cannot deploy an exhibition player to the account-based battle page");
   if (metadata.variant === "mobile-astc") {
     const data = payloads.find(([name]) => name === "Build.data.unityweb")[1];
     metadata.textureAudit = auditUnityTextures(brotliDecompressSync(data), { mobile: true });
   }
   // A desktop and ASTC build can occasionally have byte-identical code/framework
   // files. Keep their immutable directories distinct even in that edge case.
+  hash.update(exhibition ? "exhibition" : "account");
   hash.update(metadata.variant || "legacy");
   hash.update(metadata.textureCompression || "unknown");
   const stamp = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Taipei", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(now).replace(/[-: ]/g, "");
@@ -92,6 +96,23 @@ function materialiseUnityBuild(prepared, publicBuild) {
       fs.mkdirSync(staging);
       for (const [name, bytes] of payloads) fs.writeFileSync(path.join(staging, name), bytes);
       if (fs.existsSync(streamingSource)) fs.cpSync(streamingSource, path.join(staging, "StreamingAssets"), { recursive: true });
+      if (metadata.exhibition === true) {
+        const assets = [];
+        function inventory(dir, relative = "") {
+          for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+            const file = path.join(dir, entry.name);
+            const name = relative + entry.name;
+            if (entry.isDirectory()) inventory(file, name + "/");
+            else {
+              const encoded = fs.readFileSync(file);
+              const decoded = name.endsWith(".unityweb") ? brotliDecompressSync(encoded) : encoded;
+              assets.push({ path: name, bytes: decoded.length, sha256: createHash("sha256").update(decoded).digest("hex") });
+            }
+          }
+        }
+        inventory(staging);
+        fs.writeFileSync(path.join(staging, "offline-assets.json"), JSON.stringify({ buildId, assets }, null, 2) + "\n");
+      }
       fs.writeFileSync(path.join(staging, "manifest.json"), JSON.stringify({ ...metadata, buildId, compression: "brotli", files: Object.fromEntries(payloads.map(([name, bytes]) => [name, { bytes: bytes.length, sha256: createHash("sha256").update(bytes).digest("hex") }])) }, null, 2) + "\n");
       fs.renameSync(staging, destination);
     }
@@ -136,7 +157,7 @@ export function deployUnityBuild(source, { publicBuild = path.resolve("public/Bu
   return version;
 }
 
-export function deployUnityBuildVariants(source, { publicBuild = path.resolve("public/Build"), keep = 3 } = {}) {
+export function deployUnityBuildVariants(source, { publicBuild = path.resolve("public/Build"), keep = 3, exhibition = false } = {}) {
   validateKeep(keep);
   const root = path.resolve(source);
   const desktopSource = path.join(root, "Desktop");
@@ -147,8 +168,9 @@ export function deployUnityBuildVariants(source, { publicBuild = path.resolve("p
   const now = new Date();
   // Inspect both before publishing either one so an incomplete mobile player can
   // never replace the currently selected desktop/mobile pair.
-  const desktop = inspectUnityBuild(desktopSource, { publicBuild, now });
-  const mobileAstc = inspectUnityBuild(mobileSource, { publicBuild, now });
+  if (exhibition && path.resolve(publicBuild) === path.resolve("public/Build")) throw new Error("Exhibition output must be separate from account builds");
+  const desktop = inspectUnityBuild(desktopSource, { publicBuild, now, exhibition });
+  const mobileAstc = inspectUnityBuild(mobileSource, { publicBuild, now, exhibition });
   if (desktop.metadata.variant !== "desktop" || desktop.metadata.textureCompression !== "dxt")
     throw new Error("Desktop build metadata must declare variant=desktop and textureCompression=dxt");
   if (mobileAstc.metadata.variant !== "mobile-astc" || mobileAstc.metadata.textureCompression !== "astc")
@@ -161,6 +183,7 @@ export function deployUnityBuildVariants(source, { publicBuild = path.resolve("p
     buildId: desktop.buildId,
     builtAt: now.toISOString(),
     authMode: desktop.metadata.authMode || "website",
+    exhibition,
     variants: {
       desktop: {
         buildId: desktop.buildId,
@@ -178,6 +201,10 @@ export function deployUnityBuildVariants(source, { publicBuild = path.resolve("p
   publishVersion(version, { publicBuild, keep, activeBuildIds });
   console.log(`Unity variants deployed: desktop=${desktop.buildId}, mobileAstc=${mobileAstc.buildId}`);
   return version;
+}
+
+export function deployExhibitionBuildVariants(source, options = {}) {
+  return deployUnityBuildVariants(source, { publicBuild: path.resolve("public/ExhibitionBuild"), ...options, exhibition: true });
 }
 
 /** Publish a mobile-only Unity fix while retaining the already verified desktop player. */

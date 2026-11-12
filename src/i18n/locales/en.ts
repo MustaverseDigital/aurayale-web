@@ -1,6 +1,32 @@
 import type { Translation } from "./zh-TW"
 
 const en: Translation = {
+  exhibition: {
+    deckInvalid: "Equip a complete valid deck of 10 gems first.",
+    stageUnavailable: "This stage is unavailable in the demo.",
+
+    "title": "Offline exhibition demo",
+    "description": "No account. Unlimited stamina. Complete the tutorial, build your gem deck, and challenge story stages.",
+    "localSave": "Decks and progress stay in this browser and never sync to an account.",
+    "loading": "Checking demo version…",
+    "buildUnavailable": "The demo build could not be loaded. Please try again later.",
+    "prepareFailed": "Offline preparation failed. Check your connection and browser storage, then retry.",
+    "play": "Start / continue demo",
+    "prepare": "Prepare offline play",
+    "updateOffline": "Update offline resources",
+    "progress": "Loading {{progress}}%",
+    "offlineReady": "Ready. You can reopen this page without a connection.",
+    "downloadFirst": "The first download needs a connection. Prepare offline play before disconnecting.",
+    "retry": "Reload",
+    "menu": "Demo menu",
+    "storageFailed": "Local save failed. Your changes have not been saved. Check browser storage access.",
+    "replay": "Replay the full tutorial",
+    "resetConfirm": "Clear this player's demo deck and progress?",
+    "confirmReset": "Clear and start next player",
+    "cancel": "Cancel",
+    "nextPlayer": "Next player",
+    "back": "Back to demo start"
+},
   battle: {
     rewardToast: {
       title: "Rewards Claimed",

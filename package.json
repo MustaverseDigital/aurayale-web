@@ -11,6 +11,8 @@
     "build": "next build",
     "start": "next start",
     "deploy:unity": "node scripts/deploy-unity-build.mjs",
+    "deploy:exhibition": "node scripts/deploy-exhibition-build.mjs",
+    "build:exhibition": "node scripts/build-unity.mjs --exhibition",
     "build:unity": "node scripts/build-unity.mjs",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"

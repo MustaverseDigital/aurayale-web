@@ -80,6 +80,9 @@ export default function AurayalePage() {
                 {t("site.aurayale.hero.ctaPrimary")}
                 <ArrowRight className="mv-btn__arrow h-4 w-4" strokeWidth={2} />
               </button>
+              {/* A full navigation releases the account SDKs before the demo starts. */}
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+              <a href="/exhibition" className="mv-btn mv-btn--ghost">{t("exhibition.title")}</a>
               <a
                 href={TRAILER_URL}
                 target="_blank"
