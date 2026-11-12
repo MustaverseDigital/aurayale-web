@@ -19,8 +19,18 @@ const nextConfig = {
   // 正式環境由 vercel.json 提供同等設定（兩邊要一起維護）。
   async headers() {
     return [
+      { source: "/exhibition/sw.js", headers: [
+        { key: "Service-Worker-Allowed", value: "/exhibition" },
+        { key: "Cache-Control", value: "no-store, must-revalidate" },
+      ] },
+      { source: "/ExhibitionBuild/:buildId(\\d{8}-\\d{4}-[^/]+)/:file*", headers: [
+        { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+      ] },
+      { source: "/ExhibitionBuild/version.json", headers: [
+        { key: "Cache-Control", value: "no-store, must-revalidate" },
+      ] },
       {
-        source: "/:dir(Build)/:file*.unityweb",
+        source: "/:dir(Build|ExhibitionBuild)/:file*.unityweb",
         headers: [{ key: "Content-Encoding", value: "br" }],
       },
       {

@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { brotliCompressSync, brotliDecompressSync, gzipSync } from "node:zlib";
 import { afterEach, beforeEach, expect, test } from "vitest";
-import { deployUnityBuild, deployUnityBuildVariants, deployUnityMobileAstc } from "../scripts/deploy-unity-build.mjs";
+import { deployUnityBuild, deployUnityBuildVariants, deployUnityMobileAstc, deployExhibitionBuildVariants } from "../scripts/deploy-unity-build.mjs";
 import { textureArchive } from "./unity-texture-fixture.mjs";
 
 let root;
@@ -144,4 +144,26 @@ test("cannot publish ASTC as the default player for all desktops", () => {
   variantFixture(mobile, { variant: "mobile-astc", textureCompression: "astc" }, "mobile");
   expect(() => deployUnityBuild(mobile, { publicBuild })).toThrow("Desktop companion");
   expect(fs.existsSync(path.join(publicBuild, "version.json"))).toBe(false);
+});
+
+test("exhibition imports require local-mode metadata and inventory all offline assets", () => {
+  const variants = path.join(root, "Exhibition");
+  const output = path.join(root, "public/ExhibitionBuild");
+  for (const [directory, variant, textureCompression] of [["Desktop", "desktop", "dxt"], ["MobileASTC", "mobile-astc", "astc"]]) {
+    const target = path.join(variants, directory);
+    variantFixture(target, { variant, textureCompression, exhibition: true, authMode: "local" }, directory);
+    fs.mkdirSync(path.join(target, "StreamingAssets"));
+    fs.writeFileSync(path.join(target, "StreamingAssets/exhibition_config.json"), "{}");
+  }
+  expect(() => deployUnityBuildVariants(variants, { publicBuild })).toThrow("exhibition player");
+  const version = deployExhibitionBuildVariants(variants, { publicBuild: output });
+  expect(version).toMatchObject({ exhibition: true, authMode: "local" });
+  const inventory = JSON.parse(fs.readFileSync(path.join(output, version.buildId, "offline-assets.json"), "utf8"));
+  expect(inventory.assets.map(asset => asset.path)).toEqual(expect.arrayContaining(["Build.loader.js", "Build.data.unityweb", "Build.framework.unityweb", "Build.wasm.unityweb", "StreamingAssets/exhibition_config.json"]));
+  const asset = inventory.assets.find(asset => asset.path === "Build.data.unityweb");
+  expect(asset.bytes).toBe(textureArchive(10).length);
+  expect(asset.sha256).toMatch(/^[a-f0-9]{64}$/);
+  fs.writeFileSync(path.join(variants, "MobileASTC/aurayale-build.json"), JSON.stringify({ variant: "mobile-astc", textureCompression: "astc", exhibition: false, authMode: "website" }));
+  expect(() => deployExhibitionBuildVariants(variants, { publicBuild: output })).toThrow("authMode=local");
+  expect(JSON.parse(fs.readFileSync(path.join(output, "version.json"), "utf8"))).toEqual(version);
 });

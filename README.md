@@ -119,6 +119,8 @@ public/
 
 ## Usage
 
+The account-free exhibition demo is available at `/exhibition`; it stores decks locally and supports offline reopening after resource preparation. See [Offline exhibition demo](docs/EXHIBITION.md) for builds and verification.
+
 The account-based game is available at `/battle`. Sign in with email, Google, or a wallet; the page restores the game session on reload and passes the account identity and backend JWT into the current Unity player. See [WebGL build and deployment](docs/WEBGL_DEPLOYMENT.md) for the complete build/release workflow (`corepack pnpm build:unity`).
 
 1. **Connect Wallet**: Click "Connect Wallet" and authorize with MetaMask
@@ -131,7 +133,7 @@ Visit `/auraServerTester` to test the API endpoints for wallet connection, login
 
 ---
 
-**Note**: This project requires connection to the Aura backend service to function properly.
+**Note**: Account-based features require the Aura backend. The exhibition demo runs locally without account or wallet synchronization.
 
 [x] 把懸浮視窗裡面的寶石圖鑑那邊的更新方式加上如果更新太久沒資訊，當作更新失敗，並且會顯示一個 place holder
     → InfoMenuModal 新增 CardImage 元件：載入逾時（10s）或 onError 時改顯示 placeholder（ImageOff 圖示 + 「圖片載入失敗」）。

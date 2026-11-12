@@ -1,4 +1,29 @@
 export interface Translation {
+  exhibition: {
+    deckInvalid: string
+    stageUnavailable: string
+    title: string
+    description: string
+    localSave: string
+    loading: string
+    buildUnavailable: string
+    prepareFailed: string
+    play: string
+    prepare: string
+    updateOffline: string
+    progress: string
+    offlineReady: string
+    downloadFirst: string
+    retry: string
+    menu: string
+    storageFailed: string
+    replay: string
+    resetConfirm: string
+    confirmReset: string
+    cancel: string
+    nextPlayer: string
+    back: string
+  }
   battle: {
     rewardToast: {
       title: string
@@ -221,6 +246,32 @@ export interface Translation {
 }
 
 const zhTW: Translation = {
+  exhibition: {
+    deckInvalid: "請先裝備完整且有效的 10 張寶石牌組。",
+    stageUnavailable: "此關卡不開放試玩。",
+
+    "title": "離線展覽試玩",
+    "description": "免帳號、無限體力。完成新手教學，組合你的寶石牌組，挑戰主線關卡。",
+    "localSave": "牌組與進度僅保存在此瀏覽器，不會同步正式帳號。",
+    "loading": "正在確認試玩版本…",
+    "buildUnavailable": "試玩版本目前無法載入，請稍後重試。",
+    "prepareFailed": "離線準備未完成，請確認網路與瀏覽器儲存空間後重試。",
+    "play": "開始／繼續試玩",
+    "prepare": "準備離線試玩",
+    "updateOffline": "更新離線資源",
+    "progress": "載入中 {{progress}}%",
+    "offlineReady": "已準備完成，可斷網重新開啟此頁。",
+    "downloadFirst": "首次下載需要網路；完成離線準備後即可斷網遊玩。",
+    "retry": "重新載入",
+    "menu": "試玩選單",
+    "storageFailed": "本機儲存失敗，這次變更尚未保存。請確認瀏覽器允許儲存資料。",
+    "replay": "重播完整教學",
+    "resetConfirm": "清除這位玩家的試玩牌組與進度？",
+    "confirmReset": "清除並交給下一位玩家",
+    "cancel": "取消",
+    "nextPlayer": "下一位玩家",
+    "back": "返回試玩首頁"
+},
   battle: {
     rewardToast: {
       title: "獎勵已領取",

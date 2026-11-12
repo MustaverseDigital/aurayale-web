@@ -32,6 +32,8 @@ type UnityBuildVariantEntry = {
 export type UnityBuildVersionManifest = {
   buildId: string;
   builtAt?: string;
+  exhibition?: boolean;
+  authMode?: string;
   variants?: {
     desktop: UnityBuildVariantEntry;
     mobileAstc: UnityBuildVariantEntry;
@@ -141,7 +143,7 @@ type State =
   | { status: "ready"; version: UnityBuildVersion; error: null }
   | { status: "error"; version: null; error: string };
 
-export function useUnityBuildVersion(): State {
+export function useUnityBuildVersion(source = "/Build/version.json", exhibition = false): State {
   const [state, setState] = useState<State>({
     status: "loading",
     version: null,
@@ -155,13 +157,15 @@ export function useUnityBuildVersion(): State {
     // 玩家就會繼續被指向舊的 buildId，等於白做。
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 20_000);
-    fetch("/Build/version.json", { cache: "no-store", signal: controller.signal })
+    fetch(source, { cache: "no-store", signal: controller.signal })
       .then((res) => {
         if (!res.ok) throw new Error(`version.json responded ${res.status}`);
         return res.json() as Promise<UnityBuildVersionManifest>;
       })
       .then((manifest) => {
         if (cancelled) return;
+        if (exhibition && (manifest.exhibition !== true || manifest.authMode !== "local"))
+          throw new Error("Exhibition player metadata is invalid");
         const isMobile = isMobileBrowser();
         const override = parseUnityBuildOverride(window.location.search);
         const needsProbe = manifest.variants != null && override !== "desktop"
@@ -188,7 +192,7 @@ export function useUnityBuildVersion(): State {
       clearTimeout(timeout);
       controller.abort();
     };
-  }, []);
+  }, [source, exhibition]);
 
   return state;
 }

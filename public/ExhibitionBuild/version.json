@@ -1,0 +1,18 @@
+{
+  "buildId": "20261112-0839-8bc3ef6d1714",
+  "builtAt": "2026-11-12T00:39:35.568Z",
+  "authMode": "local",
+  "exhibition": true,
+  "variants": {
+    "desktop": {
+      "buildId": "20261112-0839-8bc3ef6d1714",
+      "textureCompression": "dxt"
+    },
+    "mobileAstc": {
+      "buildId": "20261112-0839-74345c31e3f2",
+      "textureCompression": "astc",
+      "requiresExtension": "WEBGL_compressed_texture_astc",
+      "maxTextureSize": 1024
+    }
+  }
+}
