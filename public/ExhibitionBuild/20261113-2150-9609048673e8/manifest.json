@@ -1,0 +1,53 @@
+{
+  "unityVersion": "6000.3.1f1",
+  "builtAt": "2026-11-13T13:50:40.5876970Z",
+  "authMode": "local",
+  "exhibition": true,
+  "variant": "mobile-astc",
+  "textureCompression": "astc",
+  "maxTextureSize": 1024,
+  "convertedDxtOverrides": 449,
+  "scenes": [
+    "Assets/AuraBattle/Scenes/Title.unity",
+    "Assets/AuraBattle/Scenes/InGameTutorial.unity",
+    "Assets/AuraBattle/Scenes/InGame.unity",
+    "Assets/AuraBattle/Scenes/OutGame.unity"
+  ],
+  "textureAudit": {
+    "schema": "unity-6000.3-texture2d-v1",
+    "textureCount": 704,
+    "astcCount": 628,
+    "desktopOnlyCount": 0,
+    "oversizedCount": 0,
+    "serializedImageBytes": 60690720,
+    "unityFsBytes": 109507109,
+    "formats": {
+      "1": 52,
+      "3": 3,
+      "4": 20,
+      "48": 12,
+      "50": 616,
+      "63": 1
+    }
+  },
+  "buildId": "20261113-2150-9609048673e8",
+  "compression": "brotli",
+  "files": {
+    "Build.loader.js": {
+      "bytes": 117893,
+      "sha256": "ce182d2352758236688687a7fa87b449222090ab183c0e4603461c8fe6ac27be"
+    },
+    "Build.data.unityweb": {
+      "bytes": 45765907,
+      "sha256": "de423b04da066783ea1a909765b25bc0c8a9d49cf1cd836d407dcce81250bb69"
+    },
+    "Build.framework.unityweb": {
+      "bytes": 85298,
+      "sha256": "8462b869515ddb285b23045e23a7623fbf110d6736570792b27266c16042b18d"
+    },
+    "Build.wasm.unityweb": {
+      "bytes": 11240178,
+      "sha256": "adca1f4cdfd4c3c1532269664b240b56d3dfd0680086d9c3abf83971bb3b5722"
+    }
+  }
+}

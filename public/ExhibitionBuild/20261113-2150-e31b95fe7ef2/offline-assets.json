@@ -1,0 +1,35 @@
+{
+  "buildId": "20261113-2150-e31b95fe7ef2",
+  "assets": [
+    {
+      "path": "Build.data.unityweb",
+      "bytes": 81517810,
+      "sha256": "1ade04bb3586f6eb7f42acab267253ef0359ba8a803a314593a6730923bc71ec"
+    },
+    {
+      "path": "Build.framework.unityweb",
+      "bytes": 539038,
+      "sha256": "65a8d9205745e614612f51284bef4cea57f73bdd4df1e60ab3ce4bb020137aec"
+    },
+    {
+      "path": "Build.loader.js",
+      "bytes": 117893,
+      "sha256": "ce182d2352758236688687a7fa87b449222090ab183c0e4603461c8fe6ac27be"
+    },
+    {
+      "path": "Build.wasm.unityweb",
+      "bytes": 65397511,
+      "sha256": "9b4b16f5979b74448b20831ce567e80f8d2a6c917ca72a9afcb463702c9b9118"
+    },
+    {
+      "path": "StreamingAssets/UnityServicesProjectConfiguration.json",
+      "bytes": 2041,
+      "sha256": "a3f7d3b8aa2457f3d81034e2b3885c65201ca6d4228fac22e54613dfb1ae851b"
+    },
+    {
+      "path": "StreamingAssets/exhibition_config.json",
+      "bytes": 173,
+      "sha256": "aeaa31ab118e23cbff80343032ff2a67df15514a37e07d9feb16030898c26e86"
+    }
+  ]
+}
