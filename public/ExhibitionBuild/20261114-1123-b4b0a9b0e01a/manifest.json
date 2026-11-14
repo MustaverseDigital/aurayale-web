@@ -1,6 +1,6 @@
 {
   "unityVersion": "6000.3.1f1",
-  "builtAt": "2026-11-12T00:32:52.8319250Z",
+  "builtAt": "2026-11-14T03:16:06.4532150Z",
   "authMode": "local",
   "exhibition": true,
   "variant": "desktop",
@@ -13,24 +13,24 @@
     "Assets/AuraBattle/Scenes/InGame.unity",
     "Assets/AuraBattle/Scenes/OutGame.unity"
   ],
-  "buildId": "20261112-0839-8bc3ef6d1714",
+  "buildId": "20261114-1123-b4b0a9b0e01a",
   "compression": "brotli",
   "files": {
     "Build.loader.js": {
       "bytes": 117893,
-      "sha256": "317855ff84c951eec30f0c96230bdc8a3deeb2870393c75872e0ddc284bbb8d5"
+      "sha256": "41656de5a3c11b412dc19126f205f372027d4ad65b014bb465988639f5fa8de2"
     },
     "Build.data.unityweb": {
-      "bytes": 54440750,
-      "sha256": "29ef7ef942715eddb92b7d324284e4736d8c6d2f09b7b46a87cab2803577c4d1"
+      "bytes": 54440137,
+      "sha256": "499e9588f11b83ec84878246e3fa3e806130da53aea16a967ca97ee495550ded"
     },
     "Build.framework.unityweb": {
-      "bytes": 85298,
-      "sha256": "8462b869515ddb285b23045e23a7623fbf110d6736570792b27266c16042b18d"
+      "bytes": 85388,
+      "sha256": "c0845f29f93678074d61df3c10f1d8f462dc66f3ca759c0c660c6f056e68b67d"
     },
     "Build.wasm.unityweb": {
-      "bytes": 11259727,
-      "sha256": "65cc88e3c934331063f50a0177b0a0d621bbb8780258861c53e4a6a4a078062d"
+      "bytes": 11234049,
+      "sha256": "1b6c8d3ad18d8d72ffd285fab826b23cb4711cabc633857b172527d0c4c26b84"
     }
   }
 }
