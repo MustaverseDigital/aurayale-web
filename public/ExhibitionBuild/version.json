@@ -1,15 +1,15 @@
 {
-  "buildId": "20261114-1123-b4b0a9b0e01a",
-  "builtAt": "2026-11-14T03:23:05.471Z",
+  "buildId": "20261115-1741-01a548f89088",
+  "builtAt": "2026-11-15T09:41:01.597Z",
   "authMode": "local",
   "exhibition": true,
   "variants": {
     "desktop": {
-      "buildId": "20261114-1123-b4b0a9b0e01a",
+      "buildId": "20261115-1741-01a548f89088",
       "textureCompression": "dxt"
     },
     "mobileAstc": {
-      "buildId": "20261114-1123-670cac345f5c",
+      "buildId": "20261115-1741-d3b216c46ea3",
       "textureCompression": "astc",
       "requiresExtension": "WEBGL_compressed_texture_astc",
       "maxTextureSize": 1024

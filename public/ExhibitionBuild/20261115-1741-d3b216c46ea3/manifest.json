@@ -1,6 +1,6 @@
 {
   "unityVersion": "6000.3.1f1",
-  "builtAt": "2026-11-13T08:56:38.7060810Z",
+  "builtAt": "2026-11-15T09:39:55.4677730Z",
   "authMode": "local",
   "exhibition": true,
   "variant": "mobile-astc",
@@ -20,7 +20,7 @@
     "desktopOnlyCount": 0,
     "oversizedCount": 0,
     "serializedImageBytes": 60690720,
-    "unityFsBytes": 109497989,
+    "unityFsBytes": 109511969,
     "formats": {
       "1": 52,
       "3": 3,
@@ -30,24 +30,24 @@
       "63": 1
     }
   },
-  "buildId": "20261113-1657-7617678a5653",
+  "buildId": "20261115-1741-d3b216c46ea3",
   "compression": "brotli",
   "files": {
     "Build.loader.js": {
       "bytes": 117893,
-      "sha256": "a691a3115b370c7f19d11f5408380be4a4e549a0bfe859120a123e3a4c96db46"
+      "sha256": "3beadd22b7d37d07bc5d2a02da55faaeb6f55892de27a9394b85ac8f50fc9c08"
     },
     "Build.data.unityweb": {
-      "bytes": 45783781,
-      "sha256": "13a91194a6a4eb87a710631f4a96c19241470d7f6b566455e3bd4a9317206397"
+      "bytes": 45751547,
+      "sha256": "566f088fac988df907d3cfbb588c544cf793f3f12e0a21a2cda1b6c4a75d1442"
     },
     "Build.framework.unityweb": {
-      "bytes": 85298,
-      "sha256": "8462b869515ddb285b23045e23a7623fbf110d6736570792b27266c16042b18d"
+      "bytes": 85388,
+      "sha256": "c0845f29f93678074d61df3c10f1d8f462dc66f3ca759c0c660c6f056e68b67d"
     },
     "Build.wasm.unityweb": {
-      "bytes": 11227845,
-      "sha256": "bcbe06a7ec19e3df8ec6e1286eaca4a57dc96f1d54a42ead863486a2a9008941"
+      "bytes": 11231427,
+      "sha256": "9ac072910714ddc944c43ebb1a238eb53368a56c2486665419e7e6f477eb644f"
     }
   }
 }
