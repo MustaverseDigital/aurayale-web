@@ -38,6 +38,10 @@ For diagnostics, `/battle?unityBuild=desktop` selects Desktop, and `?unityBuild=
 
 Keep next.config.js and vercel.json in sync: `.unityweb` requires `Content-Encoding: br`; version directories are immutable; version.json uses no-store. Keep the neutral `.unityweb` filenames to avoid Vercel recompressing JavaScript or WebAssembly.
 
+## Touch input
+
+Both Unity canvases use `useUnitySingleTouch` and `touch-action: none`. The browser boundary forwards only the first finger, filters mixed touch lists and secondary pointer events, and waits for all held fingers to lift before accepting another owner. The Unity `Input.multiTouchEnabled` setting alone did not block secondary WebGL touches in browser testing. Bind the guard through its callback ref: react-unity-webgl exposes its canvas after the initial render, so a mount-only effect can miss it. Mouse input and website controls outside the canvas keep their normal events.
+
 ## Account flow
 
 1. Open `/battle` or click Start Adventure on `/aurayale`.

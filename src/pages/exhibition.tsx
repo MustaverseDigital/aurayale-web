@@ -6,6 +6,7 @@ import { useUnityBuildVersion, type UnityBuildVersion } from "../hooks/useUnityB
 import { useViewportRequirements } from "../context/ViewportRequirementsContext";
 import { useCanvasWidth } from "../hooks/useCanvasWidth";
 import { useUnityDevicePixelRatio } from "../hooks/useUnityDevicePixelRatio";
+import { useUnitySingleTouch } from "../hooks/useUnitySingleTouch";
 import { getOfflineStatus, prepareExhibitionOffline } from "../lib/exhibitionOffline";
 
 export default function ExhibitionPage() {
@@ -63,6 +64,7 @@ function ExhibitionPlayer({ version, onExit }: { version: UnityBuildVersion; onE
   });
   const { viewportHeight } = useViewportRequirements();
   const canvasWidth = useCanvasWidth(viewportHeight);
+  const canvasRef = useUnitySingleTouch();
   const dpr = useUnityDevicePixelRatio({ canvasWidth, canvasHeight: viewportHeight });
   const [menu, setMenu] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
@@ -85,7 +87,7 @@ function ExhibitionPlayer({ version, onExit }: { version: UnityBuildVersion; onE
   function reset() { sendMessage("WebBridge", "ResetExhibition"); setConfirmReset(false); setMenu(false); }
   return <main className="fixed inset-0 flex justify-center bg-[#100d1c] text-white">
     {!isLoaded && <div role="status" className="absolute inset-0 flex items-center justify-center">{initialisationError ? t("exhibition.buildUnavailable") : t("exhibition.progress", { progress: Math.round(loadingProgression * 100) })}</div>}
-    <Unity unityProvider={unityProvider} devicePixelRatio={dpr.effectiveDevicePixelRatio} style={{ width: canvasWidth || "100%", height: viewportHeight || "100dvh", visibility: isLoaded ? "visible" : "hidden" }} />
+    <Unity ref={canvasRef} unityProvider={unityProvider} devicePixelRatio={dpr.effectiveDevicePixelRatio} style={{ width: canvasWidth || "100%", height: viewportHeight || "100dvh", visibility: isLoaded ? "visible" : "hidden", touchAction: "none" }} />
     <button onClick={() => setMenu(!menu)} aria-label={t("exhibition.menu")} className="absolute right-3 top-3 z-50 rounded-full border border-white/25 bg-black/75 px-4 py-2">☰</button>
     {notice && <button role="alert" onClick={() => setNotice("")} className="absolute bottom-16 z-50 mx-3 rounded-xl bg-zinc-900 p-4">{t(`exhibition.${notice}`)} ×</button>}
     {storageError && <p role="alert" className="absolute bottom-3 z-50 mx-3 rounded-xl bg-red-950 p-4">{t("exhibition.storageFailed")}</p>}
