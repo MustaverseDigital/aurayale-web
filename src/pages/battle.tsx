@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Unity, useUnityContext } from "react-unity-webgl";
+import { useUnitySingleTouch } from "../hooks/useUnitySingleTouch";
 import { useTranslation } from "react-i18next";
 import { useViewportRequirements } from "../context/ViewportRequirementsContext";
 import { useCanvasWidth } from "../hooks/useCanvasWidth";
@@ -241,6 +242,7 @@ function UnityGame({ version }: { version: UnityBuildVersion }) {
   }, [showRewardAd, claimReward]);
   const audioRef = useRef<HTMLAudioElement>(null);
   const unityCanvasRef = useRef<HTMLCanvasElement>(null);
+  useUnitySingleTouch(unityCanvasRef);
   const { viewportHeight, safeAreaInsetBottom } = useViewportRequirements();
   const canvasWidth = useCanvasWidth(viewportHeight);
   const unityDpr = useUnityDevicePixelRatio({
@@ -408,6 +410,7 @@ function UnityGame({ version }: { version: UnityBuildVersion }) {
             height: viewportHeight,
             visibility: isLoaded ? "visible" : "hidden",
             display: "block",
+            touchAction: "none",
             zIndex: 1,
             background: "#000",
             // 確保在不支援 CSS env() 的瀏覽器中有備用值
