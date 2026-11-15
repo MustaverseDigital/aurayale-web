@@ -242,7 +242,7 @@ function UnityGame({ version }: { version: UnityBuildVersion }) {
   }, [showRewardAd, claimReward]);
   const audioRef = useRef<HTMLAudioElement>(null);
   const unityCanvasRef = useRef<HTMLCanvasElement>(null);
-  useUnitySingleTouch(unityCanvasRef);
+  const unityTouchRef = useUnitySingleTouch(unityCanvasRef);
   const { viewportHeight, safeAreaInsetBottom } = useViewportRequirements();
   const canvasWidth = useCanvasWidth(viewportHeight);
   const unityDpr = useUnityDevicePixelRatio({
@@ -398,7 +398,7 @@ function UnityGame({ version }: { version: UnityBuildVersion }) {
           </div>
         )}
         <Unity
-          ref={unityCanvasRef}
+          ref={unityTouchRef}
           unityProvider={unityProvider}
           className="unity-viewport"
           style={{

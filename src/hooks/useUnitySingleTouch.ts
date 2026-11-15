@@ -1,4 +1,4 @@
-import { useEffect, type RefObject } from "react";
+import { useCallback, useEffect, useState, type RefCallback, type RefObject } from "react";
 
 /** Keep secondary browser touches out of Unity, including on WebGL where the
  * legacy Input.multiTouchEnabled setting does not suppress every touch event. */
@@ -60,8 +60,16 @@ export function installUnitySingleTouch(canvas: HTMLCanvasElement): () => void {
   };
 }
 
-export function useUnitySingleTouch(canvasRef: RefObject<HTMLCanvasElement | null>): void {
-  useEffect(() => {
-    if (canvasRef.current) return installUnitySingleTouch(canvasRef.current);
+export function useUnitySingleTouch(canvasRef?: RefObject<HTMLCanvasElement | null>): RefCallback<HTMLCanvasElement> {
+  // react-unity-webgl exposes its canvas through a deferred imperative ref.
+  // Track the actual node instead of reading a still-null ref only at mount.
+  const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
+  const bindCanvas = useCallback((node: HTMLCanvasElement | null) => {
+    if (canvasRef) canvasRef.current = node;
+    setCanvas(node);
   }, [canvasRef]);
+  useEffect(() => {
+    if (canvas) return installUnitySingleTouch(canvas);
+  }, [canvas]);
+  return bindCanvas;
 }

@@ -1,8 +1,10 @@
 import { afterEach, expect, test } from "vitest";
-import { installUnitySingleTouch } from "../src/hooks/useUnitySingleTouch";
+import { cleanup, render } from "@testing-library/react";
+import { createElement, forwardRef, useImperativeHandle, useState } from "react";
+import { installUnitySingleTouch, useUnitySingleTouch } from "../src/hooks/useUnitySingleTouch";
 
 const cleanups: (() => void)[] = [];
-afterEach(() => { cleanups.splice(0).forEach(cleanup => cleanup()); document.body.replaceChildren(); });
+afterEach(() => { cleanup(); cleanups.splice(0).forEach(cleanup => cleanup()); document.body.replaceChildren(); });
 const finger = (identifier: number) => ({ identifier, clientX: identifier * 10, clientY: 100 }) as Touch;
 function setup() {
   const canvas = document.createElement("canvas");
@@ -99,4 +101,24 @@ test("other website controls and input after teardown retain their original even
   const original = send("touchstart", [finger(2), finger(3)], [finger(2), finger(3)], canvas);
   expect(received).toEqual([original]);
   expect(original.defaultPrevented).toBe(false);
+});
+
+test("the guard follows Unity’s deferred ref and retains its owner across parent renders", () => {
+  const DeferredCanvas = forwardRef<HTMLCanvasElement>((_, ref) => {
+    const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
+    useImperativeHandle(ref, () => canvas as HTMLCanvasElement);
+    return createElement("canvas", { ref: setCanvas });
+  });
+  DeferredCanvas.displayName = "DeferredCanvas";
+  function Player() { return createElement(DeferredCanvas, { ref: useUnitySingleTouch() }); }
+  const { container, rerender } = render(createElement(Player));
+  const canvas = container.querySelector("canvas")!;
+  const received: TouchEvent[] = [];
+  canvas.addEventListener("touchstart", event => received.push(event as TouchEvent));
+  const a = finger(1), b = finger(2);
+  canvas.dispatchEvent(new TouchEvent("touchstart", { bubbles: true, cancelable: true, changedTouches: [a], touches: [a], targetTouches: [a] }));
+  rerender(createElement(Player));
+  canvas.dispatchEvent(new TouchEvent("touchstart", { bubbles: true, cancelable: true, changedTouches: [b], touches: [a, b], targetTouches: [a, b] }));
+  expect(received).toHaveLength(1);
+  expect(received[0].changedTouches).toHaveLength(1);
 });

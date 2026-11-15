@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Head from "next/head";
 import { Unity, useUnityContext } from "react-unity-webgl";
 import { useTranslation } from "react-i18next";
@@ -64,8 +64,7 @@ function ExhibitionPlayer({ version, onExit }: { version: UnityBuildVersion; onE
   });
   const { viewportHeight } = useViewportRequirements();
   const canvasWidth = useCanvasWidth(viewportHeight);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  useUnitySingleTouch(canvasRef);
+  const canvasRef = useUnitySingleTouch();
   const dpr = useUnityDevicePixelRatio({ canvasWidth, canvasHeight: viewportHeight });
   const [menu, setMenu] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);

@@ -1,0 +1,79 @@
+{
+  "scenes": [
+    "AurayaleViewManager: Initialized in scene OutGame\n",
+    "AurayaleViewManager: Initialized in scene InGame\n"
+  ],
+  "players": [
+    "http://localhost:3165/ExhibitionBuild/20261115-1741-d3b216c46ea3/Build.loader.js"
+  ],
+  "errors": [],
+  "touchEvents": [
+    {
+      "type": "touchstart",
+      "trusted": false,
+      "touches": [
+        1
+      ],
+      "changed": [
+        1
+      ]
+    },
+    {
+      "type": "touchmove",
+      "trusted": false,
+      "touches": [
+        1
+      ],
+      "changed": [
+        1
+      ]
+    },
+    {
+      "type": "touchend",
+      "trusted": false,
+      "touches": [],
+      "changed": [
+        1
+      ]
+    },
+    {
+      "type": "touchstart",
+      "trusted": false,
+      "touches": [
+        2
+      ],
+      "changed": [
+        2
+      ]
+    },
+    {
+      "type": "touchmove",
+      "trusted": false,
+      "touches": [
+        2
+      ],
+      "changed": [
+        2
+      ]
+    },
+    {
+      "type": "touchmove",
+      "trusted": false,
+      "touches": [
+        2
+      ],
+      "changed": [
+        2
+      ]
+    },
+    {
+      "type": "touchend",
+      "trusted": false,
+      "touches": [],
+      "changed": [
+        2
+      ]
+    }
+  ],
+  "environment": "Local Next.js production build, headless Chrome with SwiftShader and touch emulation; not a physical device."
+}
