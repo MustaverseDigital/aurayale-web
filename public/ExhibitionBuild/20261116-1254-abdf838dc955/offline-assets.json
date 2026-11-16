@@ -1,25 +1,25 @@
 {
-  "buildId": "20261113-2150-9609048673e8",
+  "buildId": "20261116-1254-abdf838dc955",
   "assets": [
     {
       "path": "Build.data.unityweb",
-      "bytes": 71632967,
-      "sha256": "90961bb1e4bdfa9ad209ae139976c998275561b50c9bdf47f61fc259df14d6bc"
+      "bytes": 81539125,
+      "sha256": "a659c3c9d09f36ecaa612c341f325a433986c4cf31c0dd34c17f5725c3b373c8"
     },
     {
       "path": "Build.framework.unityweb",
-      "bytes": 539038,
-      "sha256": "65a8d9205745e614612f51284bef4cea57f73bdd4df1e60ab3ce4bb020137aec"
+      "bytes": 539820,
+      "sha256": "46f46f49bb46006dc4cf734817e4e8fbad5831dd2c6be5404e2779fc1b2d00b7"
     },
     {
       "path": "Build.loader.js",
       "bytes": 117893,
-      "sha256": "ce182d2352758236688687a7fa87b449222090ab183c0e4603461c8fe6ac27be"
+      "sha256": "d37ebfc27a18b2fc1beb7600217ba66a51af693669b09964c6306ba621a89d95"
     },
     {
       "path": "Build.wasm.unityweb",
-      "bytes": 65397511,
-      "sha256": "9b4b16f5979b74448b20831ce567e80f8d2a6c917ca72a9afcb463702c9b9118"
+      "bytes": 65505524,
+      "sha256": "61b82273781b8fc66247cbbdacb60fc1d5072f6c2e26b55f7b3fcdebc5a6d39e"
     },
     {
       "path": "StreamingAssets/UnityServicesProjectConfiguration.json",
